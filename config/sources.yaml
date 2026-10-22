@@ -48,6 +48,32 @@ l0:
 
 # ============ L1: 一手发布（白名单） ============
 l1:
+  # 重点实验室白名单（只追踪这些）
+  key_labs:
+    - name: "Physical Intelligence"
+      keywords: ["π0", "pi0", "VLA", "flow matching", "general robot"]
+      enabled: true
+
+    - name: "Google DeepMind"
+      keywords: ["RT-2", "RT-X", "robot foundation model", "vision-language-action"]
+      enabled: true
+
+    - name: "Stanford SVL"
+      keywords: ["Olivia", "mobile manipulation", "VLN", "vision-language-navigation"]
+      enabled: true
+
+    - name: "UC Berkeley BAIR"
+      keywords: ["DROID", "distributed robot", "open X-embodiment"]
+      enabled: true
+
+    - name: "NVIDIA Research"
+      keywords: ["Isaac Sim", "world foundation model", "Cosmos"]
+      enabled: true
+
+    - name: "MIT CSAIL"
+      keywords: ["transformer policy", "diffusion policy", "manipulation"]
+      enabled: true
+
   labs:
     - name: "Google DeepMind Research"
       url: "https://deepmind.google/discover/blog/"

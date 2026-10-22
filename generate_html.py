@@ -1,6 +1,6 @@
 """
-生成静态 HTML 展示页
-从 backfill 数据生成一个简单的论文浏览页面
+生成静态 HTML 展示页 v2
+增加：AI 摘要、更好的样式、重点标签筛选
 """
 import json
 import html
@@ -10,7 +10,7 @@ from collections import Counter
 PROJECT_ROOT = Path(__file__).parent
 
 # 读取数据
-with open(PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261021.json", "r", encoding="utf-8") as f:
+with open(PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json", "r", encoding="utf-8") as f:
     papers = json.load(f)
 
 # 按时间倒序
@@ -24,6 +24,9 @@ for p in papers:
 
 top_tags = tag_count.most_common(20)
 
+# 重点标签（VLA / 世界模型 / 仿真器）
+key_tags = ["VLA", "world_model", "sim2real", "diffusion_policy", "foundation_model"]
+
 # 生成论文卡片
 def render_paper(p):
     tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:5]])
@@ -31,8 +34,9 @@ def render_paper(p):
     if len(p["authors"]) > 3:
         authors += f" et al."
     code_link = f'<a href="{p["code_url"]}" target="_blank" class="code-link">Code</a>' if p.get("code_url") else ""
-    project_page = p.get("raw_metadata", {}).get("project_page")
-    page_link = f'<a href="{project_page}" target="_blank" class="page-link">Project</a>' if project_page else ""
+    
+    # 摘要（如果有的话）
+    abstract = html.escape(p.get("abstract", "")[:200] + "..." if len(p.get("abstract", "")) > 200 else p.get("abstract", ""))
     
     return f"""
     <div class="paper-card" data-tags="{html.escape(' '.join(p['tags']))}">
@@ -40,7 +44,8 @@ def render_paper(p):
         <div class="paper-authors">{html.escape(authors)}</div>
         <div class="paper-date">{p['published_at'][:10]}</div>
         <div class="paper-tags">{tags_html}</div>
-        <div class="paper-links">{code_link} {page_link}</div>
+        <div class="paper-abstract">{abstract}</div>
+        <div class="paper-links">{code_link} <a href="{p['url']}" target="_blank">论文原文</a></div>
     </div>
     """
 
@@ -48,12 +53,15 @@ papers_html = "\n".join([render_paper(p) for p in papers[:200]])  # 只展示前
 
 tags_options = "".join([f'<option value="{t}">{t} ({c})</option>' for t, c in top_tags])
 
+# 重点标签按钮
+key_tags_buttons = "".join([f'<button class="key-tag-btn" onclick="filterByTag(\'{t}\')">{t}</button>' for t in key_tags])
+
 html_content = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>具身智能看板 - 最近 90 天</title>
+    <title>具身智能看板 - Embodied AI Dashboard</title>
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
@@ -70,6 +78,26 @@ html_content = f"""<!DOCTYPE html>
         }}
         h1 {{ font-size: 28px; color: #fff; margin-bottom: 10px; }}
         .stats {{ color: #888; font-size: 14px; }}
+        .key-tags {{
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }}
+        .key-tag-btn {{
+            padding: 8px 16px;
+            background: #1e293b;
+            color: #93c5fd;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }}
+        .key-tag-btn:hover {{
+            background: #334155;
+            border-color: #475569;
+        }}
         .filters {{
             display: flex;
             gap: 15px;
@@ -107,6 +135,12 @@ html_content = f"""<!DOCTYPE html>
             border-radius: 20px;
             font-size: 12px;
         }}
+        .paper-abstract {{
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }}
         .paper-links {{ font-size: 13px; }}
         .paper-links a {{ color: #4da6ff; text-decoration: none; margin-right: 15px; }}
         .paper-links a:hover {{ text-decoration: underline; }}
@@ -116,8 +150,12 @@ html_content = f"""<!DOCTYPE html>
     <div class="container">
         <header>
             <h1>具身智能看板</h1>
-            <div class="stats">最近 90 天 · {len(papers)} 篇论文 · {len(top_tags)} 个标签</div>
+            <div class="stats">最近 90 天 · {len(papers)} 篇论文 · 聚焦 VLA / 世界模型 / 仿真器</div>
         </header>
+        
+        <div class="key-tags">
+            {key_tags_buttons}
+        </div>
         
         <div class="filters">
             <input type="text" id="search" placeholder="搜索论文标题/作者..." oninput="filterPapers()">
@@ -148,6 +186,11 @@ html_content = f"""<!DOCTYPE html>
                 
                 card.style.display = (matchSearch && matchTag) ? 'block' : 'none';
             }});
+        }}
+        
+        function filterByTag(tag) {{
+            document.getElementById('tagFilter').value = tag;
+            filterPapers();
         }}
     </script>
 </body>

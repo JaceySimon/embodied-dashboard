@@ -147,3 +147,37 @@ def build_llm_tagger_from_config(config: dict) -> Optional[LLMTagger]:
         return None
 
     return LLMTagger(provider=provider, api_key=api_key)
+
+
+# ============ AI 摘要 ============
+
+SUMMARY_PROMPT = """你是一个具身智能/机器人领域的研究助手。请用 3 句话总结这篇论文的核心贡献。
+
+论文标题：{title}
+论文摘要：{abstract}
+
+要求：
+1. 第一句：这篇论文做了什么（任务/问题）
+2. 第二句：怎么做的（方法/模型）
+3. 第三句：效果如何（结果/亮点）
+
+只输出 3 句话，不要其他内容。用中文。"""
+
+
+def generate_summary(paper: Paper, llm: Optional[LLMTagger] = None) -> str:
+    """给论文生成 3 句话摘要"""
+    if llm is None:
+        llm = build_llm_tagger_from_config({})
+
+    if not llm or not llm.api_key:
+        return ""
+
+    prompt = SUMMARY_PROMPT.format(
+        title=paper.title,
+        abstract=(paper.abstract or "")[:1000],
+    )
+
+    response = llm._call_llm(prompt)
+    if response:
+        return response.strip()
+    return ""
