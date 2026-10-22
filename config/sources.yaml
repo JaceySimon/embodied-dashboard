@@ -12,20 +12,20 @@ l0:
       - cs.CV    # Computer Vision
       - cs.CL    # Computation and Language
     keywords:
-      - "robot"
-      - "manipulation"
-      - "locomotion"
-      - "embodied"
-      - "VLA"
+      # 收窄：只收 VLA / 世界模型 / 仿真器三类
       - "vision-language-action"
-      - "policy learning"
+      - "VLA"
+      - "vision language action"
+      - "world model"
+      - "world models"
+      - "simulator"
+      - "simulation"
       - "sim-to-real"
       - "sim2real"
-      - "dexterous"
-      - "grasping"
-      - "navigation"
-      - "humanoid"
-      - "legged"
+      - "embodied"
+      - "robot foundation model"
+      - "robot policy"
+      - "diffusion policy"
     max_results_per_day: 100
     sort_by: submittedDate
     sort_order: descending
