@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+
+# 数据文件（太大，不提交）
+data/
+*.json
+*.db
+
+# 前端
+node_modules/
+.next/
+web/node_modules/
+web/.next/
+
+# 输出
+output/
+*.html
+
+# 临时文件
+test_*.py
+inspect_*.py
+check_*.py
+rss_test_output.txt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,25 @@
+# 具身智能看板 - 数据 pipeline 依赖
+# v1 阶段：采集 + 清洗 + 去重 + 打标，不依赖前端
+
+# 核心采集
+arxiv>=2.1.0            # arXiv API 官方封装
+feedparser>=6.0.11      # RSS 解析
+requests>=2.31.0        # HTTP
+pyyaml>=6.0             # 配置文件
+
+# 数据处理
+sqlalchemy>=2.0.0       # ORM
+pydantic>=2.0.0         # 数据模型
+datasketch>=1.6.5       # MinHash 去重
+
+# 向量相似度（可选，v2 启用）
+# sentence-transformers>=3.0.0
+
+# LLM 打标（可选，v2 启用）
+# google-generativeai>=0.5.0
+# openai>=1.0.0
+
+# 工具
+python-dotenv>=1.0.0    # 环境变量
+rich>=13.0.0            # 日志美化
+tenacity>=8.2.0         # 重试

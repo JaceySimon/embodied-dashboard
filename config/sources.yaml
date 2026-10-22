@@ -1,0 +1,205 @@
+# 具身智能看板 - 白名单源清单
+# 所有源按 L0/L1/L2 分级，不在清单内的源默认不收
+# 维护人：每周检查一次链接有效性
+
+# ============ L0: 一手原始（全量收录） ============
+l0:
+  arxiv:
+    categories:
+      - cs.RO    # Robotics
+      - cs.AI    # Artificial Intelligence
+      - cs.LG    # Machine Learning
+      - cs.CV    # Computer Vision
+      - cs.CL    # Computation and Language
+    keywords:
+      - "robot"
+      - "manipulation"
+      - "locomotion"
+      - "embodied"
+      - "VLA"
+      - "vision-language-action"
+      - "policy learning"
+      - "sim-to-real"
+      - "sim2real"
+      - "dexterous"
+      - "grasping"
+      - "navigation"
+      - "humanoid"
+      - "legged"
+    max_results_per_day: 100
+    sort_by: submittedDate
+    sort_order: descending
+
+  openreview:
+    venues:
+      - CoRL
+      - RSS
+      - ICRA
+      - ICLR
+      - NeurIPS
+      - ICML
+    enabled: false  # v2 启用
+
+  huggingface:
+    enabled: false  # v2 启用
+
+  github:
+    enabled: false  # v2 启用
+
+# ============ L1: 一手发布（白名单） ============
+l1:
+  labs:
+    - name: "Google DeepMind Research"
+      url: "https://deepmind.google/discover/blog/"
+      rss: "https://deepmind.google/blog/rss.xml"
+      region: "UK"
+      keywords: ["robot", "robotics"]
+      enabled: true
+
+    # 以下源 RSS URL 无效或网站无 RSS，v2 需手动找正确 URL
+    - name: "Stanford Vision and Learning Lab"
+      url: "https://svl.stanford.edu/blog/"
+      rss: null  # 网站返回 HTML 不是 RSS，需找正确 URL
+      region: "US"
+      enabled: false
+
+    - name: "Meta AI Research"
+      url: "https://ai.meta.com/research/"
+      rss: null  # 连接被重置，反爬
+      region: "US"
+      enabled: false
+
+    - name: "NVIDIA Research"
+      url: "https://blogs.nvidia.com/research/"
+      rss: null  # 原 URL 404
+      region: "US"
+      enabled: false
+
+    - name: "Berkeley BAIR"
+      url: "https://bair.berkeley.edu/"
+      rss: "https://bair.berkeley.edu/blog/feed.xml"
+      region: "US"
+      enabled: true  # 能解析但最近无更新
+
+  companies:
+    # 以下公司 RSS URL 无效，v2 需找正确 URL
+    - name: "Figure AI"
+      url: "https://www.figure.ai/news"
+      rss: null
+      region: "US"
+      type: "humanoid"
+      enabled: false
+
+    - name: "Physical Intelligence"
+      url: "https://www.physicalintelligence.company/blog"
+      rss: null
+      region: "US"
+      type: "VLA"
+      enabled: false
+
+    - name: "Skild AI"
+      url: "https://www.skild.ai/blog"
+      rss: null
+      region: "US"
+      type: "VLA"
+      enabled: false
+
+    - name: "1X Technologies"
+      url: "https://www.1x.tech/blog/"
+      rss: null  # 404
+      region: "NO"
+      type: "humanoid"
+      enabled: false
+
+    - name: "Boston Dynamics"
+      url: "https://www.bostondynamics.com/blog"
+      rss: null  # 404
+      region: "US"
+      type: "humanoid"
+      enabled: false
+
+  chinese_companies:
+    - name: "智元机器人 AgiBot"
+      url: "https://www.agibot.com/"
+      rss: null
+      region: "CN"
+      enabled: false
+
+    - name: "宇树科技 Unitree"
+      url: "https://www.unitree.com/"
+      rss: null
+      region: "CN"
+      enabled: false
+
+    - name: "银河通用 Galbot"
+      url: "https://www.galbot.com/"
+      rss: null
+      region: "CN"
+      enabled: false
+
+  x_whitelist:
+    enabled: false  # 公共 RSSHub 实例跑不通，v2 用 X 官方 API
+    accounts:
+      - "@sergey_levine"
+      - "@chelseafinn"
+      - "@pathak22"
+      - "@shuran_song"
+      - "@pabbeel"
+      - "@Figure_robot"
+      - "@PhysicalIntell"
+      - "@UnitreeRobotics"
+      - "@AgibotTech"
+
+# ============ L2: 二手权威（仅挂事件） ============
+l2:
+  media:
+    - name: "The Robot Report"
+      url: "https://www.therobotreport.com/"
+      rss: null  # Cloudflare 403
+      region: "US"
+      enabled: false
+
+    - name: "IEEE Spectrum Robotics"
+      url: "https://spectrum.ieee.org/robotics"
+      rss: "https://spectrum.ieee.org/feeds/topic/robotics.rss"
+      region: "US"
+      enabled: true
+
+    - name: "TechCrunch Robotics"
+      url: "https://techcrunch.com/category/robotics/"
+      rss: "https://techcrunch.com/category/robotics/feed/"
+      region: "US"
+      enabled: true
+
+    - name: "机器之心"
+      url: "https://www.jiqizhixin.com/"
+      rss: null  # 网站返回 HTML 不是 RSS
+      region: "CN"
+      enabled: false
+
+    - name: "量子位"
+      url: "https://www.qbitai.com/"
+      rss: "https://www.qbitai.com/feed"
+      region: "CN"
+      keywords: ["机器人", "具身", "人形"]
+      enabled: true
+
+# ============ 全局配置 ============
+global:
+  lookback_days: 7
+
+  dedup:
+    minhash_threshold: 0.6
+    embedding_threshold: 0.85
+
+  aggregation:
+    primary_source_priority:
+      - "l0_arxiv"
+      - "l0_tech_report"
+      - "l1_company_blog"
+      - "l1_author_x"
+      - "l2_media"
+
+  output:
+    format: json
+    dir: "data/processed"
