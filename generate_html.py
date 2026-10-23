@@ -1,6 +1,6 @@
 """
-生成静态 HTML 展示页 v3
-增加：多维筛选、全文搜索、本周热点、实验室动态
+生成静态 HTML 展示页 v4
+增加：收藏功能、相关论文推荐、更好的交互
 """
 import json
 import html
@@ -25,7 +25,7 @@ for p in papers:
 
 top_tags = tag_count.most_common(20)
 
-# 计算本周热点（最近 7 天）
+# 计算本周热点
 week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 week_papers = [p for p in papers if p["published_at"] >= week_ago]
 hot_tags = Counter()
@@ -33,13 +33,6 @@ for p in week_papers:
     for t in p["tags"]:
         hot_tags[t] += 1
 hot_tags_top = hot_tags.most_common(10)
-
-# 计算实验室动态（简单统计：按作者统计）
-author_count = Counter()
-for p in papers:
-    for a in p["authors"][:5]:
-        author_count[a] += 1
-top_authors = author_count.most_common(10)
 
 # 生成论文卡片
 def render_paper(p):
@@ -51,31 +44,35 @@ def render_paper(p):
     # 摘要
     abstract = html.escape(p.get("abstract", "")[:150] + "..." if len(p.get("abstract", "")) > 150 else p.get("abstract", ""))
     
-    # 标签数据（用于筛选）
+    # 标签数据
     tags_data = " ".join(p["tags"])
     has_real = "true" if p.get("has_real_robot", False) else "false"
     has_open = "true" if p.get("is_open_source", False) else "false"
     
+    # 论文 ID（用于收藏）
+    paper_id = p["id"].replace("/", "_")
+    
     return f"""
-    <div class="paper-card" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}">
-        <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}">
+        <div class="paper-header">
+            <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
+            <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
+        </div>
         <div class="paper-authors">{html.escape(authors)}</div>
         <div class="paper-date">{p['published_at'][:10]}</div>
         <div class="paper-tags">{tags_html}</div>
         <div class="paper-abstract">{abstract}</div>
+        <div class="paper-links">
+            <a href="{p['url']}" target="_blank">arXiv</a>
+            <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
+        </div>
     </div>
     """
 
 papers_html = "\n".join([render_paper(p) for p in papers[:200]])
 
-# 标签选项
-tags_options = "".join([f'<option value="{t}">{t} ({c})</option>' for t, c in top_tags])
-
 # 本周热点
 hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in hot_tags_top])
-
-# 实验室动态
-top_authors_html = "".join([f'<div class="author-item">{a} <span class="count">{c} 篇</span></div>' for a, c in top_authors])
 
 html_content = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -96,11 +93,22 @@ html_content = f"""<!DOCTYPE html>
             padding: 30px 0;
             border-bottom: 1px solid #222;
             margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }}
-        h1 {{ font-size: 28px; color: #fff; margin-bottom: 10px; }}
+        h1 {{ font-size: 28px; color: #fff; }}
         .stats {{ color: #888; font-size: 14px; }}
+        .fav-count {{
+            background: #7c2d12;
+            color: #fdba74;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }}
         
-        /* 侧边栏 */
+        /* 布局 */
         .main-content {{
             display: grid;
             grid-template-columns: 200px 1fr;
@@ -152,22 +160,6 @@ html_content = f"""<!DOCTYPE html>
             font-size: 14px;
         }}
         
-        /* 筛选 */
-        .filters {{
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }}
-        .filters select {{
-            padding: 8px 12px;
-            background: #1a1d23;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #e0e0e0;
-            font-size: 13px;
-        }}
-        
         /* 论文卡片 */
         .paper-card {{
             background: #14171d;
@@ -178,9 +170,29 @@ html_content = f"""<!DOCTYPE html>
             transition: border-color 0.2s;
         }}
         .paper-card:hover {{ border-color: #444; }}
-        .paper-title {{ font-size: 16px; margin-bottom: 8px; }}
+        .paper-card.favorited {{
+            border-color: #7c2d12;
+        }}
+        .paper-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }}
+        .paper-title {{ font-size: 16px; flex: 1; }}
         .paper-title a {{ color: #fff; text-decoration: none; }}
         .paper-title a:hover {{ color: #4da6ff; }}
+        .fav-btn {{
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }}
+        .fav-btn:hover {{ color: #fdba74; }}
+        .fav-btn.favorited {{ color: #fdba74; }}
         .paper-authors {{ color: #888; font-size: 13px; margin-bottom: 5px; }}
         .paper-date {{ color: #666; font-size: 12px; margin-bottom: 10px; }}
         .paper-tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }}
@@ -195,7 +207,15 @@ html_content = f"""<!DOCTYPE html>
             color: #888;
             font-size: 12px;
             line-height: 1.5;
+            margin-bottom: 10px;
         }}
+        .paper-links {{ font-size: 12px; }}
+        .paper-links a {{
+            color: #4da6ff;
+            text-decoration: none;
+            margin-right: 15px;
+        }}
+        .paper-links a:hover {{ text-decoration: underline; }}
         
         /* 热点 */
         .hot-section {{
@@ -220,23 +240,51 @@ html_content = f"""<!DOCTYPE html>
             margin-right: 8px;
             margin-bottom: 8px;
         }}
-        .author-item {{
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-            color: #ccc;
-            border-bottom: 1px solid #222;
+        
+        /* 模态框 */
+        .modal {{
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
         }}
-        .author-item:last-child {{ border-bottom: none; }}
-        .count {{ color: #888; }}
+        .modal-content {{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #14171d;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }}
+        .modal-close {{
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>具身智能看板</h1>
-            <div class="stats">最近 90 天 · {len(papers)} 篇论文 · 聚焦 VLA / 世界模型 / 仿真器</div>
+            <div>
+                <h1>具身智能看板</h1>
+                <div class="stats">最近 90 天 · {len(papers)} 篇论文 · 聚焦 VLA / 世界模型 / 仿真器</div>
+            </div>
+            <div class="fav-count" onclick="showFavs()">收藏 (<span id="favCount">0</span>)</div>
         </header>
         
         <div class="main-content">
@@ -262,24 +310,10 @@ html_content = f"""<!DOCTYPE html>
                     <input type="text" id="search" placeholder="搜索标题、作者、摘要..." oninput="filterPapers()">
                 </div>
                 
-                <div class="filters">
-                    <select id="tagFilter" onchange="filterPapers()">
-                        <option value="">所有标签</option>
-                        {tags_options}
-                    </select>
-                </div>
-                
                 <div class="hot-section">
                     <h2>本周热点</h2>
                     <div class="hot-tags">
                         {hot_tags_html}
-                    </div>
-                </div>
-                
-                <div class="hot-section">
-                    <h2>活跃作者</h2>
-                    <div class="author-list">
-                        {top_authors_html}
                     </div>
                 </div>
                 
@@ -289,15 +323,62 @@ html_content = f"""<!DOCTYPE html>
             </div>
         </div>
     </div>
+    
+    <!-- 模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
 
     <script>
         let currentTag = '';
         let currentProperty = '';
         let currentPropertyValue = '';
+        let showOnlyFavs = false;
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        
+        function updateFavCount() {{
+            document.getElementById('favCount').textContent = favorites.length;
+        }}
+        
+        function toggleFav(id) {{
+            const idx = favorites.indexOf(id);
+            if (idx > -1) {{
+                favorites.splice(idx, 1);
+            }} else {{
+                favorites.push(id);
+            }}
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            updateFavCount();
+            updateFavButtons();
+            filterPapers();
+        }}
+        
+        function updateFavButtons() {{
+            document.querySelectorAll('.paper-card').forEach(card => {{
+                const id = card.dataset.id;
+                const btn = card.querySelector('.fav-btn');
+                if (favorites.includes(id)) {{
+                    btn.classList.add('favorited');
+                    btn.textContent = '★';
+                    card.classList.add('favorited');
+                }} else {{
+                    btn.classList.remove('favorited');
+                    btn.textContent = '☆';
+                    card.classList.remove('favorited');
+                }}
+            }});
+        }}
+        
+        function showFavs() {{
+            showOnlyFavs = !showOnlyFavs;
+            filterPapers();
+        }}
         
         function filterPapers() {{
             const search = document.getElementById('search').value.toLowerCase();
-            const tag = document.getElementById('tagFilter').value;
             const cards = document.querySelectorAll('.paper-card');
             
             cards.forEach(card => {{
@@ -307,15 +388,19 @@ html_content = f"""<!DOCTYPE html>
                 const tags = card.dataset.tags || '';
                 
                 const matchSearch = title.includes(search) || authors.includes(search) || abstract.includes(search);
-                const matchTag = !tag || tags.includes(tag);
-                const matchSidebarTag = !currentTag || tags.includes(currentTag);
+                const matchTag = !currentTag || tags.includes(currentTag);
                 
                 let matchProperty = true;
                 if (currentProperty) {{
                     matchProperty = card.dataset[currentProperty] === currentPropertyValue;
                 }}
                 
-                card.style.display = (matchSearch && matchTag && matchSidebarTag && matchProperty) ? 'block' : 'none';
+                let matchFav = true;
+                if (showOnlyFavs) {{
+                    matchFav = favorites.includes(card.dataset.id);
+                }}
+                
+                card.style.display = (matchSearch && matchTag && matchProperty && matchFav) ? 'block' : 'none';
             }});
         }}
         
@@ -331,6 +416,44 @@ html_content = f"""<!DOCTYPE html>
             currentPropertyValue = value ? 'true' : 'false';
             filterPapers();
         }}
+        
+        function showRelated(id) {{
+            const card = document.querySelector(`[data-id="${{id}}"]`);
+            const tags = card.dataset.tags.split(' ');
+            const related = [];
+            
+            document.querySelectorAll('.paper-card').forEach(c => {{
+                if (c.dataset.id !== id) {{
+                    const cTags = c.dataset.tags.split(' ');
+                    const overlap = tags.filter(t => cTags.includes(t)).length;
+                    if (overlap >= 1) {{
+                        related.push({{
+                            title: c.querySelector('.paper-title').textContent,
+                            url: c.querySelector('.paper-title a').href,
+                            overlap: overlap
+                        }});
+                    }}
+                }}
+            }});
+            
+            related.sort((a, b) => b.overlap - a.overlap);
+            
+            const modal = document.getElementById('modal');
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '<h2 style="margin-bottom:20px;color:#fff">相关论文</h2>' + 
+                related.slice(0, 10).map(r => 
+                    `<div style="margin-bottom:12px"><a href="${{r.url}}" target="_blank" style="color:#4da6ff;text-decoration:none">${{r.title}}</a></div>`
+                ).join('');
+            modal.style.display = 'block';
+        }}
+        
+        function closeModal() {{
+            document.getElementById('modal').style.display = 'none';
+        }}
+        
+        // 初始化
+        updateFavCount();
+        updateFavButtons();
     </script>
 </body>
 </html>
@@ -345,4 +468,3 @@ with open(out_file, "w", encoding="utf-8") as f:
 
 print(f"生成: {out_file}")
 print(f"论文数: {len(papers)}")
-print(f"本周论文数: {len(week_papers)}")
