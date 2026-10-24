@@ -151,10 +151,19 @@ hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in h
 
 # 本周必看 10 篇
 def render_top_paper(p, rank):
-    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:3]])
-    authors = ", ".join(p["authors"][:2])
-    if len(p["authors"]) > 2:
-        authors += f" et al."
+    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p.get("tags", [])[:3]])
+    authors_list = p.get("authors", [])
+    authors = ", ".join(authors_list[:2])
+    if len(authors_list) > 2:
+        authors += " et al."
+    if not authors:
+        authors = p.get("source_name", "")
+
+    ai_summary = p.get("ai_summary")
+    summary_html = ""
+    if ai_summary:
+        summary_html = f'''<div class="ai-summary"><span class="ai-badge">AI 速览</span><span class="ai-text">{html.escape(ai_summary)}</span></div>'''
+
     return f"""
     <div class="top-paper">
         <div class="rank">{rank}</div>
@@ -162,6 +171,7 @@ def render_top_paper(p, rank):
             <div class="top-paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
             <div class="top-paper-authors">{html.escape(authors)}</div>
             <div class="top-paper-tags">{tags_html}</div>
+            {summary_html}
         </div>
     </div>
     """
@@ -438,6 +448,29 @@ html_content = f"""<!DOCTYPE html>
         .top-paper-title a:hover {{ color: #4da6ff; }}
         .top-paper-authors {{ color: #888; font-size: 12px; margin-bottom: 6px; }}
         .top-paper-tags {{ display: flex; gap: 4px; flex-wrap: wrap; }}
+        .ai-summary {{
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: rgba(77, 166, 255, 0.08);
+            border-left: 3px solid #4da6ff;
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #c7d2e0;
+        }}
+        .ai-badge {{
+            display: inline-block;
+            background: #1e3a5f;
+            color: #93c5fd;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-right: 8px;
+            vertical-align: top;
+            white-space: nowrap;
+        }}
+        .ai-text {{ color: #c7d2e0; }}
         
         /* 模态框 */
         .modal {{

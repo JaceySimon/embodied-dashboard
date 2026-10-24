@@ -53,10 +53,22 @@ def summaries(n: int = 20):
     run(f"python pipeline/gen_summaries.py {n}")
 
 
+def run_optional(cmd: str):
+    """运行可选步骤，失败不阻断主流程（如 AI 摘要）"""
+    print(f"\n{'='*60}")
+    print(f"运行（可选）: {cmd}")
+    print('='*60)
+    result = subprocess.run(cmd, shell=True, cwd=PROJECT_ROOT)
+    if result.returncode != 0:
+        print(f"⚠️ 可选步骤失败，跳过: {cmd}")
+
+
 def all_pipeline():
     """一键运行完整 pipeline"""
     collect()
     run("python pipeline/merge_sources.py")
+    # AI 摘要（可选，未配置 key 或调用失败不阻断）
+    run_optional("python pipeline/gen_summaries.py 10")
     gen_html()
     weekly()
     print("\n✅ 全部完成！")
