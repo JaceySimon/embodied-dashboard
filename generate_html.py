@@ -34,6 +34,39 @@ for p in week_papers:
         hot_tags[t] += 1
 hot_tags_top = hot_tags.most_common(10)
 
+# 计算本周必看 10 篇（按重要性评分）
+def calc_score(p):
+    score = 0
+    # 标签权重：VLA、world_model、sim2real 是重点
+    weight_map = {
+        "VLA": 10,
+        "world_model": 8,
+        "sim2real": 7,
+        "diffusion_policy": 6,
+        "foundation_model": 6,
+        "manipulation": 4,
+        "locomotion": 3,
+        "navigation": 3,
+    }
+    for t in p.get("tags", []):
+        score += weight_map.get(t, 1)
+    # 有真机实验加分
+    if p.get("has_real_robot", False):
+        score += 5
+    # 已开源加分
+    if p.get("is_open_source", False):
+        score += 3
+    # 作者数量（多人合作通常更重要）
+    score += min(len(p.get("authors", [])), 5)
+    return score
+
+# 给本周论文打分
+for p in week_papers:
+    p["score"] = calc_score(p)
+
+# 按分数排序，取前 10
+week_top = sorted(week_papers, key=lambda x: x["score"], reverse=True)[:10]
+
 # 生成论文卡片
 def render_paper(p):
     tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:5]])
@@ -73,6 +106,25 @@ papers_html = "\n".join([render_paper(p) for p in papers[:200]])
 
 # 本周热点
 hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in hot_tags_top])
+
+# 本周必看 10 篇
+def render_top_paper(p, rank):
+    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:3]])
+    authors = ", ".join(p["authors"][:2])
+    if len(p["authors"]) > 2:
+        authors += f" et al."
+    return f"""
+    <div class="top-paper">
+        <div class="rank">{rank}</div>
+        <div class="top-paper-content">
+            <div class="top-paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
+            <div class="top-paper-authors">{html.escape(authors)}</div>
+            <div class="top-paper-tags">{tags_html}</div>
+        </div>
+    </div>
+    """
+
+week_top_html = "\n".join([render_top_paper(p, i+1) for i, p in enumerate(week_top)])
 
 html_content = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -241,6 +293,47 @@ html_content = f"""<!DOCTYPE html>
             margin-bottom: 8px;
         }}
         
+        /* 本周必看 */
+        .top-section {{
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 12px;
+        }}
+        .top-section h2 {{
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 15px;
+        }}
+        .top-paper {{
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b;
+        }}
+        .top-paper:last-child {{ border-bottom: none; }}
+        .rank {{
+            width: 28px;
+            height: 28px;
+            background: #f59e0b;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }}
+        .top-paper-content {{ flex: 1; }}
+        .top-paper-title {{ font-size: 14px; margin-bottom: 4px; }}
+        .top-paper-title a {{ color: #fff; text-decoration: none; }}
+        .top-paper-title a:hover {{ color: #4da6ff; }}
+        .top-paper-authors {{ color: #888; font-size: 12px; margin-bottom: 6px; }}
+        .top-paper-tags {{ display: flex; gap: 4px; flex-wrap: wrap; }}
+        
         /* 模态框 */
         .modal {{
             display: none;
@@ -308,6 +401,13 @@ html_content = f"""<!DOCTYPE html>
             <div class="content">
                 <div class="search-bar">
                     <input type="text" id="search" placeholder="搜索标题、作者、摘要..." oninput="filterPapers()">
+                </div>
+                
+                <div class="top-section">
+                    <h2>本周必看 10 篇</h2>
+                    <div class="top-papers">
+                        {week_top_html}
+                    </div>
                 </div>
                 
                 <div class="hot-section">
