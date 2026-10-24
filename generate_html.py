@@ -128,9 +128,9 @@ for p in week_papers:
     p["score"] = calc_score(p)
 
 # 本周必看 = 学术 Top 7（近 7 天，arXiv/OpenReview）+ 工业界 Top 3（近 30 天，
-# 公司/实验室/媒体——工业界发布频率低、生命周期长，用更宽窗口）
+# 公司/实验室一手源——工业界发布频率低、生命周期长，用更宽窗口）+ 开源 Top 2（近 30 天 GitHub）
 week_academic = sorted(
-    [p for p in week_papers if p.get("source_type") in ("arxiv", "openreview", "huggingface", "github")],
+    [p for p in week_papers if p.get("source_type") in ("arxiv", "openreview", "huggingface")],
     key=lambda x: x["score"], reverse=True)[:7]
 
 ind_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -142,9 +142,22 @@ for p in industry_papers:
     p["ind_score"] = calc_industry_score(p)
 week_industry = sorted(industry_papers, key=lambda x: x["ind_score"], reverse=True)[:3]
 
-# 学术 7 篇 + 工业 3 篇，各自带分区标记
+# 开源槽位：近 30 天 GitHub = 1 个最重要框架 release + 1 个最高 star 新开源
+def _gh_stars(p):
+    return (p.get("raw_metadata") or {}).get("stars", 0) or 0
+
+opensource_papers = [p for p in papers
+                     if p.get("source_type") == "github"
+                     and p["published_at"] >= ind_ago]
+_releases = [p for p in opensource_papers if str(p.get("id","")).count(":") >= 2]
+_new_repos = [p for p in opensource_papers if str(p.get("id","")).count(":") < 2]
+week_opensource = (sorted(_releases, key=lambda x: x["published_at"], reverse=True)[:1] +
+                   sorted(_new_repos, key=_gh_stars, reverse=True)[:1])
+
+# 学术 7 + 工业 3 + 开源 2，各自带分区标记
 week_top = ([dict(p, _zone="academic") for p in week_academic] +
-            [dict(p, _zone="industry") for p in week_industry])
+            [dict(p, _zone="industry") for p in week_industry] +
+            [dict(p, _zone="opensource") for p in week_opensource])
 
 # 生成论文卡片
 def render_paper(p):
@@ -160,6 +173,9 @@ def render_paper(p):
     elif source_type == "media":
         source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
         source_group = "media"
+    elif source_type == "github":
+        source_badge = f'<span class="badge badge-github">开源 · {html.escape(source_name.replace(" · GitHub",""))}</span>'
+        source_group = "github"
     else:
         source_badge = '<span class="badge badge-academic">学术</span>'
         source_group = "arxiv"
@@ -186,7 +202,21 @@ def render_paper(p):
     paper_id = str(p["id"]).replace("/", "_")
     
     # 链接文本
-    link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
+    if source_type == "github":
+        link_text = "Release" if str(p.get("id","")).count(":") >= 2 else "GitHub 仓库"
+    else:
+        link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
+
+    # GitHub 开源项目附加信息（stars / 新开源标记）
+    gh_meta = ""
+    if source_type == "github":
+        rm = p.get("raw_metadata") or {}
+        stars = rm.get("stars")
+        is_new_oss = rm.get("new_open_source")
+        if is_new_oss:
+            gh_meta += '<span class="gh-new">🆕 新开源</span>'
+        if stars is not None:
+            gh_meta += f'<span class="gh-stars">⭐ {stars}</span>'
 
     # 事件多源归并：主卡片渲染“同一进展的其他来源”，非主卡片默认折叠隐藏
     event_id = p.get("event_id", "")
@@ -231,6 +261,7 @@ def render_paper(p):
             {source_badge}
             <span class="paper-authors">{html.escape(authors)}</span>
             <span class="paper-date">{str(p['published_at'])[:10]}</span>
+            {gh_meta}
         </div>
         <div class="paper-tags">{tags_html}</div>
         <div class="paper-abstract">{abstract}</div>
@@ -357,8 +388,18 @@ def render_top_paper(p, rank):
         source_badge = f'<span class="badge badge-industry">{html.escape(source_name)}</span>'
     elif source_type == "media":
         source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
+    elif source_type == "github":
+        source_badge = '<span class="badge badge-github">开源</span>'
     else:
         source_badge = '<span class="badge badge-academic">学术</span>'
+
+    gh_stars_span = ""
+    if source_type == "github":
+        rm = p.get("raw_metadata") or {}
+        if rm.get("tag"):
+            gh_stars_span = f'<span class="gh-stars">🏷️ {html.escape(str(rm["tag"]))}</span>'
+        elif rm.get("stars") is not None:
+            gh_stars_span = f'<span class="gh-stars">⭐ {rm["stars"]}</span>'
 
     ai_summary = p.get("ai_summary")
     summary_html = ""
@@ -370,7 +411,7 @@ def render_top_paper(p, rank):
         <div class="rank">{rank}</div>
         <div class="top-paper-content">
             <div class="top-paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
-            <div class="top-paper-authors">{source_badge}<span class="top-paper-src">{html.escape(authors)}</span><span class="top-paper-date">{str(p['published_at'])[:10]}</span></div>
+            <div class="top-paper-authors">{source_badge}<span class="top-paper-src">{html.escape(authors)}</span><span class="top-paper-date">{str(p['published_at'])[:10]}</span>{gh_stars_span}</div>
             <div class="top-paper-tags">{tags_html}</div>
             {summary_html}
         </div>
@@ -382,9 +423,12 @@ def _top_zone_divider(label):
 
 _top_parts = []
 _rank = 1
+_zone_labels = {"industry": "工业界 · 近 30 天重大发布",
+                "opensource": "开源动态 · 近 30 天热门项目"}
 for p in week_top:
-    if p.get("_zone") == "industry" and _rank == len(week_academic) + 1:
-        _top_parts.append(_top_zone_divider("工业界 · 近 30 天重大发布"))
+    zone = p.get("_zone")
+    if zone in _zone_labels and (not _top_parts or week_top[_rank - 2].get("_zone") != zone):
+        _top_parts.append(_top_zone_divider(_zone_labels[zone]))
     _top_parts.append(render_top_paper(p, _rank))
     _rank += 1
 week_top_html = "\n".join(_top_parts)
@@ -585,6 +629,15 @@ html_content = f"""<!DOCTYPE html>
         .badge-media {{
             background: #365314;
             color: #bef264;
+        }}
+        .badge-github {{
+            background: #134e4a;
+            color: #5eead4;
+        }}
+        .gh-stars {{ color: #5eead4; font-size: 12px; margin-left: auto; }}
+        .gh-new {{
+            background: #134e4a; color: #5eead4; font-size: 11px; font-weight: 600;
+            padding: 1px 7px; border-radius: 4px;
         }}
         .paper-date {{ color: #666; font-size: 12px; }}
         .paper-tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }}
@@ -948,6 +1001,7 @@ html_content = f"""<!DOCTYPE html>
                     <div class="sidebar-item" onclick="filterBySource('arxiv')">学术论文</div>
                     <div class="sidebar-item" onclick="filterBySource('industry')">工业界博客</div>
                     <div class="sidebar-item" onclick="filterBySource('media')">媒体</div>
+                    <div class="sidebar-item" onclick="filterBySource('github')">开源项目</div>
                 </div>
                 <div class="sidebar-section">
                     <h3>标签筛选</h3>
@@ -984,7 +1038,7 @@ html_content = f"""<!DOCTYPE html>
                 </div>
                 
                 <div class="top-section">
-                    <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3</span></h2>
+                    <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3 + 热门开源 2</span></h2>
                     <div class="top-papers">
                         {week_top_html}
                     </div>

@@ -17,6 +17,7 @@ from collectors.rss_collector import RSSCollector, build_rss_collectors_from_con
 from collectors.company_html_collector import build_html_collectors_from_config
 from collectors.x_collector import XCollector
 from collectors.x_api_collector import build_x_collector_from_config
+from collectors.github_collector import build_github_collector_from_config
 from pipeline.clean import deduplicate_papers
 from pipeline.aggregate import EventAggregator
 from pipeline.tagger import tag_papers
@@ -79,6 +80,16 @@ def run_daily(config_path: str = None, lookback_days: int = 7):
         print(f"  X API 总计: {len(x_papers)} 条")
     else:
         print("  X 采集未启用（需要 X_BEARER_TOKEN 环境变量）")
+
+    # ========== 3b. GitHub 开源动态 ==========
+    print(f"\n[3b/5] 采集 GitHub 开源动态...")
+    github_collector = build_github_collector_from_config(config)
+    if github_collector:
+        github_papers = github_collector.collect()
+        all_papers.extend(github_papers)
+        print(f"  GitHub 总计: {len(github_papers)} 条")
+    else:
+        print("  GitHub 采集未启用")
 
     # ========== 4. 打标 ==========
     print(f"\n[4/5] 打标...")

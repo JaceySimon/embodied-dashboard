@@ -5,48 +5,44 @@
 
 ## 这是什么？
 
-一个面向具身智能研究者的**事件级**信息聚合器——把散在 arXiv、公司博客、X 线程、GitHub 上的同一件事聚合成一条，按重要性排序，让你 5 分钟看完本周领域发生了什么。
+一个面向具身智能研究者的**事件级**信息聚合器——把散在 arXiv、公司/实验室博客、垂直媒体、GitHub 上的**同一件事**聚合成一条（论文 + 官方公告 + 媒体报道 + 开源代码），按重要性排序，并用 LLM 生成带引用的方向综述，让你 5 分钟看完本周领域发生了什么。
+
+## 为什么比搜索引擎 / arXiv 列表更好？
+
+| 痛点 | 搜索引擎 / arXiv | Embodied Dashboard |
+|---|---|---|
+| 信息分散 | 论文、博客、媒体、代码分散在各平台 | 同一事件跨源聚合，一处看全 |
+| 工业界信号 | 公司 tech report 不易发现 | 一手官网 + 博客 + 开源仓库直接收录 |
+| 选择困难 | 几千篇论文无从下手 | 本周必看 + 重要性评分 + 真机/开源标记 |
+| 缺总结 | 要自己读 | AI 方向综述（VLA/世界模型/Sim2Real/策略学习），带可点击引用 |
+| 二次搬运 | 大量二手转述 | 白名单一手源，聚合时一手源优先 |
+| 重复刷屏 | 同一进展多平台各发一遍 | 事件去重，只看一次 |
 
 ## 核心功能
 
-### 信息获取
-- **本周必看 10 篇**：按重要性自动排序（标签权重 + 真机 + 开源 + 合作作者）
-- **信息源分级**：L0 学术（arXiv） / L1 工业界研究博客 / L2 公司动态 / L3 社交媒体
-- **聚焦三个方向**：VLA / 世界模型 / 仿真器
+### 信息聚合
+- **跨源事件专区**：把同一进展的论文、官方博客、媒体报道、开源仓库聚合成一张事件卡，多源可分别跳转
+- **学术 + 工业界 + 开源**：arXiv 分层召回、公司/实验室官网、垂直媒体 RSS、GitHub 组织新仓库与框架版本发布
+- **AI 方向综述**：按 VLA / 世界模型 / Sim2Real / 策略学习 4 个方向，取近 90 天 Top 论文，LLM 生成技术路线与趋势判断，引用可点击直达原文
 
-### 筛选与搜索
-- 全文搜索（标题、作者、摘要），搜索关键词高亮
-- 按标签筛选（VLA / 世界模型 / Sim2Real / Diffusion Policy）
-- 按时间筛选（今天 / 本周 / 本月 / 全部）
-- 按是否有真机实验 / 是否开源筛选
-- 快捷键：按 `/` 快速搜索，按 `ESC` 关闭弹窗
+### 发现与阅读
+- **本周必看**：学术 Top7 + 工业界一手 Top3，按重要性评分排序
+- **信息源分级**：L0 一手锚点（arXiv/官方/GitHub）→ L1 深度博客 → L2 媒体 → L3 社交
+- **全文搜索 + 高亮**、标签筛选、时间筛选、真机/开源筛选、键盘快捷键（`/` 搜索）
 
-### 个人工具
-- **收藏**：点击 ☆ 收藏，本地保存，刷新不丢失
-- **相关论文推荐**：基于标签相似度自动推荐
-- **导出收藏**：一键导出 Markdown 格式
-- **每周简报**：自动生成 Markdown 周报，可用于邮件/微信推送
+### 订阅与个人工具
+- **RSS 订阅**：站点输出 `feed.xml`（事件 + 精选），可接入任意 RSS 阅读器
+- **自上次访问以来**：回访时自动提示新增事件与更新数
+- **收藏**：本地保存、刷新不丢失、一键导出 Markdown
+- **相关论文推荐**：基于标签相似度
+- **每周简报**：自动生成 Markdown 周报
+- **死链检测**：`linkcheck` 批量校验链接，保证跳转不出错
 
 ### 数据质量
-- 规则打标 + DeepSeek LLM 打标
-- 自动去噪（过滤不相关论文）
-- 自动去重（URL + 标题相似度）
-- 采集器带重试和缓存
-
-## 和 Awesome List 有什么区别？
-
-| | Awesome List | arXiv 搜索 | Embodied Dashboard |
-|---|---|---|---|
-| 聚焦 | 全领域 | 全领域 | 只收 VLA/世界模型/仿真器 |
-| 更新 | 手动 | 每天 | 每天 |
-| 去重 | 无 | 无 | 自动去重 |
-| 排序 | 无 | 时间 | 重要性评分 |
-| 搜索 | 无 | 简单 | 全文 + 高亮 |
-| 摘要 | 无 | 无 | AI 3 句话摘要 |
-| 收藏 | 无 | 无 | 本地收藏 |
-| 周报 | 无 | 无 | 自动生成 |
-
-**一句话：Awesome List 是"工具箱"，Embodied Dashboard 是"雷达"。**
+- 分层 arXiv 召回（避免大查询被截断），型号指纹强匹配做事件聚合
+- 规则打标 + DeepSeek LLM 打标 / 摘要
+- 自动去噪（过滤不相关论文）、去重（URL 规范化 + 标题哈希 + 相似度）
+- 采集器带重试与缓存；一键 `health` / `quality` 自检
 
 ## 快速开始
 
@@ -54,18 +50,11 @@
 # 1. 安装依赖
 pip install -r requirements.txt
 
-# 2. 配置环境变量（可选，用于 AI 摘要）
+# 2. 配置环境变量（可选：AI 摘要 / 综述、X、GitHub 提高配额）
 cp .env.example .env
-# 在 .env 中填入 DeepSeek API key
 
 # 3. 一键运行（推荐）
 python run.py all
-
-# 或分步运行
-python run.py backfill 90    # 爬取过去 90 天数据
-python run.py html           # 生成 HTML 展示页
-python run.py weekly         # 生成周报
-python run.py summaries 20   # 给前 20 篇生成 AI 摘要
 ```
 
 打开 `output/index.html` 即可使用。
@@ -73,81 +62,108 @@ python run.py summaries 20   # 给前 20 篇生成 AI 摘要
 ## 常用命令
 
 ```bash
-python run.py collect          # 采集最新数据
-python run.py backfill 90      # 爬取过去 90 天
-python run.py html             # 生成 HTML
+python run.py collect          # 采集最新数据（RSS/HTML/GitHub/X）
+python run.py backfill 90      # 分层爬取过去 90 天 arXiv
+python run.py merge            # 合并各源到 data/combined.json
+python run.py html             # 生成 HTML + RSS feed
 python run.py weekly           # 生成 Markdown 周报
-python run.py summaries 20     # AI 摘要（前 20 篇）
+python run.py summaries 20     # 给前 N 篇生成 AI 摘要
+python run.py linkcheck all    # 校验所有链接
+python run.py health           # 健康检查（文件、数量、覆盖）
+python run.py quality          # 数据质量抽检
 python run.py all              # 完整 pipeline
 ```
 
-## 项目结构
+AI 方向综述单独生成：
 
-```
-embodied-dashboard/
-├── run.py                    # 统一入口
-├── generate_html.py          # 生成静态 HTML
-├── utils.py                  # 工具：重试、缓存、日志
-├── collectors/               # 采集器
-│   ├── arxiv_collector.py
-│   ├── rss_collector.py
-│   └── x_api_collector.py
-├── pipeline/                 # 数据处理
-│   ├── run_daily.py
-│   ├── backfill.py
-│   ├── aggregate.py
-│   ├── tagger.py
-│   ├── llm_tagger.py
-│   ├── quality.py            # 去噪、质量评分
-│   ├── gen_summaries.py      # AI 摘要
-│   └── weekly_report.py      # 周报
-├── models/                   # 数据模型
-├── config/
-│   └── sources.yaml          # 白名单信息源
-├── docs/
-│   ├── source_tiers.md       # 信息源分级
-│   └── product_analysis.md   # 产品分析
-├── web/                      # Next.js 前端（v2）
-└── output/                   # 生成结果
-    ├── index.html
-    └── weekly_*.md
+```bash
+python -m pipeline.gen_briefing
 ```
 
 ## 信息源分级
 
 | 级别 | 来源 | 特点 |
 |---|---|---|
-| L0 | arXiv、OpenReview | 同行评审，最权威 |
-| L1 | DeepMind、NVIDIA、PI 博客 | 工业界研究，有落地背景 |
-| L2 | 公司新闻、融资 | 行业信号 |
-| L3 | X、GitHub | 最快，需要筛选 |
+| L0 | arXiv、公司官网、官方 GitHub | 一手锚点，最权威 |
+| L1 | DeepMind / NVIDIA / BAIR 等研究博客 | 深度技术解读 |
+| L2 | IEEE Spectrum、TechCrunch、量子位等媒体 | 行业信号、发布会报道 |
+| L3 | X/Twitter（需 API） | 最快，需筛选 |
 
-详见 `docs/source_tiers.md`。
+> 原则：白名单一手源优先；同一事件聚合时按 L0 → L3 排序，避免二手搬运淹没一手信息。
+
+## 配置信息源
+
+所有信息源在 `config/sources.yaml` 中配置（白名单制，不硬编码）：
+
+- `html_companies`：无 RSS 的公司官网，支持 `detail / list / nuxt_payload / json_api` 四种抓取模式
+- `rss`：博客与媒体 RSS
+- `l0.github`：追踪的 GitHub 组织（新开源仓库 + 高 star 项目动态）与核心框架 release
+- `arxiv`：分层 query 组 + 定向公司/系统名
+
+## 项目结构
+
+```
+embodied-dashboard/
+├── run.py                    # 统一入口
+├── generate_html.py          # 静态 HTML + RSS feed 生成器
+├── utils.py                  # 重试、缓存、日志
+├── collectors/
+│   ├── arxiv_collector.py        # 分层 arXiv 召回
+│   ├── rss_collector.py          # 博客/媒体 RSS
+│   ├── company_html_collector.py # 无 RSS 官网（4 种抓取模式）
+│   ├── github_collector.py       # GitHub 开源仓库与 release
+│   └── x_api_collector.py        # X/Twitter（需 Bearer Token）
+├── pipeline/
+│   ├── run_daily.py
+│   ├── backfill.py
+│   ├── merge_sources.py
+│   ├── event_merger.py       # 跨源事件聚合（型号指纹 + 相似度）
+│   ├── tagger.py / llm_tagger.py
+│   ├── gen_briefing.py       # AI 方向综述
+│   ├── gen_summaries.py      # AI 摘要
+│   ├── weekly_report.py
+│   ├── link_check.py
+│   ├── data_quality.py
+│   └── health_check.py
+├── models/
+├── config/sources.yaml
+├── docs/
+└── output/
+    ├── index.html
+    ├── feed.xml
+    └── weekly_*.md
+```
+
+## 环境变量
+
+| 变量 | 用途 | 必需 |
+|---|---|---|
+| `LLM_API_KEY` | DeepSeek 打标 / 摘要 / 方向综述 | 可选 |
+| `GITHUB_TOKEN` | GitHub 采集提高配额（未认证 60 次/小时，有 token 5000 次/小时，无需勾选权限） | 可选 |
+| `X_BEARER_TOKEN` | X/Twitter 采集 | 可选 |
 
 ## 技术栈
 
-- **数据采集**：Python + arxiv + feedparser
-- **数据处理**：规则打标 + DeepSeek LLM
-- **存储**：JSON 文件（v1）→ SQLite（v2）
-- **前端**：原生 HTML/JS（v1，零依赖）→ Next.js（v2）
-- **LLM**：DeepSeek（便宜，效果好），也支持 Gemini
+- **采集**：Python + requests + feedparser + arXiv API + GitHub API
+- **处理**：规则打标 + DeepSeek LLM；事件聚合（型号指纹 + 标题相似度）
+- **前端**：原生 HTML/JS/CSS，零依赖单文件，可直接 GitHub Pages 托管
+- **自动化**：GitHub Actions 每日定时采集、生成、部署
+
+## 版本路线
+
+- [x] v0.x – v1.x：arXiv 采集、事件聚合、LLM 打标、收藏/搜索/筛选、周报
+- [x] v2.0：信息源分级 + 工业界源
+- [x] v2.1：arXiv 分层召回 + 强型号事件聚合
+- [x] v2.2：跨源事件专区（论文 + 官方 + 媒体）
+- [x] v2.3：RSS 订阅 + 自上次访问提示
+- [x] v2.4：AI 方向综述（带引用）
+- [x] v2.5：GitHub 开源动态（新仓库 + 框架 release）
+- [ ] 后续：X 接入、LLM 语义归并、HuggingFace 热度、更聪明的个性化推送
 
 ## Open-Core 策略
 
-**开源版（MIT）**：核心爬虫、事件聚合、规则打标、静态 HTML
-**托管版（未来）**：语义搜索、AI 摘要、监控告警、团队协作、私有源
-
-## 路线图
-
-- [x] v0.1：arXiv 采集 + 事件聚合 + 规则打标
-- [x] v0.2：DeepSeek LLM 打标 + AI 摘要
-- [x] v0.3：收藏、搜索、筛选、相关推荐
-- [x] v0.4：本周必看 10 篇 + 周报 + 时间筛选
-- [x] v0.5：重试缓存、数据去噪、首次引导
-- [ ] v0.6：RSS 工业界博客接入
-- [ ] v0.7：X API 采集
-- [ ] v0.8：Next.js 前端 + 语义搜索
-- [ ] v1.0：监控告警 + 订阅推送
+**开源版（MIT）**：核心爬虫、事件聚合、规则打标、静态看板、AI 摘要/综述、RSS
+**托管版（未来）**：语义搜索、监控告警、团队协作、私有源
 
 ## License
 

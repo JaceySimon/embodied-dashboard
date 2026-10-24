@@ -12,7 +12,20 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from collectors.rss_collector import build_rss_collectors_from_config
 from collectors.company_html_collector import build_html_collectors_from_config
+from collectors.github_collector import build_github_collector_from_config
 from utils import logger
+
+
+def collect_github_papers(config):
+    """采集 GitHub 开源动态（仓库 + 框架发布）"""
+    collector = build_github_collector_from_config(config)
+    if not collector:
+        return []
+    try:
+        return collector.collect()
+    except Exception as e:
+        logger.warning(f"[GitHub] 采集失败: {e}")
+        return []
 
 
 def collect_rss_papers(lookback_days: int = 90):
@@ -58,9 +71,16 @@ def main():
 
     logger.info(f"arXiv 论文: {len(arxiv_papers)} 篇")
 
-    # 采集 RSS
+    with open(PROJECT_ROOT / "config" / "sources.yaml", "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+
+    # 采集 RSS（内部会再读一次配置，保持原签名）
     rss_papers = collect_rss_papers(lookback_days=90)
     logger.info(f"RSS 博客: {len(rss_papers)} 篇")
+
+    # 采集 GitHub 开源动态
+    github_papers = collect_github_papers(config)
+    logger.info(f"GitHub 开源: {len(github_papers)} 条")
 
     # 转换 RSS Paper 对象为 dict
     def enum_val(v, default):
@@ -68,9 +88,8 @@ def main():
             return v.value
         return str(v) if v else default
 
-    rss_dicts = []
-    for p in rss_papers:
-        d = {
+    def paper_to_dict(p):
+        return {
             "id": p.id,
             "source_id": p.source_id,
             "source_level": enum_val(p.source_level, "L1"),
@@ -83,11 +102,15 @@ def main():
             "published_at": p.published_at.isoformat() if hasattr(p.published_at, "isoformat") else str(p.published_at),
             "tags": getattr(p, "tags", []),
             "code_url": getattr(p, "code_url", None),
+            "is_open_source": getattr(p, "is_open_source", None),
+            "raw_metadata": getattr(p, "raw_metadata", None),
         }
-        rss_dicts.append(d)
+
+    rss_dicts = [paper_to_dict(p) for p in rss_papers]
+    github_dicts = [paper_to_dict(p) for p in github_papers]
 
     # 合并
-    combined = arxiv_papers + rss_dicts
+    combined = arxiv_papers + rss_dicts + github_dicts
 
     # 按时间倒序
     combined.sort(key=lambda p: p.get("published_at", ""), reverse=True)

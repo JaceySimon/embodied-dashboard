@@ -122,8 +122,33 @@ l0:
   huggingface:
     enabled: false  # v2 启用
 
+  # GitHub 开源动态：重点公司/实验室的开源仓库 + 核心框架版本发布
+  # GitHub 开源动态：只收"新开源仓库"（明确事件）+ 核心框架版本发布
   github:
-    enabled: false  # v2 启用
+    enabled: true
+    window_days: 90
+    new_repo_min_stars: 1  # 新开源项目：白名单组织背书，门槛很低
+    organizations:
+      # 机器人专注公司：整组织收（基本全是机器人相关）
+      - {name: AgibotTech, label: 智元机器人, kind: orgs}
+      - {name: fftai, label: 傅利叶智能, kind: orgs}
+      - {name: unitreerobotics, label: 宇树科技, kind: orgs}
+      - {name: limxdynamics, label: 逐际动力, kind: users}
+      # 大组织：只收机器人相关（关键词命中或白名单），过滤 AlphaFold/Gemma/天气等无关项目
+      - name: google-deepmind
+        label: Google DeepMind
+        kind: orgs
+        relevant_only: true
+        repos: [mujoco, dm_control, mujoco_menagerie, mujoco_playground, mujoco_mpc,
+                mujoco_warp, dm_robotics, robotics, aloha_skill_library]
+      - name: isaac-sim
+        label: NVIDIA Isaac
+        kind: orgs
+        relevant_only: true
+    release_repos:
+      - google-deepmind/mujoco
+      - isaac-sim/IsaacLab
+      - isaac-sim/IsaacSim
 
 # ============ L1: 一手发布（白名单） ============
 l1:

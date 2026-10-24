@@ -32,26 +32,27 @@ jobs:
             python pipeline/backfill.py 90
           fi
 
-      - name: Merge RSS sources
+      - name: Merge sources (RSS/HTML/GitHub)
         run: python pipeline/merge_sources.py
+
+      # 可选：AI 摘要 + 方向综述（需要在 repo settings 配置 LLM_API_KEY secret）
+      - name: Generate AI summaries & briefings
+        env:
+          LLM_PROVIDER: deepseek
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          if [ -n "$LLM_API_KEY" ]; then
+            python pipeline/gen_summaries.py 10 || echo "摘要生成失败，跳过"
+            python -m pipeline.gen_briefing || echo "方向综述生成失败，跳过"
+          else
+            echo "未配置 LLM_API_KEY，跳过 AI 摘要/综述"
+          fi
 
       - name: Generate HTML
         run: python generate_html.py
 
       - name: Generate weekly report
         run: python pipeline/weekly_report.py
-
-      # 可选：AI 摘要（需要在 repo settings 配置 LLM_API_KEY secret）
-      - name: Generate AI summaries
-        env:
-          LLM_PROVIDER: deepseek
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-        run: |
-          if [ -n "$LLM_API_KEY" ]; then
-            python pipeline/gen_summaries.py 20 || echo "摘要生成失败，跳过"
-          else
-            echo "未配置 LLM_API_KEY，跳过 AI 摘要"
-          fi
 
       - name: Commit changes
         run: |
