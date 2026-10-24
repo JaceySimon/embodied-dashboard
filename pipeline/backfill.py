@@ -28,11 +28,7 @@ def backfill(days: int = 30):
     print(f"开始爬历史数据：过去 {days} 天")
     print("=" * 60)
 
-    collector = ArxivCollector(
-        categories=arxiv_cfg["categories"],
-        keywords=arxiv_cfg["keywords"],
-        max_results=2000,
-    )
+    collector = ArxivCollector.from_config(arxiv_cfg)
 
     papers = collector.collect(lookback_days=days)
 

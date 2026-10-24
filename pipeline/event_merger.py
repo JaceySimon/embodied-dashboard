@@ -62,6 +62,35 @@ def _parse_date(s: str):
         return None
 
 
+def _norm_ascii(title: str) -> str:
+    """把中文/标点替换为空格（保留连字符、点、π），解决中文紧贴英文时
+    \\b 词边界失效（如「银河通用DualWAM」提取不到 DualWAM）。"""
+    return re.sub(r"[^A-Za-z0-9π.\- ]", " ", title or "")
+
+
+def unique_fingerprints(title: str) -> set:
+    """提取「独特型号」指纹（小写归一），跨来源命中即高度可信，可放宽
+    标题 token 重叠门槛（对中文博客尤其重要——中文标题几乎没有英文 token）。
+
+    两类：
+    - 全大写连字符型号：WAM-TTT / V-JEPA / RT-TFM（片段全大写，区别于 world-action）
+    - camelCase 专名（长度>=6）：DualWAM / RobotAPO / DreamTrue / PingpongDuo
+    """
+    t = _norm_ascii(title)
+    out = set()
+    # A) 全大写连字符型号：至少两个片段，每段 >=2 个字母/数字
+    for m in re.finditer(
+        r"(?<![A-Za-z0-9])([A-Z]{2,}(?:-[A-Z0-9]{2,})+)(?![A-Za-z0-9])", t
+    ):
+        out.add(m.group(1).lower())
+    # B) camelCase 专名（大写词头 + 小写片段 + 再大写，总长度 >=6）
+    for m in re.finditer(
+        r"(?<![A-Za-z])([A-Z][a-z]{1,}[A-Z][A-Za-z0-9]{2,})(?![A-Za-z])", t
+    ):
+        out.add(m.group(1).lower())
+    return out
+
+
 def model_fingerprints(title: str) -> set:
     """提取高区分度型号指纹（小写归一）。
 
@@ -69,7 +98,7 @@ def model_fingerprints(title: str) -> set:
     - camelCase 专名：PingpongDuo / AstraTennis / HiPHI / GeoMem / ChatGPT
     - 带版本号型号：H2 / X2 / GR00T / Digit 5 / Helix 2.5 / π0.5 / AGILE 2.0
     """
-    t = title or ""
+    t = _norm_ascii(title)
     out = set()
 
     # 1) camelCase 专名：大写词头 + 小写片段 + 再出现大写
@@ -149,6 +178,7 @@ def merge_events(papers: List[Dict[str, Any]],
     uf = _UnionFind(n)
 
     fps = [model_fingerprints(p.get("title", "")) for p in papers]
+    ufps = [unique_fingerprints(p.get("title", "")) for p in papers]
     toks = [_title_tokens(p.get("title", "")) for p in papers]
     dates = [_parse_date(p.get("published_at", "")) for p in papers]
 
@@ -158,17 +188,35 @@ def merge_events(papers: List[Dict[str, Any]],
         for fp in s:
             fp_index[fp].append(i)
 
+    # 独特型号指纹倒排索引（WAM-TTT / DualWAM 等）
+    ufp_index: Dict[str, List[int]] = defaultdict(list)
+    for i, s in enumerate(ufps):
+        for fp in s:
+            ufp_index[fp].append(i)
+
     def _within_window(i: int, j: int) -> bool:
         if dates[i] and dates[j]:
             return abs((dates[i] - dates[j]).days) <= window_days
         return True
+
+    def _cross_source(i: int, j: int) -> bool:
+        return papers[i].get("source_name") != papers[j].get("source_name")
+
+    # 信号 0（最强）：独特型号（WAM-TTT / DualWAM）跨来源命中即归并。
+    # 独特型号本身就是唯一标识，不强求标题 token 重叠（中英文标题几乎无重叠）。
+    for fp, idxs in ufp_index.items():
+        for a in range(len(idxs)):
+            for b in range(a + 1, len(idxs)):
+                i, j = idxs[a], idxs[b]
+                if _cross_source(i, j) and _within_window(i, j):
+                    uf.union(i, j)
 
     # 信号 2：型号指纹匹配 + 实质 token 重叠
     for fp, idxs in fp_index.items():
         for a in range(len(idxs)):
             for b in range(a + 1, len(idxs)):
                 i, j = idxs[a], idxs[b]
-                if papers[i].get("source_name") == papers[j].get("source_name"):
+                if not _cross_source(i, j):
                     continue
                 if not _within_window(i, j):
                     continue
@@ -178,7 +226,7 @@ def merge_events(papers: List[Dict[str, Any]],
     # 信号 1：标题高 Jaccard（O(n^2)，但单页数据规模可控；加日期粗筛）
     for i in range(n):
         for j in range(i + 1, n):
-            if papers[i].get("source_name") == papers[j].get("source_name"):
+            if not _cross_source(i, j):
                 continue
             if not _within_window(i, j):
                 continue

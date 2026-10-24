@@ -44,11 +44,7 @@ def run_daily(config_path: str = None, lookback_days: int = 7):
     # ========== 1. arXiv 采集 ==========
     print(f"\n[1/5] 采集 arXiv...")
     arxiv_cfg = config["l0"]["arxiv"]
-    arxiv_collector = ArxivCollector(
-        categories=arxiv_cfg["categories"],
-        keywords=arxiv_cfg["keywords"],
-        max_results=arxiv_cfg["max_results_per_day"],
-    )
+    arxiv_collector = ArxivCollector.from_config(arxiv_cfg)
     arxiv_papers = arxiv_collector.collect(lookback_days=lookback_days)
     all_papers.extend(arxiv_papers)
 

@@ -5,23 +5,102 @@
 # ============ L0: 一手原始（全量收录） ============
 l0:
   arxiv:
+    # 分页拉取：每组查询按 submittedDate 倒序分页，直到结果早于 lookback 窗口
+    # 解决旧版「单一大查询 totalResults=7万+，max_results 截断导致只覆盖最近几天」的召回问题
+    page_size: 100
+    delay_seconds: 3.0
+    max_per_query: 3000      # 每个拆分查询的拉取上限（库按 page_size 自动分页，避免长尾截断）
+    keyword_chunk: 7         # 每个查询最多拼几个关键词，避免 arXiv API 复杂查询 500
+    # 分层召回：A 核心方向（cs.RO）+ B 其他分类强具身词 + C 重点公司/系统定向追踪
+    query_groups:
+      # A. 机器人主分类 cs.RO + VLA/世界模型/仿真/具身/操作 核心方向词
+      - name: ro_vla
+        categories: ["cs.RO"]
+        keywords:
+          - "vision-language-action"
+          - "VLA"
+          - "vision language action"
+          - "robot foundation model"
+          - "robot policy"
+          - "diffusion policy"
+          - "flow matching policy"
+      - name: ro_world_model
+        categories: ["cs.RO"]
+        keywords:
+          - "world model"
+          - "world action model"
+          - "world-action"
+          - "video prediction"
+          - "action model"
+          - "visual simulation"
+          - "world foundation model"
+      - name: ro_embodied_sim
+        categories: ["cs.RO"]
+        keywords:
+          - "embodied"
+          - "sim-to-real"
+          - "sim2real"
+          - "humanoid"
+          - "robot learning"
+          - "imitation learning"
+          - "teleoperation"
+      - name: ro_manipulation
+        categories: ["cs.RO"]
+        keywords:
+          - "manipulation policy"
+          - "dexterous manipulation"
+          - "robot manipulation"
+          - "manipulation"
+          - "locomotion"
+          - "simulation"
+          - "simulator"
+      # B. 主分类不在 cs.RO、但确实是具身/VLA 的论文（强短语，避免引入纯 NLP/CV 噪音）
+      - name: vla_other_cats
+        categories: ["cs.AI", "cs.LG", "cs.CV", "cs.CL"]
+        keywords:
+          - "vision-language-action"
+          - "VLA"
+          - "robot foundation model"
+          - "embodied AI"
+          - "world action model"
+      # C. 重点公司/系统定向追踪：结果少而精准，确保其技术报告论文不被大查询截断漏掉
+      # 一律限定 cs.RO（cat 匹配主+副分类），过滤 cosmos 天文、pi0 粒子物理等同名噪音
+      - name: track_companies
+        restrict_robot_cat: true
+        entities:
+          - "agibot"
+          - "galbot"
+          - "robotera"
+          - "engineai"
+          - "limx"
+          - "apptronik"
+          - "ubtech"
+          - "Fourier Intelligence"
+          - "skild"
+          - "sanctuary"
+          - "1x technologies"
+      - name: track_systems
+        restrict_robot_cat: true
+        entities:
+          - "GR00T"
+          - "cosmos"
+          - "π0"
+          - "Astra"
+          - "Helix"
+          - "DROID"
+          - "X-embodiment"
+          - "Isaac Sim"
+    # 旧字段保留供向后兼容（新逻辑以 query_groups 为准）
     categories:
-      - cs.RO    # Robotics
-      - cs.AI    # Artificial Intelligence
-      - cs.LG    # Machine Learning
-      - cs.CV    # Computer Vision
-      - cs.CL    # Computation and Language
+      - cs.RO
+      - cs.AI
+      - cs.LG
+      - cs.CV
+      - cs.CL
     keywords:
-      # 收窄：只收 VLA / 世界模型 / 仿真器三类
       - "vision-language-action"
       - "VLA"
-      - "vision language action"
       - "world model"
-      - "world models"
-      - "simulator"
-      - "simulation"
-      - "sim-to-real"
-      - "sim2real"
       - "embodied"
       - "robot foundation model"
       - "robot policy"
