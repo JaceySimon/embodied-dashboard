@@ -1412,10 +1412,12 @@ html_content = f"""<!DOCTYPE html>
                     {papers_html}
                 </div>
                 
+                <div id="searchHint" style="display:none;margin:10px 0 4px;padding:8px 14px;background:rgba(240,198,116,0.08);border:1px solid rgba(240,198,116,0.25);border-radius:8px;color:#f0c674;font-size:12.5px"></div>
+
                 <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:#666">
                     <div style="font-size:48px;margin-bottom:15px">🔍</div>
-                    <p style="margin-bottom:10px">没有找到匹配的论文</p>
-                    <p style="font-size:13px">试试换个关键词，或者清除筛选条件</p>
+                    <p id="emptyTitle" style="margin-bottom:10px">没有找到匹配的论文</p>
+                    <p style="font-size:13px">试试换个关键词，或减少关键词、清除筛选条件</p>
                 </div>
 
                 <div id="loadMoreWrap" style="text-align:center;padding:25px 0 10px">
@@ -1543,22 +1545,41 @@ html_content = f"""<!DOCTYPE html>
         }}
         
         function filterPapers() {{
-            const search = document.getElementById('search').value.toLowerCase();
+            const search = document.getElementById('search').value.trim();
+            const terms = search.toLowerCase().split(/\s+/).filter(Boolean);
             const cards = document.querySelectorAll('.paper-card');
             let matchedCount = 0;
             let shownCount = 0;
-            
+
+            // 搜索匹配：多词默认 AND；AND 无结果时自动降级为 OR 并提示（避免"一搜就空"）
+            let searchMode = 'and';
+            const hayOf = card =>
+                (card.querySelector('.paper-title').textContent + ' ' +
+                 card.querySelector('.paper-authors').textContent + ' ' +
+                 card.querySelector('.paper-abstract').textContent + ' ' +
+                 (card.dataset.tags || '')).toLowerCase();
+            if (terms.length) {{
+                let andCount = 0;
+                cards.forEach(card => {{ if (terms.every(t => hayOf(card).includes(t))) andCount++; }});
+                if (andCount === 0) searchMode = 'or';
+            }}
+            const matchTerms = hay =>
+                terms.length === 0 ? true :
+                (searchMode === 'and' ? terms.every(t => hay.includes(t))
+                                      : terms.some(t => hay.includes(t)));
+
             cards.forEach(card => {{
                 const titleEl = card.querySelector('.paper-title');
                 const authorsEl = card.querySelector('.paper-authors');
                 const abstractEl = card.querySelector('.paper-abstract');
                 const tags = card.dataset.tags || '';
-                
+
                 const title = titleEl.textContent.toLowerCase();
                 const authors = authorsEl.textContent.toLowerCase();
                 const abstract = abstractEl.textContent.toLowerCase();
-                
-                const matchSearch = title.includes(search) || authors.includes(search) || abstract.includes(search);
+                const hay = title + ' ' + authors + ' ' + abstract + ' ' + tags;
+
+                const matchSearch = matchTerms(hay);
                 const matchTag = !currentTag || tags.includes(currentTag);
                 
                 let matchProperty = true;
@@ -1609,9 +1630,9 @@ html_content = f"""<!DOCTYPE html>
                 }}
                 
                 // 搜索高亮
-                if (search && matched && shownCount >= 0 && card.style.display === 'block') {{
-                    highlightText(titleEl, search);
-                    highlightText(abstractEl, search);
+                if (terms.length && matched && shownCount >= 0 && card.style.display === 'block') {{
+                    highlightText(titleEl, terms);
+                    highlightText(abstractEl, terms);
                 }} else {{
                     // 恢复原文
                     if (card.dataset.originalTitle) {{
@@ -1623,12 +1644,21 @@ html_content = f"""<!DOCTYPE html>
                 }}
             }});
             
-            // 空状态
+            // 空状态 + 放宽匹配提示
             const emptyState = document.getElementById('emptyState');
+            const searchHint = document.getElementById('searchHint');
             if (matchedCount === 0) {{
                 emptyState.style.display = 'block';
+                document.getElementById('emptyTitle').textContent =
+                    terms.length ? `没有找到与 “${{search}}” 匹配的结果` : '没有找到匹配的论文';
             }} else {{
                 emptyState.style.display = 'none';
+            }}
+            if (terms.length && searchMode === 'or') {{
+                searchHint.style.display = 'block';
+                searchHint.textContent = `未找到同时包含所有词的结果，已放宽为匹配任意一个词（${{terms.join(' / ')}}）`;
+            }} else {{
+                searchHint.style.display = 'none';
             }}
 
             // 加载更多按钮
@@ -1656,18 +1686,25 @@ html_content = f"""<!DOCTYPE html>
             window.scrollBy({{ top: 200, behavior: 'smooth' }});
         }}
         
-        function highlightText(el, keyword) {{
+        function highlightText(el, termsOrKeyword) {{
             if (!el.dataset.originalHtml) {{
                 el.dataset.originalHtml = el.innerHTML;
             }}
             const original = el.dataset.originalHtml;
+            const words = Array.isArray(termsOrKeyword) ? termsOrKeyword
+                                                        : [termsOrKeyword];
             const special = '.^$*+?()|[]\\\\';
-            let escaped = '';
-            for (const ch of keyword) {{
-                escaped += special.includes(ch) ? '\\\\' + ch : ch;
-            }}
-            const regex = new RegExp('(' + escaped + ')', 'gi');
-            el.innerHTML = original.replace(regex, '<mark>$1</mark>');
+            let html = original;
+            words.forEach(w => {{
+                if (!w) return;
+                let escaped = '';
+                for (const ch of w) {{
+                    escaped += special.includes(ch) ? '\\\\' + ch : ch;
+                }}
+                html = html.replace(new RegExp('(' + escaped + ')', 'gi'),
+                    m => '<mark>' + m + '</mark>');
+            }});
+            el.innerHTML = html;
         }}
         
         function showOnboarding() {{
