@@ -749,6 +749,17 @@ html_content = f"""<!DOCTYPE html>
         .stat-item {{
             text-align: center;
         }}
+        .stat-clickable {{
+            cursor: pointer;
+            padding: 2px 10px;
+            border-radius: 8px;
+            transition: background 0.15s, transform 0.1s;
+        }}
+        .stat-clickable:hover {{
+            background: rgba(77,166,255,0.10);
+            transform: translateY(-1px);
+        }}
+        .stat-clickable:hover .stat-num {{ color: #4da6ff; }}
         .stat-num {{
             font-size: 22px;
             font-weight: bold;
@@ -1366,19 +1377,19 @@ html_content = f"""<!DOCTYPE html>
             <div>
                 <h1>具身智能看板</h1>
                 <div class="stats-bar">
-                    <div class="stat-item">
+                    <div class="stat-item stat-clickable" onclick="statQuick('all')" title="查看全部，清除所有筛选">
                         <div class="stat-num">{len(papers)}</div>
                         <div class="stat-label">90天论文</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item stat-clickable" onclick="statQuick('week')" title="只看最近 7 天新增">
                         <div class="stat-num">{len(week_papers)}</div>
                         <div class="stat-label">本周新增</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item stat-clickable" onclick="statQuick('real')" title="只看有真机实验的工作">
                         <div class="stat-num">{sum(1 for p in papers if p.get('has_real_robot', False))}</div>
                         <div class="stat-label">真机实验</div>
                     </div>
-                    <div class="stat-item">
+                    <div class="stat-item stat-clickable" onclick="statQuick('open')" title="只看已开源的工作">
                         <div class="stat-num">{sum(1 for p in papers if p.get('is_open_source', False))}</div>
                         <div class="stat-label">已开源</div>
                     </div>
@@ -1817,7 +1828,8 @@ html_content = f"""<!DOCTYPE html>
         }}
 
         function loadMore() {{
-            renderLimit += PAGE_SIZE;            filterPapers();
+            renderLimit += PAGE_SIZE;
+            filterPapers();
             window.scrollBy({{ top: 200, behavior: 'smooth' }});
         }}
         
@@ -1993,7 +2005,28 @@ html_content = f"""<!DOCTYPE html>
             resetPagination();
             filterPapers();
         }}
-        
+
+        // 顶部统计卡快捷筛选
+        function statQuick(kind) {{
+            currentTag = ''; currentSource = ''; currentProperty = '';
+            currentPropertyValue = ''; showOnlyFavs = false; currentTimeRange = 0;
+            readFilter = 'all';
+            const s = document.getElementById('search'); if (s) s.value = '';
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.rf-item').forEach(i => i.classList.remove('active'));
+            if (kind === 'week') {{
+                currentTimeRange = 7;
+            }} else if (kind === 'real') {{
+                currentProperty = 'real'; currentPropertyValue = 'true';
+            }} else if (kind === 'open') {{
+                currentProperty = 'open'; currentPropertyValue = 'true';
+            }}
+            resetPagination();
+            filterPapers();
+            const grid = document.getElementById('papers');
+            if (grid) {{ grid.scrollIntoView({{block:'start'}}); window.scrollBy(0, -60); }}
+        }}
+
         function exportFavs() {{
             if (favorites.length === 0) {{
                 alert('还没有收藏的论文');
