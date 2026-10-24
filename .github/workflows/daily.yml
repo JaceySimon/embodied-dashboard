@@ -28,9 +28,9 @@ jobs:
 
       - name: Collect arXiv (90 days backfill)
         run: |
-          if [ ! -f data/backfill/arxiv_backfill_90d_*.json ]; then
-            python pipeline/backfill.py 90
-          fi
+          # CI runner 是无状态的：data/ 不入库，每次都重新爬最近 90 天，
+          # 保证 arXiv 数据每天滚动更新，而不是冻结在首次运行。
+          python pipeline/backfill.py 90
 
       - name: Merge sources (RSS/HTML/GitHub)
         run: python pipeline/merge_sources.py

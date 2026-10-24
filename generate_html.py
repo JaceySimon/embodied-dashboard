@@ -1762,31 +1762,62 @@ html_content = f"""<!DOCTYPE html>
         
         function showRelated(id) {{
             const card = document.querySelector(`[data-id="${{id}}"]`);
-            const tags = card.dataset.tags.split(' ');
+            if (!card) return;
+            const tags = card.dataset.tags ? card.dataset.tags.split(' ').filter(Boolean) : [];
+            const myEvent = card.dataset.eventId || '';
+            const title = card.querySelector('.paper-title').textContent;
+            const STOP = new Set(['robot','robots','robotics','learning','based','using','model','models',
+                'data','with','from','for','via','toward','towards','policy','policies','vision','language',
+                'action','actions','embodied','embodiment','image','images','novel','efficient','task','tasks']);
+            const titleTokens = t => (t.toLowerCase().match(/[a-z][a-z0-9-]{{4,}}/g) || [])
+                .filter(w => !STOP.has(w));
+            const myWords = titleTokens(title);
             const related = [];
-            
+
             document.querySelectorAll('.paper-card').forEach(c => {{
-                if (c.dataset.id !== id) {{
-                    const cTags = c.dataset.tags.split(' ');
-                    const overlap = tags.filter(t => cTags.includes(t)).length;
-                    if (overlap >= 1) {{
-                        related.push({{
-                            title: c.querySelector('.paper-title').textContent,
-                            url: c.querySelector('.paper-title a').href,
-                            overlap: overlap
-                        }});
-                    }}
+                if (c.dataset.id === id) return;
+                const cTags = c.dataset.tags ? c.dataset.tags.split(' ').filter(Boolean) : [];
+                let score = 0;
+                // 同事件（同一工作的多源报道）最高优先
+                if (myEvent && c.dataset.eventId === myEvent) score += 100;
+                // 标签重叠
+                const overlap = tags.filter(t => cTags.includes(t)).length;
+                score += overlap * 4;
+                // 标题共享稀有词
+                const cWords = titleTokens(c.querySelector('.paper-title').textContent);
+                let wordHit = 0;
+                cWords.forEach(w => {{ if (myWords.includes(w)) wordHit++; }});
+                score += wordHit * 3;
+                // 时间相近（同一年）
+                if (c.dataset.date && card.dataset.date &&
+                    c.dataset.date.slice(0,4) === card.dataset.date.slice(0,4)) score += 1;
+                if (score >= 4) {{
+                    related.push({{
+                        title: c.querySelector('.paper-title').textContent,
+                        url: c.querySelector('.paper-title a').href,
+                        score, overlap, sameEvent: score >= 100,
+                        date: c.dataset.date,
+                        source: c.querySelector('.source-badge') ? c.querySelector('.source-badge').textContent : ''
+                    }});
                 }}
             }});
-            
-            related.sort((a, b) => b.overlap - a.overlap);
-            
+
+            related.sort((a, b) => b.score - a.score);
             const modal = document.getElementById('modal');
             const body = document.getElementById('modalBody');
-            body.innerHTML = '<h2 style="margin-bottom:20px;color:#fff">相关论文</h2>' + 
-                related.slice(0, 10).map(r => 
-                    `<div style="margin-bottom:12px"><a href="${{r.url}}" target="_blank" style="color:#4da6ff;text-decoration:none">${{r.title}}</a></div>`
-                ).join('');
+            const commonTags = t => t;
+            body.innerHTML = '<h2 style="margin:0 0 6px;color:#fff">相关论文 / 进展</h2>' +
+                '<div style="color:#8b94a3;font-size:12.5px;margin-bottom:16px">按同事件、标题主题与方向标签综合排序</div>' +
+                (related.length === 0
+                    ? '<div style="color:#8b94a3">暂无足够相关的条目，试试用方向标签筛选。</div>'
+                    : related.slice(0, 12).map(r =>
+                        `<div style="margin-bottom:13px;padding-left:10px;border-left:2px solid ${{r.sameEvent?'#4da6ff':'#2a313c'}}">
+                            <a href="${{r.url}}" target="_blank" style="color:#cfe3f7;text-decoration:none;font-size:13.5px;line-height:1.5">${{r.title}}</a>
+                            <div style="font-size:11.5px;color:#6b7280;margin-top:3px">
+                                ${{r.sameEvent?'<span style="color:#4da6ff">同一事件</span> · ':''}}${{r.overlap>0?r.overlap+' 个共同标签':''}}${{r.date?' · '+r.date:''}}
+                            </div>
+                        </div>`
+                    ).join(''));
             modal.style.display = 'block';
         }}
         
