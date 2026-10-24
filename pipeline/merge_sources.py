@@ -13,6 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from collectors.rss_collector import build_rss_collectors_from_config
 from collectors.company_html_collector import build_html_collectors_from_config
 from collectors.github_collector import build_github_collector_from_config
+from collectors.huggingface_collector import build_hf_collector_from_config
 from utils import logger
 
 
@@ -25,6 +26,18 @@ def collect_github_papers(config):
         return collector.collect()
     except Exception as e:
         logger.warning(f"[GitHub] 采集失败: {e}")
+        return []
+
+
+def collect_hf_papers(config):
+    """采集 Hugging Face 模型权重发布"""
+    collector = build_hf_collector_from_config(config)
+    if not collector:
+        return []
+    try:
+        return collector.collect()
+    except Exception as e:
+        logger.warning(f"[HuggingFace] 采集失败: {e}")
         return []
 
 
@@ -82,6 +95,10 @@ def main():
     github_papers = collect_github_papers(config)
     logger.info(f"GitHub 开源: {len(github_papers)} 条")
 
+    # 采集 Hugging Face 模型发布
+    hf_papers = collect_hf_papers(config)
+    logger.info(f"HuggingFace 模型: {len(hf_papers)} 个")
+
     # 转换 RSS Paper 对象为 dict
     def enum_val(v, default):
         if hasattr(v, "value"):
@@ -108,9 +125,10 @@ def main():
 
     rss_dicts = [paper_to_dict(p) for p in rss_papers]
     github_dicts = [paper_to_dict(p) for p in github_papers]
+    hf_dicts = [paper_to_dict(p) for p in hf_papers]
 
     # 合并
-    combined = arxiv_papers + rss_dicts + github_dicts
+    combined = arxiv_papers + rss_dicts + github_dicts + hf_dicts
 
     # 按时间倒序
     combined.sort(key=lambda p: p.get("published_at", ""), reverse=True)

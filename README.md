@@ -5,7 +5,7 @@
 
 ## 这是什么？
 
-一个面向具身智能研究者的**事件级**信息聚合器——把散在 arXiv、公司/实验室博客、垂直媒体、GitHub 上的**同一件事**聚合成一条（论文 + 官方公告 + 媒体报道 + 开源代码），按重要性排序，并用 LLM 生成带引用的方向综述，让你 5 分钟看完本周领域发生了什么。
+一个面向具身智能研究者的**事件级**信息聚合器——把散在 arXiv、公司/实验室博客、垂直媒体、GitHub、Hugging Face 上的**同一件事**聚合成一条（论文 + 官方公告 + 媒体报道 + 开源代码 + 模型权重），按重要性排序，并用 LLM 生成带引用的方向综述，让你 5 分钟看完本周领域发生了什么。
 
 ## 为什么比搜索引擎 / arXiv 列表更好？
 
@@ -22,7 +22,7 @@
 
 ### 信息聚合
 - **跨源事件专区**：把同一进展的论文、官方博客、媒体报道、开源仓库聚合成一张事件卡，多源可分别跳转
-- **学术 + 工业界 + 开源**：arXiv 分层召回、公司/实验室官网、垂直媒体 RSS、GitHub 组织新仓库与框架版本发布
+- **学术 + 工业界 + 开源 + 模型**：arXiv 分层召回、公司/实验室官网、垂直媒体 RSS、GitHub 组织新仓库与框架版本发布、Hugging Face 机构模型权重（白名单制，过滤个人 checkpoint 噪声）
 - **AI 方向综述**：按 VLA / 世界模型 / Sim2Real / 策略学习 4 个方向，取近 90 天 Top 论文，LLM 生成技术路线与趋势判断，引用可点击直达原文
 
 ### 发现与阅读
@@ -98,6 +98,7 @@ python -m pipeline.gen_briefing
 - `html_companies`：无 RSS 的公司官网，支持 `detail / list / nuxt_payload / json_api` 四种抓取模式
 - `rss`：博客与媒体 RSS
 - `l0.github`：追踪的 GitHub 组织（新开源仓库 + 高 star 项目动态）与核心框架 release
+- `l0.huggingface`：追踪的 HF 机构模型（LeRobot/π0、NVIDIA GR00T 等）；国内默认走 `hf-mirror.com` 镜像，只收白名单机构、排除个人 checkpoint/数据导出
 - `arxiv`：分层 query 组 + 定向公司/系统名
 
 ## 项目结构
@@ -112,6 +113,7 @@ embodied-dashboard/
 │   ├── rss_collector.py          # 博客/媒体 RSS
 │   ├── company_html_collector.py # 无 RSS 官网（4 种抓取模式）
 │   ├── github_collector.py       # GitHub 开源仓库与 release
+│   ├── huggingface_collector.py  # Hugging Face 机构模型权重
 │   └── x_api_collector.py        # X/Twitter（需 Bearer Token）
 ├── pipeline/
 │   ├── run_daily.py
@@ -140,6 +142,7 @@ embodied-dashboard/
 |---|---|---|
 | `LLM_API_KEY` | DeepSeek 打标 / 摘要 / 方向综述 | 可选 |
 | `GITHUB_TOKEN` | GitHub 采集提高配额（未认证 60 次/小时，有 token 5000 次/小时，无需勾选权限） | 可选 |
+| `HF_TOKEN` | Hugging Face 采集提高配额（可选，无 token 也能采白名单机构） | 可选 |
 | `X_BEARER_TOKEN` | X/Twitter 采集 | 可选 |
 
 ## 技术栈
@@ -158,7 +161,8 @@ embodied-dashboard/
 - [x] v2.3：RSS 订阅 + 自上次访问提示
 - [x] v2.4：AI 方向综述（带引用）
 - [x] v2.5：GitHub 开源动态（新仓库 + 框架 release）
-- [ ] 后续：X 接入、LLM 语义归并、HuggingFace 热度、更聪明的个性化推送
+- [x] v2.6：Hugging Face 模型权重（白名单机构 + 镜像，参与事件聚合）
+- [ ] 后续：X 接入、LLM 语义归并、HF 数据集采集、更聪明的个性化推送
 
 ## Open-Core 策略
 

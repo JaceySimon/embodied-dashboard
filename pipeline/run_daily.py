@@ -18,6 +18,7 @@ from collectors.company_html_collector import build_html_collectors_from_config
 from collectors.x_collector import XCollector
 from collectors.x_api_collector import build_x_collector_from_config
 from collectors.github_collector import build_github_collector_from_config
+from collectors.huggingface_collector import build_hf_collector_from_config
 from pipeline.clean import deduplicate_papers
 from pipeline.aggregate import EventAggregator
 from pipeline.tagger import tag_papers
@@ -90,6 +91,16 @@ def run_daily(config_path: str = None, lookback_days: int = 7):
         print(f"  GitHub 总计: {len(github_papers)} 条")
     else:
         print("  GitHub 采集未启用")
+
+    # ========== 3c. Hugging Face 模型发布 ==========
+    print(f"\n[3c/5] 采集 Hugging Face 模型发布...")
+    hf_collector = build_hf_collector_from_config(config)
+    if hf_collector:
+        hf_papers = hf_collector.collect()
+        all_papers.extend(hf_papers)
+        print(f"  HuggingFace 总计: {len(hf_papers)} 个")
+    else:
+        print("  HuggingFace 采集未启用")
 
     # ========== 4. 打标 ==========
     print(f"\n[4/5] 打标...")

@@ -142,17 +142,22 @@ for p in industry_papers:
     p["ind_score"] = calc_industry_score(p)
 week_industry = sorted(industry_papers, key=lambda x: x["ind_score"], reverse=True)[:3]
 
-# 开源槽位：近 30 天 GitHub = 1 个最重要框架 release + 1 个最高 star 新开源
-def _gh_stars(p):
-    return (p.get("raw_metadata") or {}).get("stars", 0) or 0
+# 开源槽位：近 30 天 = 1 个框架 release + 1 个最高 star 新开源 + 1 个最热 HF 模型
+def _oss_heat(p):
+    rm = p.get("raw_metadata") or {}
+    return rm.get("stars", 0) or rm.get("likes", 0) or 0
 
 opensource_papers = [p for p in papers
-                     if p.get("source_type") == "github"
+                     if p.get("source_type") in ("github", "huggingface")
                      and p["published_at"] >= ind_ago]
-_releases = [p for p in opensource_papers if str(p.get("id","")).count(":") >= 2]
-_new_repos = [p for p in opensource_papers if str(p.get("id","")).count(":") < 2]
-week_opensource = (sorted(_releases, key=lambda x: x["published_at"], reverse=True)[:1] +
-                   sorted(_new_repos, key=_gh_stars, reverse=True)[:1])
+_gh_releases = [p for p in opensource_papers if p.get("source_type") == "github"
+                and str(p.get("id","")).count(":") >= 2]
+_gh_new = [p for p in opensource_papers if p.get("source_type") == "github"
+           and str(p.get("id","")).count(":") < 2]
+_hf_new = [p for p in opensource_papers if p.get("source_type") == "huggingface"]
+week_opensource = (sorted(_gh_releases, key=lambda x: x["published_at"], reverse=True)[:1] +
+                   sorted(_gh_new, key=_oss_heat, reverse=True)[:1] +
+                   sorted(_hf_new, key=_oss_heat, reverse=True)[:1])
 
 # 学术 7 + 工业 3 + 开源 2，各自带分区标记
 week_top = ([dict(p, _zone="academic") for p in week_academic] +
@@ -160,8 +165,13 @@ week_top = ([dict(p, _zone="academic") for p in week_academic] +
             [dict(p, _zone="opensource") for p in week_opensource])
 
 # 生成论文卡片
+_INTERNAL_TAGS = {"open_source", "hf_model", "gh_release"}
+def _public_tags(tags, limit=5):
+    shown = [t for t in (tags or []) if t not in _INTERNAL_TAGS]
+    return shown[:limit]
+
 def render_paper(p):
-    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:5]])
+    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in _public_tags(p["tags"])])
     
     # 来源类型徽章
     source_type = p.get("source_type", "arxiv")
@@ -176,16 +186,21 @@ def render_paper(p):
     elif source_type == "github":
         source_badge = f'<span class="badge badge-github">开源 · {html.escape(source_name.replace(" · GitHub",""))}</span>'
         source_group = "github"
+    elif source_type == "huggingface":
+        source_badge = f'<span class="badge badge-hf">模型 · {html.escape(source_name.replace(" · Hugging Face",""))}</span>'
+        source_group = "huggingface"
     else:
         source_badge = '<span class="badge badge-academic">学术</span>'
         source_group = "arxiv"
     
-    # 作者（RSS 可能没有作者）
+    # 作者（RSS 可能没有作者；开源/模型卡片徽章已含机构，不重复显示来源名）
     authors_list = p.get("authors", [])
     if authors_list:
         authors = ", ".join(authors_list[:3])
         if len(authors_list) > 3:
             authors += " et al."
+    elif source_type in ("github", "huggingface"):
+        authors = ""
     else:
         authors = source_name
     
@@ -204,19 +219,22 @@ def render_paper(p):
     # 链接文本
     if source_type == "github":
         link_text = "Release" if str(p.get("id","")).count(":") >= 2 else "GitHub 仓库"
+    elif source_type == "huggingface":
+        link_text = "Hugging Face"
     else:
         link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
 
-    # GitHub 开源项目附加信息（stars / 新开源标记）
+    # 开源/模型附加信息（stars / likes / 新开源标记）
     gh_meta = ""
+    rm = p.get("raw_metadata") or {}
     if source_type == "github":
-        rm = p.get("raw_metadata") or {}
-        stars = rm.get("stars")
-        is_new_oss = rm.get("new_open_source")
-        if is_new_oss:
+        if rm.get("new_open_source"):
             gh_meta += '<span class="gh-new">🆕 新开源</span>'
-        if stars is not None:
-            gh_meta += f'<span class="gh-stars">⭐ {stars}</span>'
+        if rm.get("stars") is not None:
+            gh_meta += f'<span class="gh-stars">⭐ {rm.get("stars")}</span>'
+    elif source_type == "huggingface":
+        if rm.get("likes") is not None:
+            gh_meta += f'<span class="hf-likes">🤍 {rm.get("likes")}</span>'
 
     # 事件多源归并：主卡片渲染“同一进展的其他来源”，非主卡片默认折叠隐藏
     event_id = p.get("event_id", "")
@@ -373,7 +391,7 @@ hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in h
 
 # 本周必看 10 篇
 def render_top_paper(p, rank):
-    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p.get("tags", [])[:3]])
+    tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in _public_tags(p.get("tags", []), limit=3)])
     authors_list = p.get("authors", [])
     authors = ", ".join(authors_list[:2])
     if len(authors_list) > 2:
@@ -390,6 +408,8 @@ def render_top_paper(p, rank):
         source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
     elif source_type == "github":
         source_badge = '<span class="badge badge-github">开源</span>'
+    elif source_type == "huggingface":
+        source_badge = '<span class="badge badge-hf">模型</span>'
     else:
         source_badge = '<span class="badge badge-academic">学术</span>'
 
@@ -400,6 +420,10 @@ def render_top_paper(p, rank):
             gh_stars_span = f'<span class="gh-stars">🏷️ {html.escape(str(rm["tag"]))}</span>'
         elif rm.get("stars") is not None:
             gh_stars_span = f'<span class="gh-stars">⭐ {rm["stars"]}</span>'
+    elif source_type == "huggingface":
+        rm = p.get("raw_metadata") or {}
+        if rm.get("likes") is not None:
+            gh_stars_span = f'<span class="hf-likes">🤍 {rm["likes"]}</span>'
 
     ai_summary = p.get("ai_summary")
     summary_html = ""
@@ -424,7 +448,7 @@ def _top_zone_divider(label):
 _top_parts = []
 _rank = 1
 _zone_labels = {"industry": "工业界 · 近 30 天重大发布",
-                "opensource": "开源动态 · 近 30 天热门项目"}
+                "opensource": "开源与模型 · 近 30 天热门项目 / 权重"}
 for p in week_top:
     zone = p.get("_zone")
     if zone in _zone_labels and (not _top_parts or week_top[_rank - 2].get("_zone") != zone):
@@ -634,9 +658,18 @@ html_content = f"""<!DOCTYPE html>
             background: #134e4a;
             color: #5eead4;
         }}
+        .badge-hf {{
+            background: #831843;
+            color: #f9a8d4;
+        }}
         .gh-stars {{ color: #5eead4; font-size: 12px; margin-left: auto; }}
+        .hf-likes {{ color: #f9a8d4; font-size: 12px; margin-left: auto; }}
         .gh-new {{
             background: #134e4a; color: #5eead4; font-size: 11px; font-weight: 600;
+            padding: 1px 7px; border-radius: 4px;
+        }}
+        .hf-new {{
+            background: #831843; color: #f9a8d4; font-size: 11px; font-weight: 600;
             padding: 1px 7px; border-radius: 4px;
         }}
         .paper-date {{ color: #666; font-size: 12px; }}
@@ -1002,6 +1035,7 @@ html_content = f"""<!DOCTYPE html>
                     <div class="sidebar-item" onclick="filterBySource('industry')">工业界博客</div>
                     <div class="sidebar-item" onclick="filterBySource('media')">媒体</div>
                     <div class="sidebar-item" onclick="filterBySource('github')">开源项目</div>
+                    <div class="sidebar-item" onclick="filterBySource('huggingface')">模型权重</div>
                 </div>
                 <div class="sidebar-section">
                     <h3>标签筛选</h3>
