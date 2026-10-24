@@ -144,7 +144,7 @@ def render_paper(p):
     </div>
     """
 
-papers_html = "\n".join([render_paper(p) for p in papers[:200]])
+papers_html = "\n".join([render_paper(p) for p in papers])
 
 # 本周热点
 hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in hot_tags_top])
@@ -610,7 +610,7 @@ html_content = f"""<!DOCTYPE html>
             
             <div class="content">
                 <div class="search-bar">
-                    <input type="text" id="search" placeholder="搜索标题、作者、摘要..." oninput="filterPapers()">
+                    <input type="text" id="search" placeholder="搜索标题、作者、摘要...（2000+篇）" oninput="onSearchInput()">
                     <span class="search-hint">按 / 快速搜索</span>
                 </div>
                 
@@ -637,6 +637,11 @@ html_content = f"""<!DOCTYPE html>
                     <p style="margin-bottom:10px">没有找到匹配的论文</p>
                     <p style="font-size:13px">试试换个关键词，或者清除筛选条件</p>
                 </div>
+
+                <div id="loadMoreWrap" style="text-align:center;padding:25px 0 10px">
+                    <div id="loadMoreInfo" style="color:#666;font-size:12px;margin-bottom:10px"></div>
+                    <button id="loadMoreBtn" onclick="loadMore()" style="display:none;background:#1e293b;color:#e2e8f0;border:1px solid #334155;padding:10px 28px;border-radius:8px;font-size:14px;cursor:pointer"></button>
+                </div>
             </div>
         </div>
     </div>
@@ -655,6 +660,8 @@ html_content = f"""<!DOCTYPE html>
         let currentPropertyValue = '';
         let currentTimeRange = 0;
         let currentSource = '';
+        const PAGE_SIZE = 60;
+        let renderLimit = PAGE_SIZE;
         let showOnlyFavs = false;
         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         
@@ -693,13 +700,15 @@ html_content = f"""<!DOCTYPE html>
         
         function showFavs() {{
             showOnlyFavs = !showOnlyFavs;
+            resetPagination();
             filterPapers();
         }}
         
         function filterPapers() {{
             const search = document.getElementById('search').value.toLowerCase();
             const cards = document.querySelectorAll('.paper-card');
-            let visibleCount = 0;
+            let matchedCount = 0;
+            let shownCount = 0;
             
             cards.forEach(card => {{
                 const titleEl = card.querySelector('.paper-title');
@@ -734,12 +743,22 @@ html_content = f"""<!DOCTYPE html>
                 
                 let matchSource = !currentSource || card.dataset.source === currentSource;
                 
-                const visible = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource;
-                card.style.display = visible ? 'block' : 'none';
-                if (visible) visibleCount++;
+                const matched = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource;
+                if (matched) {{
+                    matchedCount++;
+                    // 分页：只显示前 renderLimit 个匹配项
+                    if (matchedCount <= renderLimit) {{
+                        card.style.display = 'block';
+                        shownCount++;
+                    }} else {{
+                        card.style.display = 'none';
+                    }}
+                }} else {{
+                    card.style.display = 'none';
+                }}
                 
                 // 搜索高亮
-                if (search && visible) {{
+                if (search && matched && shownCount >= 0 && card.style.display === 'block') {{
                     highlightText(titleEl, search);
                     highlightText(abstractEl, search);
                 }} else {{
@@ -755,11 +774,35 @@ html_content = f"""<!DOCTYPE html>
             
             // 空状态
             const emptyState = document.getElementById('emptyState');
-            if (visibleCount === 0) {{
+            if (matchedCount === 0) {{
                 emptyState.style.display = 'block';
             }} else {{
                 emptyState.style.display = 'none';
             }}
+
+            // 加载更多按钮
+            updateLoadMore(matchedCount, shownCount);
+        }}
+
+        function updateLoadMore(matched, shown) {{
+            const btn = document.getElementById('loadMoreBtn');
+            const info = document.getElementById('loadMoreInfo');
+            if (!btn) return;
+            if (matched > shown) {{
+                btn.style.display = 'block';
+                const next = Math.min(PAGE_SIZE, matched - shown);
+                btn.textContent = `加载更多（还有 ${{matched - shown}} 篇，显示 ${{next}} 篇）`;
+                info.textContent = `共 ${{matched}} 篇，已显示 ${{shown}} 篇`;
+            }} else {{
+                btn.style.display = 'none';
+                info.textContent = matched > 0 ? `共 ${{matched}} 篇，已全部显示` : '';
+            }}
+        }}
+
+        function loadMore() {{
+            renderLimit += PAGE_SIZE;
+            filterPapers();
+            window.scrollBy({{ top: 200, behavior: 'smooth' }});
         }}
         
         function highlightText(el, keyword) {{
@@ -802,8 +845,18 @@ html_content = f"""<!DOCTYPE html>
             modal.style.display = 'block';
         }}
         
+        function resetPagination() {{
+            renderLimit = PAGE_SIZE;
+        }}
+
+        function onSearchInput() {{
+            resetPagination();
+            filterPapers();
+        }}
+
         function filterByTag(tag) {{
             currentTag = tag;
+            resetPagination();
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
@@ -811,6 +864,7 @@ html_content = f"""<!DOCTYPE html>
         
         function filterBySource(source) {{
             currentSource = source;
+            resetPagination();
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
@@ -819,11 +873,13 @@ html_content = f"""<!DOCTYPE html>
         function filterByProperty(property, value) {{
             currentProperty = property;
             currentPropertyValue = value ? 'true' : 'false';
+            resetPagination();
             filterPapers();
         }}
         
         function filterByTime(days) {{
             currentTimeRange = days;
+            resetPagination();
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
@@ -834,10 +890,12 @@ html_content = f"""<!DOCTYPE html>
             currentProperty = '';
             currentPropertyValue = '';
             currentTimeRange = 0;
+            currentSource = '';
             showOnlyFavs = false;
             document.getElementById('search').value = '';
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             document.querySelector('.sidebar-item').classList.add('active');
+            resetPagination();
             filterPapers();
         }}
         
@@ -847,7 +905,7 @@ html_content = f"""<!DOCTYPE html>
                 return;
             }}
             
-            let md = '# 我的收藏 - 具身智能看板\n\n';
+            let md = '# 我的收藏 - 具身智能看板\\n\\n';
             const cards = document.querySelectorAll('.paper-card');
             let count = 0;
             
@@ -858,10 +916,10 @@ html_content = f"""<!DOCTYPE html>
                     const url = card.querySelector('.paper-title a').href;
                     const authors = card.querySelector('.paper-authors').textContent;
                     const tags = card.dataset.tags;
-                    md += `## ${{count}}. ${{title}}\n\n`;
-                    md += `- **作者**: ${{authors}}\n`;
-                    md += `- **标签**: ${{tags}}\n`;
-                    md += `- **链接**: ${{url}}\n\n`;
+                    md += `## ${{count}}. ${{title}}\\n\\n`;
+                    md += `- **作者**: ${{authors}}\\n`;
+                    md += `- **标签**: ${{tags}}\\n`;
+                    md += `- **链接**: ${{url}}\\n\\n`;
                 }}
             }});
             
@@ -922,6 +980,7 @@ html_content = f"""<!DOCTYPE html>
         // 初始化
         updateFavCount();
         updateFavButtons();
+        filterPapers();
         showOnboarding();
     </script>
 </body>
