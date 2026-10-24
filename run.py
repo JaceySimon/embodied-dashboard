@@ -6,7 +6,8 @@
     python run.py backfill 90      # 爬取过去 N 天数据
     python run.py html             # 生成 HTML 展示页
     python run.py weekly           # 生成周报
-    python run.py all              # 一键：采集 + 打标 + 生成HTML
+    python run.py all              # 一键：采集 + 合并 + 生成HTML + 周报
+    python run.py health           # 数据源健康检查
     python run.py summaries 20     # 给前 N 篇论文生成 AI 摘要
 """
 import sys
@@ -55,6 +56,7 @@ def summaries(n: int = 20):
 def all_pipeline():
     """一键运行完整 pipeline"""
     collect()
+    run("python pipeline/merge_sources.py")
     gen_html()
     weekly()
     print("\n✅ 全部完成！")
@@ -76,6 +78,10 @@ def main():
         backfill(days)
     elif command == "html":
         gen_html()
+    elif command == "merge":
+        run("python pipeline/merge_sources.py")
+    elif command == "health":
+        run("python pipeline/health_check.py")
     elif command == "weekly":
         weekly()
     elif command == "summaries":

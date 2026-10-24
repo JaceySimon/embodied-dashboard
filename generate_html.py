@@ -10,9 +10,16 @@ from datetime import datetime, timedelta
 
 PROJECT_ROOT = Path(__file__).parent
 
-# 读取数据
-with open(PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json", "r", encoding="utf-8") as f:
-    papers = json.load(f)
+# 读取数据（优先读合并后的，没有则回退到 arXiv）
+combined_path = PROJECT_ROOT / "data" / "combined.json"
+arxiv_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
+
+if combined_path.exists():
+    with open(combined_path, "r", encoding="utf-8") as f:
+        papers = json.load(f)
+else:
+    with open(arxiv_path, "r", encoding="utf-8") as f:
+        papers = json.load(f)
 
 # 按时间倒序
 papers.sort(key=lambda p: p["published_at"], reverse=True)
@@ -70,33 +77,57 @@ week_top = sorted(week_papers, key=lambda x: x["score"], reverse=True)[:10]
 # 生成论文卡片
 def render_paper(p):
     tags_html = "".join([f'<span class="tag">{html.escape(t)}</span>' for t in p["tags"][:5]])
-    authors = ", ".join(p["authors"][:3])
-    if len(p["authors"]) > 3:
-        authors += f" et al."
+    
+    # 来源类型徽章
+    source_type = p.get("source_type", "arxiv")
+    source_name = p.get("source_name", "arXiv")
+    
+    if source_type == "company_blog":
+        source_badge = f'<span class="badge badge-industry">{html.escape(source_name)}</span>'
+    elif source_type == "media":
+        source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
+    else:
+        source_badge = '<span class="badge badge-academic">学术</span>'
+    
+    # 作者（RSS 可能没有作者）
+    authors_list = p.get("authors", [])
+    if authors_list:
+        authors = ", ".join(authors_list[:3])
+        if len(authors_list) > 3:
+            authors += " et al."
+    else:
+        authors = source_name
     
     # 摘要
-    abstract = html.escape(p.get("abstract", "")[:150] + "..." if len(p.get("abstract", "")) > 150 else p.get("abstract", ""))
+    abstract_text = p.get("abstract", "") or ""
+    abstract = html.escape(abstract_text[:150] + "..." if len(abstract_text) > 150 else abstract_text)
     
     # 标签数据
-    tags_data = " ".join(p["tags"])
+    tags_data = " ".join(p.get("tags", []))
     has_real = "true" if p.get("has_real_robot", False) else "false"
     has_open = "true" if p.get("is_open_source", False) else "false"
     
     # 论文 ID（用于收藏）
-    paper_id = p["id"].replace("/", "_")
+    paper_id = str(p["id"]).replace("/", "_")
+    
+    # 链接文本
+    link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
     
     return f"""
-    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{p['published_at'][:10]}">
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_type}">
         <div class="paper-header">
             <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
             <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
         </div>
-        <div class="paper-authors">{html.escape(authors)}</div>
-        <div class="paper-date">{p['published_at'][:10]}</div>
+        <div class="paper-meta">
+            {source_badge}
+            <span class="paper-authors">{html.escape(authors)}</span>
+            <span class="paper-date">{str(p['published_at'])[:10]}</span>
+        </div>
         <div class="paper-tags">{tags_html}</div>
         <div class="paper-abstract">{abstract}</div>
         <div class="paper-links">
-            <a href="{p['url']}" target="_blank">arXiv</a>
+            <a href="{p['url']}" target="_blank">{link_text}</a>
             <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
         </div>
     </div>
@@ -276,8 +307,34 @@ html_content = f"""<!DOCTYPE html>
         }}
         .fav-btn:hover {{ color: #fdba74; }}
         .fav-btn.favorited {{ color: #fdba74; }}
-        .paper-authors {{ color: #888; font-size: 13px; margin-bottom: 5px; }}
-        .paper-date {{ color: #666; font-size: 12px; margin-bottom: 10px; }}
+        .paper-authors {{ color: #888; font-size: 13px; }}
+        .paper-meta {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }}
+        .badge {{
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }}
+        .badge-academic {{
+            background: #1e3a5f;
+            color: #93c5fd;
+        }}
+        .badge-industry {{
+            background: #7c2d12;
+            color: #fdba74;
+        }}
+        .badge-media {{
+            background: #365314;
+            color: #bef264;
+        }}
+        .paper-date {{ color: #666; font-size: 12px; }}
         .paper-tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }}
         .tag {{
             background: #1e293b;
@@ -437,6 +494,13 @@ html_content = f"""<!DOCTYPE html>
         <div class="main-content">
             <div class="sidebar">
                 <div class="sidebar-section">
+                    <h3>内容类型</h3>
+                    <div class="sidebar-item active" onclick="filterBySource('')">全部</div>
+                    <div class="sidebar-item" onclick="filterBySource('arxiv')">学术论文</div>
+                    <div class="sidebar-item" onclick="filterBySource('company_blog')">工业界博客</div>
+                    <div class="sidebar-item" onclick="filterBySource('media')">媒体</div>
+                </div>
+                <div class="sidebar-section">
                     <h3>标签筛选</h3>
                     <div class="sidebar-item active" onclick="filterByTag('')">全部</div>
                     <div class="sidebar-item" onclick="filterByTag('VLA')">VLA</div>
@@ -510,6 +574,7 @@ html_content = f"""<!DOCTYPE html>
         let currentProperty = '';
         let currentPropertyValue = '';
         let currentTimeRange = 0;
+        let currentSource = '';
         let showOnlyFavs = false;
         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         
@@ -587,7 +652,9 @@ html_content = f"""<!DOCTYPE html>
                     matchTime = paperDate >= cutoff;
                 }}
                 
-                const visible = matchSearch && matchTag && matchProperty && matchFav && matchTime;
+                let matchSource = !currentSource || card.dataset.source === currentSource;
+                
+                const visible = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource;
                 card.style.display = visible ? 'block' : 'none';
                 if (visible) visibleCount++;
                 
@@ -620,7 +687,11 @@ html_content = f"""<!DOCTYPE html>
                 el.dataset.originalHtml = el.innerHTML;
             }}
             const original = el.dataset.originalHtml;
-            const escaped = keyword.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+            const special = '.^$*+?()|[]\\\\';
+            let escaped = '';
+            for (const ch of keyword) {{
+                escaped += special.includes(ch) ? '\\\\' + ch : ch;
+            }}
             const regex = new RegExp('(' + escaped + ')', 'gi');
             el.innerHTML = original.replace(regex, '<mark>$1</mark>');
         }}
@@ -653,6 +724,13 @@ html_content = f"""<!DOCTYPE html>
         
         function filterByTag(tag) {{
             currentTag = tag;
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            filterPapers();
+        }}
+        
+        function filterBySource(source) {{
+            currentSource = source;
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
