@@ -299,6 +299,44 @@ def render_event_card(ev):
 
 events_html = "\n".join([render_event_card(ev) for ev in recent_events])
 
+# ============ AI 方向综述（带引用的研究简报）============
+briefing_path = PROJECT_ROOT / "data" / "briefing.json"
+briefing_html = ""
+if briefing_path.exists():
+    bdata = json.load(open(briefing_path, encoding="utf-8"))
+    briefings = bdata.get("briefings", [])
+
+    def render_cite(pid):
+        cp = papers_by_id.get(pid)
+        if not cp:
+            return ""
+        title = cp.get("title", "")
+        return (f'<a class="cite-chip" href="{cp.get("url","")}" target="_blank" '
+                f'title="{html.escape(title)}">{html.escape(title[:42])}</a>')
+
+    tabs, panels = [], []
+    for i, b in enumerate(briefings):
+        active = "active" if i == 0 else ""
+        tabs.append(f'<button class="brief-tab {active}" onclick="switchBrief({i})">{html.escape(b["name"])}</button>')
+        line_items = []
+        for line in b.get("lines", []):
+            cites = "".join([render_cite(pid) for pid in line.get("paper_ids", [])])
+            line_items.append(
+                f'<div class="brief-line">'
+                f'<div class="brief-line-name">{html.escape(line.get("name",""))}</div>'
+                f'<div class="brief-line-point">{html.escape(line.get("point",""))}</div>'
+                f'<div class="brief-cites">{cites}</div></div>')
+        trends = "".join([f'<li>{html.escape(t)}</li>' for t in b.get("trends", [])])
+        panels.append(
+            f'<div class="brief-panel {active}" data-i="{i}">'
+            f'<div class="brief-overview">{html.escape(b.get("overview",""))}</div>'
+            f'<div class="brief-lines">{"".join(line_items)}</div>'
+            f'<div class="brief-trends"><b>趋势判断</b><ul>{trends}</ul></div>'
+            f'</div>')
+    briefing_html = (
+        f'<div class="briefing-wrap"><div class="brief-tabs">{"".join(tabs)}</div>'
+        f'<div class="brief-panels">{"".join(panels)}</div></div>')
+
 # 本周热点
 hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in hot_tags_top])
 
@@ -665,6 +703,33 @@ html_content = f"""<!DOCTYPE html>
         }}
         .ev-src-link:hover {{ background: #1d232c; border-color: #3a4350; }}
 
+        /* AI 方向综述 */
+        .briefing-section {{ margin-bottom: 30px; padding: 20px; background: #14171d; border: 1px solid #222; border-radius: 12px; }}
+        .briefing-section h2 {{ font-size: 16px; color: #fff; margin-bottom: 14px; }}
+        .brief-tabs {{ display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }}
+        .brief-tab {{
+            background: #171b21; border: 1px solid #262b33; color: #9aa4b2;
+            padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer;
+        }}
+        .brief-tab:hover {{ border-color: #3a4350; color: #c2c9d4; }}
+        .brief-tab.active {{ background: #1c2735; border-color: #3a6ea5; color: #9ecbff; }}
+        .brief-panel {{ display: none; }}
+        .brief-panel.active {{ display: block; }}
+        .brief-overview {{ color: #d4dae3; font-size: 13.5px; line-height: 1.7; margin-bottom: 16px; padding: 12px 14px; background: #101318; border-left: 3px solid #3a6ea5; border-radius: 6px; }}
+        .brief-lines {{ display: flex; flex-direction: column; gap: 13px; margin-bottom: 16px; }}
+        .brief-line-name {{ font-size: 13.5px; font-weight: 600; color: #e8edf3; margin-bottom: 5px; }}
+        .brief-line-point {{ color: #aab2bd; font-size: 13px; line-height: 1.65; margin-bottom: 7px; }}
+        .brief-cites {{ display: flex; flex-wrap: wrap; gap: 6px; }}
+        .cite-chip {{
+            font-size: 11.5px; color: #9ecbff; text-decoration: none;
+            padding: 2px 9px; border-radius: 5px;
+            background: rgba(77,166,255,0.1); border: 1px solid rgba(77,166,255,0.25);
+        }}
+        .cite-chip:hover {{ background: rgba(77,166,255,0.2); }}
+        .brief-trends {{ background: #101318; border-radius: 8px; padding: 12px 14px; }}
+        .brief-trends b {{ color: #e8edf3; font-size: 13px; }}
+        .brief-trends ul {{ margin: 8px 0 0; padding-left: 18px; }}
+        .brief-trends li {{ color: #c2c9d4; font-size: 13px; line-height: 1.7; }}
 
         /* 热点 */
         .hot-section {{
@@ -930,6 +995,11 @@ html_content = f"""<!DOCTYPE html>
                     <div class="event-cards">
                         {events_html}
                     </div>
+                </div>
+
+                <div class="briefing-section">
+                    <h2>AI 方向综述 <span class="top-sub">基于近 90 天论文自动生成，引用可溯源</span></h2>
+                    {briefing_html}
                 </div>
 
                 <div class="hot-section">
@@ -1294,6 +1364,16 @@ html_content = f"""<!DOCTYPE html>
             document.getElementById('modal').style.display = 'none';
         }}
         
+        // AI 方向综述切换
+        function switchBrief(i) {{
+            document.querySelectorAll('.brief-tab').forEach(function(t,idx){{
+                t.classList.toggle('active', idx===i);
+            }});
+            document.querySelectorAll('.brief-panel').forEach(function(p){{
+                p.classList.toggle('active', p.getAttribute('data-i') === String(i));
+            }});
+        }}
+
         // 自上次访问以来（localStorage 记录，纯前端轻量推送）
         function initSinceVisit() {{
             var now = new Date();
