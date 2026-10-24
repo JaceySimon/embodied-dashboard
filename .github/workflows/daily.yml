@@ -45,6 +45,7 @@ jobs:
             python pipeline/gen_summaries.py 10 || echo "摘要生成失败，跳过"
             python -m pipeline.gen_briefing || echo "方向综述生成失败，跳过"
             python -m pipeline.gen_event_briefs || echo "事件解读生成失败，跳过"
+            python -m pipeline.gen_weekly_intro || echo "本周导读生成失败，跳过"
           else
             echo "未配置 LLM_API_KEY，跳过 AI 摘要/综述"
           fi

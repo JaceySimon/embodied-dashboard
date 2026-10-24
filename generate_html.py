@@ -55,73 +55,7 @@ for p in week_papers:
 hot_tags_top = hot_tags.most_common(10)
 
 # 计算本周必看 10 篇（按重要性评分）
-def calc_score(p):
-    score = 0
-    # 标签权重：VLA、world_model、sim2real 是重点
-    weight_map = {
-        "VLA": 10,
-        "world_model": 8,
-        "sim2real": 7,
-        "diffusion_policy": 6,
-        "foundation_model": 6,
-        "manipulation": 4,
-        "locomotion": 3,
-        "navigation": 3,
-    }
-    for t in p.get("tags", []):
-        score += weight_map.get(t, 1)
-    # 有真机实验加分
-    if p.get("has_real_robot", False):
-        score += 5
-    # 已开源加分
-    if p.get("is_open_source", False):
-        score += 3
-    # 作者数量（多人合作通常更重要）
-    score += min(len(p.get("authors", [])), 5)
-    return score
-
-# 工业界重大发布评分（公司博客/实验室博客/媒体）
-def calc_industry_score(p):
-    score = 0
-    text = ((p.get("title") or "") + " " + (p.get("abstract") or "")).lower()
-    # 重大技术信号：权重向模型/开源/数据集/基准/世界模型倾斜
-    signals = [
-        ("world model", 10), ("vision-language-action", 10), ("vla", 9),
-        ("foundation model", 9), ("open-source", 8), ("open source", 8), ("opensources", 8),
-        ("dataset", 7), ("benchmark", 7), ("simulator", 7), ("imitation", 6),
-        ("reinforcement learning", 6), ("introducing", 6), ("launches", 5), ("unveils", 5),
-        ("humanoid", 5), ("deploys", 4), ("generalist", 4), ("manipulation", 4),
-        ("robot model", 4), ("policy", 3), ("robot", 2),
-    ]
-    for kw, w in signals:
-        if kw in text:
-            score += w
-    # 中文技术信号（中国公司一手源标题为中文，避免英文词表导致系统性低估）
-    signals_zh = [
-        ("世界模型", 10), ("视觉语言动作", 9), ("vla", 9), ("具身大模型", 9),
-        ("基础模型", 8), ("大模型", 7), ("开源", 8), ("数据集", 7), ("基准", 7),
-        ("端到端", 6), ("后训练", 6), ("模仿学习", 6), ("强化学习", 6),
-        ("具身智能", 5), ("人形机器人", 5), ("真机", 4), ("部署", 4),
-        ("操作", 4), ("抓取", 3), ("策略", 3),
-    ]
-    for kw, w in signals_zh:
-        if kw in text:
-            score += w
-    if p.get("is_open_source"):
-        score += 5
-    if p.get("has_real_robot"):
-        score += 3
-    if p.get("code_url"):
-        score += 3
-    # 头部源加权（模型型公司/实验室）
-    top_sources = {"Google DeepMind Research": 4, "Physical Intelligence": 4,
-                   "Figure AI": 3, "Skild AI": 3, "NVIDIA Research Blog": 3,
-                   "智元机器人 AgiBot": 3, "逐际动力 LimX": 2, "1X Technologies": 2,
-                   "Sanctuary AI": 2, "Boston Dynamics": 2,
-                   "银河通用 Galbot": 2, "星动纪元 RobotEra": 2,
-                   "宇树科技 Unitree": 2, "众擎机器人 EngineAI": 2}
-    score += top_sources.get(p.get("source_name", ""), 0)
-    return score
+from pipeline.scoring import calc_score, calc_industry_score
 
 # 给本周论文打分
 for p in week_papers:
@@ -414,6 +348,38 @@ if event_brief_path.exists():
         event_briefs = json.load(open(event_brief_path, encoding="utf-8")).get("briefs", {})
     except Exception:
         event_briefs = {}
+
+# 本周 AI 导读（顶部执行摘要）
+intro_data = {}
+intro_path = PROJECT_ROOT / "data" / "weekly_intro.json"
+if intro_path.exists():
+    try:
+        intro_data = json.load(open(intro_path, encoding="utf-8"))
+    except Exception:
+        intro_data = {}
+intro_html = ""
+if intro_data.get("must_read"):
+    _items = []
+    for i, m in enumerate(intro_data["must_read"], 1):
+        mp = papers_by_id.get(m["paper_id"])
+        if not mp:
+            continue
+        _items.append(
+            f'<div class="intro-item">'
+            f'<a class="intro-title" href="{mp.get("url","")}" target="_blank" onclick="markRead(\'{str(mp["id"]).replace("/","_")}\')">'
+            f'<span class="intro-num">{i}</span>{html.escape(mp.get("title",""))}</a>'
+            f'<div class="intro-why">{html.escape(m.get("why",""))}</div></div>'
+        )
+    _headline = html.escape(intro_data.get("headline", ""))
+    _trend = html.escape(intro_data.get("trend", ""))
+    intro_html = (
+        '<div class="intro-section">'
+        '<div class="intro-head"><span class="ai-badge">AI 本周导读</span>'
+        f'<span class="intro-headline">{_headline}</span></div>'
+        f'<div class="intro-items">{"".join(_items)}</div>'
+        f'<div class="intro-trend"><span class="intro-trend-label">趋势</span>{_trend}</div>'
+        '</div>'
+    )
 
 def render_event_card(ev):
     primary = papers_by_id.get(ev["primary"])
@@ -1078,6 +1044,31 @@ html_content = f"""<!DOCTYPE html>
         }}
         
         /* 本周必看 */
+        /* AI 本周导读（顶部执行摘要） */
+        .intro-section {{
+            margin-bottom: 24px; padding: 18px 20px;
+            background: linear-gradient(135deg, #131c2b 0%, #14171d 60%);
+            border: 1px solid #243246; border-radius: 12px;
+            border-left: 3px solid #4da6ff;
+        }}
+        .intro-head {{ display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }}
+        .intro-headline {{ font-size: 15.5px; font-weight: 600; color: #eef3f9; line-height: 1.5; }}
+        .intro-items {{ display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }}
+        .intro-item {{ background: rgba(255,255,255,0.025); border: 1px solid #232a34; border-radius: 8px; padding: 9px 12px; }}
+        .intro-title {{ display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; color: #cfe3f7; text-decoration: none; line-height: 1.4; }}
+        .intro-title:hover {{ color: #7fb4e8; }}
+        .intro-num {{
+            flex: none; display: inline-flex; align-items: center; justify-content: center;
+            width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 700;
+            background: #1c3a55; color: #7fb4e8;
+        }}
+        .intro-why {{ font-size: 12.5px; color: #97a2b2; line-height: 1.5; margin-top: 4px; padding-left: 26px; }}
+        .intro-trend {{ font-size: 12.5px; color: #aab4c0; line-height: 1.5; padding-top: 10px; border-top: 1px dashed #2a313c; }}
+        .intro-trend-label {{
+            display: inline-block; font-size: 11px; color: #f0c674; background: rgba(240,198,116,0.10);
+            border: 1px solid rgba(240,198,116,0.28); border-radius: 5px; padding: 1px 7px; margin-right: 8px;
+        }}
+
         .top-section {{
             margin-bottom: 30px;
             padding: 20px;
@@ -1313,7 +1304,9 @@ html_content = f"""<!DOCTYPE html>
                     <span class="rf-item" onclick="filterByRead('unread')">未读 <b id="unreadCount">0</b></span>
                     <span class="rf-item" onclick="filterByRead('read')">已读</span>
                 </div>
-                
+
+                {intro_html}
+
                 <div class="top-section">
                     <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3 + 开源/模型 3</span></h2>
                     <div class="top-papers">

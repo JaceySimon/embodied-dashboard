@@ -73,6 +73,7 @@ def all_pipeline():
     run_optional("python pipeline/gen_summaries.py 10")
     run_optional("python -m pipeline.gen_briefing")
     run_optional("python -m pipeline.gen_event_briefs")
+    run_optional("python -m pipeline.gen_weekly_intro")
     gen_html()
     weekly()
     print("\n✅ 全部完成！")
