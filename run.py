@@ -8,6 +8,8 @@
     python run.py weekly           # 生成周报
     python run.py all              # 一键：采集 + 合并 + 生成HTML + 周报
     python run.py health           # 数据源健康检查
+    python run.py quality          # 数据质量抽检
+    python run.py linkcheck        # 链接可靠性（死链）检查
     python run.py summaries 20     # 给前 N 篇论文生成 AI 摘要
 """
 import sys
@@ -96,6 +98,9 @@ def main():
         run("python pipeline/health_check.py")
     elif command == "quality":
         run("python pipeline/data_quality.py")
+    elif command == "linkcheck":
+        scope = sys.argv[2] if len(sys.argv) > 2 else "priority"
+        run(f"python pipeline/link_check.py {scope}")
     elif command == "weekly":
         weekly()
     elif command == "summaries":
