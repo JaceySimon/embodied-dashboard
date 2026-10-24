@@ -35,7 +35,16 @@ NOISE_STRONG = [
     r"融资", r"pre-?ipo", r"上市",
     # 比赛/运动会/预订营销/人物荣誉
     r"金牌", r"运动会", r"夺金", r"霸榜", r"火热预订", r"开放预订",
+    r"巡回挑战赛", r"合作伙伴", r"招募", r"高燃开赛",
     r"科协", r"全国委员", r"科技报国",
+    # 出货量产/签约/估值
+    r"万台", r"规模化交付", r"正式下线", r"战略签约", r"估值",
+    # 节日/榜单/媒体曝光/营销噱头/商业展会
+    r"中秋快乐", r"新年快乐", r"春节快乐", r"节日(快乐|祝福)",
+    r"福布斯", r"创新力企业", r"50强", r"百强",
+    r"央视", r"新闻联播", r"点赞", r"媒体聚焦",
+    r"搭子", r"七夕", r"丘比特", r"逛街", r"网红景点", r"旅游搭子",
+    r"\bCES\b", r"GITEX", r"WAIC", r"迪拜", r"科幻大会", r"会展担当",
     # 出货量/市场排名
     r"shipments", r"market share", r"counterpoint", r"idc data", r"ranks? no",
     # 获奖/展会/主题乐园/巡演/行业峰会
@@ -615,22 +624,117 @@ class NuxtPayloadCollector(CompanyHTMLCollector):
         return papers
 
 
+class JsonApiCollector(CompanyHTMLCollector):
+    """纯 SPA 站点的后端分页 JSON 接口采集器。
+    典型：星动纪元 robotera（前端 Vite SPA，/prod-api/.../getNewsList 返回列表 JSON）。
+    通过 json_api 配置字段映射与分页参数，避免硬编码。"""
+
+    def __init__(self, *args, api_config: dict = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        cfg = api_config or {}
+        self.api_params = dict(cfg.get("params", {}))
+        self.page_param = cfg.get("page_param")      # 页码参数名，如 pageNum
+        self.size_param = cfg.get("size_param")      # 页大小参数名，如 pageSize
+        self.page_size = cfg.get("page_size", 20)    # 每页条数
+        if self.size_param:
+            self.api_params[self.size_param] = self.page_size
+        self.list_path = cfg.get("list_path", "data.list")
+        self.total_path = cfg.get("total_path", "data.total")
+        self.title_field = cfg.get("title_field", "title")
+        self.url_field = cfg.get("url_field", "url")
+        self.date_field = cfg.get("date_field", "publishTime")
+        self.api_max_pages = cfg.get("max_pages", 3)
+
+    @staticmethod
+    def _dig(obj, dotted: str):
+        cur = obj
+        for key in dotted.split("."):
+            if isinstance(cur, dict):
+                cur = cur.get(key)
+            else:
+                return None
+        return cur
+
+    def _fetch_page(self, page: int) -> list:
+        params = dict(self.api_params)
+        if self.page_param:
+            params[self.page_param] = page
+        resp = requests.get(self.list_url, params=params,
+                            headers={**HEADERS, "Accept": "application/json"},
+                            timeout=self.timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        items = self._dig(data, self.list_path)
+        return items or []
+
+    def collect(self, lookback_days: int = 90) -> List[Paper]:
+        logger.info(f"[JSON-API] 抓取 {self.source_name}: {self.list_url}")
+        cutoff = datetime.utcnow() - timedelta(days=lookback_days)
+        papers, seen = [], set()
+        for page in range(1, self.api_max_pages + 1):
+            try:
+                items = self._fetch_page(page)
+            except Exception as e:
+                logger.warning(f"[JSON-API] {self.source_name} 第{page}页失败: {e}")
+                break
+            if not items:
+                break
+            stop = False
+            for n in items:
+                url = (n.get(self.url_field) or "").strip() if isinstance(n, dict) else ""
+                title = (n.get(self.title_field) or "").strip() if isinstance(n, dict) else ""
+                if not url or not title or url in seen:
+                    continue
+                seen.add(url)
+                if self.noise_filter and is_company_noise(title):
+                    continue
+                if self.keywords:
+                    if not any(k.lower() in title.lower() for k in self.keywords):
+                        continue
+                published = parse_date(str(n.get(self.date_field, ""))) or datetime.utcnow()
+                if published > datetime.utcnow() + timedelta(days=2):
+                    published = datetime.utcnow()
+                if published < cutoff:
+                    stop = True
+                    continue
+                papers.append(self._make_paper(title, url, "", published))
+                if len(papers) >= self.max_articles:
+                    stop = True
+                    break
+            if stop or len(items) < self.page_size:
+                break
+            time.sleep(self.delay)
+
+        logger.info(f"[JSON-API] {self.source_name} 采集 {len(papers)} 篇")
+        return papers
+
+
+
 def build_html_collectors_from_config(config: dict) -> List["CompanyHTMLCollector"]:
     """从配置文件构建所有启用的 HTML 公司采集器"""
     collectors = []
     for comp in config.get("l1", {}).get("html_companies", []):
         if comp.get("enabled", False) and comp.get("list_url"):
-            cls = NuxtPayloadCollector if comp.get("mode") == "nuxt_payload" else CompanyHTMLCollector
-            collectors.append(cls(
+            mode = comp.get("mode", "detail")
+            if mode == "nuxt_payload":
+                cls = NuxtPayloadCollector
+            elif mode == "json_api":
+                cls = JsonApiCollector
+            else:
+                cls = CompanyHTMLCollector
+            kw = dict(
                 source_name=comp["name"],
                 list_url=comp["list_url"],
                 link_pattern=comp.get("link_pattern", ""),
                 keywords=comp.get("keywords"),
                 region=comp.get("region", "US"),
                 max_articles=comp.get("max_articles", 12),
-                mode=comp.get("mode", "detail"),
+                mode=mode,
                 page_url=comp.get("page_url"),
                 max_pages=comp.get("max_pages", 1),
                 source_type=comp.get("source_type", "company_blog"),
-            ))
+            )
+            if mode == "json_api":
+                kw["api_config"] = comp.get("json_api", {})
+            collectors.append(cls(**kw))
     return collectors

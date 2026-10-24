@@ -225,6 +225,31 @@ l1:
       region: "CN"
       enabled: true
 
+    - name: "众擎机器人 EngineAI"
+      list_url: "https://www.engineai.com.cn/about-news.html"
+      link_pattern: '/about-news-media/\d+\.html'
+      mode: "list"
+      max_articles: 20
+      region: "CN"
+      enabled: true
+
+    - name: "星动纪元 RobotEra"
+      list_url: "https://www.robotera.com/prod-api/api/v1/robotera/getNewsList"
+      mode: "json_api"
+      json_api:
+        params: {site: 1, isShow: 0}
+        page_param: "pageNum"
+        size_param: "pageSize"
+        list_path: "data.list"
+        total_path: "data.total"
+        title_field: "title"
+        url_field: "externalLink"
+        date_field: "publishTime"
+        max_pages: 3
+      max_articles: 40
+      region: "CN"
+      enabled: true
+
   chinese_companies:
     - name: "智元机器人 AgiBot"
       url: "https://www.agibot.com/"
