@@ -901,6 +901,10 @@ html_content = f"""<!DOCTYPE html>
         /* 已读卡片淡化 */
         .paper-card.is-read {{ opacity: 0.55; }}
         .paper-card.is-read .paper-title a {{ color: #8a93a2; }}
+        .paper-card.focused {{
+            border-color: #4da6ff;
+            box-shadow: 0 0 0 2px rgba(77,166,255,0.35), 0 4px 18px rgba(0,0,0,0.35);
+        }}
         /* 阅读状态工具条 */
         .read-filter {{
             display: flex; align-items: center; gap: 8px;
@@ -1869,6 +1873,7 @@ html_content = f"""<!DOCTYPE html>
                         <li>搜索框：全文搜索标题、作者、摘要</li>
                         <li>点击 ☆ 收藏论文，刷新不丢失</li>
                         <li>点击"相关论文"看同方向的其他工作</li>
+                        <li>快捷键：<b>J/K</b> 上下翻、<b>O</b> 开原文、<b>R</b> 已读、<b>F</b> 收藏、<b>/</b> 搜索</li>
                     </ul>
                     <p style="margin-bottom:15px">聚焦三个方向：<b>VLA / 世界模型 / 仿真器</b></p>
                     <button onclick="closeModal();localStorage.setItem('onboarded','1');" 
@@ -2059,15 +2064,53 @@ html_content = f"""<!DOCTYPE html>
         }}
         
         // 键盘快捷键
+        // ===== 键盘快速浏览（重度用户）=====
+        let focusedCard = null;
+        function visibleCards() {{
+            return [].filter.call(document.querySelectorAll('.paper-card'),
+                c => c.offsetParent !== null);
+        }}
+        function setFocusCard(card) {{
+            if (focusedCard) focusedCard.classList.remove('focused');
+            focusedCard = card;
+            card.classList.add('focused');
+            card.scrollIntoView({{ block: 'center', behavior: 'smooth' }});
+        }}
+        function moveFocus(dir) {{
+            const cards = visibleCards();
+            if (!cards.length) return;
+            let idx = focusedCard ? cards.indexOf(focusedCard) : (dir > 0 ? -1 : 0);
+            idx = Math.max(0, Math.min(cards.length - 1, idx + dir));
+            setFocusCard(cards[idx]);
+        }}
+
         document.addEventListener('keydown', (e) => {{
-            // 按 / 聚焦搜索
-            if (e.key === '/' && document.activeElement.id !== 'search') {{
+            const inField = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+            // 输入框内：只处理 Escape（退出输入）
+            if (inField) {{
+                if (e.key === 'Escape') {{ document.activeElement.blur(); closeModal(); }}
+                return;
+            }}
+            // / 聚焦搜索
+            if (e.key === '/') {{
                 e.preventDefault();
                 document.getElementById('search').focus();
+                return;
             }}
             // ESC 关闭模态框
-            if (e.key === 'Escape') {{
-                closeModal();
+            if (e.key === 'Escape') {{ closeModal(); return; }}
+            const id = focusedCard ? focusedCard.dataset.id : null;
+            if (e.key === 'j' || e.key === 'ArrowDown') {{
+                e.preventDefault(); moveFocus(1);
+            }} else if (e.key === 'k' || e.key === 'ArrowUp') {{
+                e.preventDefault(); moveFocus(-1);
+            }} else if ((e.key === 'o' || e.key === 'Enter') && id) {{
+                const a = focusedCard.querySelector('.paper-title a');
+                if (a) {{ a.click(); }}
+            }} else if (e.key === 'r' && id) {{
+                toggleRead(id);
+            }} else if (e.key === 'f' && id) {{
+                toggleFav(id);
             }}
         }});
         
