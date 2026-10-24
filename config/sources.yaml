@@ -82,22 +82,22 @@ l1:
       keywords: ["robot", "robotics"]
       enabled: true
 
-    # 以下源 RSS URL 无效或网站无 RSS，v2 需手动找正确 URL
+    - name: "NVIDIA Research Blog"
+      url: "https://blogs.nvidia.com/research/"
+      rss: "https://blogs.nvidia.com/feed/"
+      region: "US"
+      keywords: ["robot", "robotics", "Isaac", "GR00T", "Cosmos"]
+      enabled: true
+
     - name: "Stanford Vision and Learning Lab"
       url: "https://svl.stanford.edu/blog/"
-      rss: null  # 网站返回 HTML 不是 RSS，需找正确 URL
+      rss: null
       region: "US"
       enabled: false
 
     - name: "Meta AI Research"
       url: "https://ai.meta.com/research/"
-      rss: null  # 连接被重置，反爬
-      region: "US"
-      enabled: false
-
-    - name: "NVIDIA Research"
-      url: "https://blogs.nvidia.com/research/"
-      rss: null  # 原 URL 404
+      rss: null
       region: "US"
       enabled: false
 
@@ -105,7 +105,7 @@ l1:
       url: "https://bair.berkeley.edu/"
       rss: "https://bair.berkeley.edu/blog/feed.xml"
       region: "US"
-      enabled: true  # 能解析但最近无更新
+      enabled: true
 
   companies:
     # 以下公司 RSS URL 无效，v2 需找正确 URL
