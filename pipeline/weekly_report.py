@@ -13,16 +13,20 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def generate_weekly_report():
-    # 读取数据（优先读合并后的，包含工业界）
+    # 读取数据（优先读合并后的，包含工业界；否则找最新 arXiv backfill）
+    from utils import find_latest_file
     combined_path = PROJECT_ROOT / "data" / "combined.json"
-    arxiv_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
+    latest_backfill = find_latest_file(PROJECT_ROOT / "data" / "backfill", "arxiv_backfill_*.json")
 
     if combined_path.exists():
         with open(combined_path, "r", encoding="utf-8") as f:
             papers = json.load(f)
-    else:
-        with open(arxiv_path, "r", encoding="utf-8") as f:
+    elif latest_backfill:
+        with open(latest_backfill, "r", encoding="utf-8") as f:
             papers = json.load(f)
+    else:
+        print("错误：没有找到数据文件")
+        return "# 周报生成失败：没有数据\n"
 
     # 本周论文
     week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")

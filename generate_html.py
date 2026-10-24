@@ -10,16 +10,24 @@ from datetime import datetime, timedelta
 
 PROJECT_ROOT = Path(__file__).parent
 
-# 读取数据（优先读合并后的，没有则回退到 arXiv）
+# 自动查找最新数据文件
+import sys
+sys.path.insert(0, str(PROJECT_ROOT))
+from utils import find_latest_file
+
+# 读取数据（优先读合并后的，没有则回退到最新 arXiv backfill）
 combined_path = PROJECT_ROOT / "data" / "combined.json"
-arxiv_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
+latest_backfill = find_latest_file(PROJECT_ROOT / "data" / "backfill", "arxiv_backfill_*.json")
 
 if combined_path.exists():
     with open(combined_path, "r", encoding="utf-8") as f:
         papers = json.load(f)
-else:
-    with open(arxiv_path, "r", encoding="utf-8") as f:
+elif latest_backfill:
+    with open(latest_backfill, "r", encoding="utf-8") as f:
         papers = json.load(f)
+else:
+    print("错误：没有找到数据文件，请先跑 python run.py backfill 90")
+    papers = []
 
 # 按时间倒序
 papers.sort(key=lambda p: p["published_at"], reverse=True)

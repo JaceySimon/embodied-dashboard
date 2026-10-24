@@ -108,3 +108,19 @@ def chunk_list(lst: list, chunk_size: int) -> list:
     """把列表分块"""
     for i in range(0, len(lst), chunk_size):
         yield lst[i:i + chunk_size]
+
+
+def find_latest_file(directory: Path, pattern: str) -> Optional[Path]:
+    """
+    找目录下匹配 pattern 的最新文件（按修改时间）
+    例如 find_latest_file(data/backfill, "arxiv_backfill_*.json")
+    """
+    directory = Path(directory)
+    if not directory.exists():
+        return None
+
+    files = list(directory.glob(pattern))
+    if not files:
+        return None
+
+    return max(files, key=lambda f: f.stat().st_mtime)

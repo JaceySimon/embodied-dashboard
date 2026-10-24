@@ -35,8 +35,12 @@ def collect_rss_papers(lookback_days: int = 90):
 
 
 def main():
-    # 读取 arXiv 数据
-    arxiv_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
+    # 读取最新 arXiv backfill
+    from utils import find_latest_file
+    arxiv_path = find_latest_file(PROJECT_ROOT / "data" / "backfill", "arxiv_backfill_*.json")
+    if not arxiv_path:
+        logger.error("没有找到 arXiv backfill 文件，请先跑 python pipeline/backfill.py 90")
+        return
     with open(arxiv_path, "r", encoding="utf-8") as f:
         arxiv_papers = json.load(f)
 

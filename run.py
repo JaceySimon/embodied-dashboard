@@ -82,6 +82,8 @@ def main():
         run("python pipeline/merge_sources.py")
     elif command == "health":
         run("python pipeline/health_check.py")
+    elif command == "quality":
+        run("python pipeline/data_quality.py")
     elif command == "weekly":
         weekly()
     elif command == "summaries":
