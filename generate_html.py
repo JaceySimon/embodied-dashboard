@@ -91,6 +91,17 @@ def calc_industry_score(p):
     for kw, w in signals:
         if kw in text:
             score += w
+    # 中文技术信号（中国公司一手源标题为中文，避免英文词表导致系统性低估）
+    signals_zh = [
+        ("世界模型", 10), ("视觉语言动作", 9), ("vla", 9), ("具身大模型", 9),
+        ("基础模型", 8), ("大模型", 7), ("开源", 8), ("数据集", 7), ("基准", 7),
+        ("端到端", 6), ("后训练", 6), ("模仿学习", 6), ("强化学习", 6),
+        ("具身智能", 5), ("人形机器人", 5), ("真机", 4), ("部署", 4),
+        ("操作", 4), ("抓取", 3), ("策略", 3),
+    ]
+    for kw, w in signals_zh:
+        if kw in text:
+            score += w
     if p.get("is_open_source"):
         score += 5
     if p.get("has_real_robot"):
@@ -101,7 +112,9 @@ def calc_industry_score(p):
     top_sources = {"Google DeepMind Research": 4, "Physical Intelligence": 4,
                    "Figure AI": 3, "Skild AI": 3, "NVIDIA Research Blog": 3,
                    "智元机器人 AgiBot": 3, "逐际动力 LimX": 2, "1X Technologies": 2,
-                   "Sanctuary AI": 2, "Boston Dynamics": 2}
+                   "Sanctuary AI": 2, "Boston Dynamics": 2,
+                   "银河通用 Galbot": 2, "星动纪元 RobotEra": 2,
+                   "宇树科技 Unitree": 2, "众擎机器人 EngineAI": 2}
     score += top_sources.get(p.get("source_name", ""), 0)
     return score
 
