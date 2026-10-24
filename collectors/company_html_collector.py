@@ -26,11 +26,16 @@ NOISE_STRONG = [
     r"registration statement", r"\bs-?4\b", r"business combination", r"churchill capital",
     r"audit committee", r"board of directors", r"new directors", r"appoints? .*(ceo|cfo|director|chair|board)",
     r"welcoming .{0,30} as (cfo|vp|svp|chief|officer|president|head|people|engineering)",
+    r"welcoming .{0,25} (president|minister|prime minister|delegation|ambassador)",
     r"joins .{0,20} as (cfo|vp|svp|chief|ceo|officer)",
+    r"time magazine", r"magazine cover", r"kung fu",
     r"investor day", r"analyst day", r"stockholders", r"\bnyse\b", r"\bnasdaq\b", r"prospectus",
     r"ask a roboticist", r"skillbridge", r"opens? .{0,20} office", r"time\s?100",
     r"reports? (first|second|third|fourth|fiscal|quarterly|annual)", r"quarterly results",
     r"融资", r"pre-?ipo", r"上市",
+    # 比赛/运动会/预订营销/人物荣誉
+    r"金牌", r"运动会", r"夺金", r"霸榜", r"火热预订", r"开放预订",
+    r"科协", r"全国委员", r"科技报国",
     # 出货量/市场排名
     r"shipments", r"market share", r"counterpoint", r"idc data", r"ranks? no",
     # 获奖/展会/主题乐园/巡演/行业峰会
@@ -314,14 +319,23 @@ class CompanyHTMLCollector(BaseCollector):
             inner = html_text[start: end if end != -1 else start + 3000][:3000]
             inner_soup = BeautifulSoup(inner, "lxml")
 
-            # 标题：开标签 title 属性与内部 h1-h5 取较长者（title 属性可能含未转义引号被截断）
-            tm = re.search(r'\btitle=["\'](.*?)["\']', attrs, re.I | re.S)
-            title_attr = unescape(tm.group(1)).strip() if tm else ""
-            title_h5 = ""
+            # 标题：优先内部标题元素（h1-h5 / class 含 title），再退到开标签 title 属性 / img alt
+            candidates = []
             ht = inner_soup.find(["h1", "h2", "h3", "h4", "h5"])
             if ht:
-                title_h5 = ht.get_text(" ", strip=True)
-            title = title_h5 if len(title_h5) > len(title_attr) else title_attr
+                candidates.append(ht.get_text(" ", strip=True))
+            ct = inner_soup.find(class_=re.compile(r"title|heading|name", re.I))
+            if ct:
+                candidates.append(ct.get_text(" ", strip=True))
+            tm = re.search(r'\btitle=["\'](.*?)["\']', attrs, re.I | re.S)
+            if tm:
+                candidates.append(unescape(tm.group(1)).strip())
+            img = inner_soup.find("img")
+            if img and img.get("alt"):
+                candidates.append(unescape(img["alt"]).strip())
+            # 取最长的合理候选（避开分类标签等短文本）
+            candidates = [c for c in candidates if c and len(c) >= 6]
+            title = max(candidates, key=len) if candidates else ""
             if not title:
                 continue
 
@@ -517,15 +531,100 @@ class CompanyHTMLCollector(BaseCollector):
         return papers
 
 
+class NuxtPayloadCollector(CompanyHTMLCollector):
+    """Nuxt 站点采集器：页面是 JS 渲染，但 <route>/_payload.json 暴露完整数据。
+    典型：银河通用（正文外链微信公众号，只取列表标题+链接+日期，不抓正文）。"""
+
+    def _resolve_ref(self, arr, idx, depth=0):
+        """Nuxt payload 是扁平引用数组：对象字段值是指向数组其他位置的索引"""
+        if depth > 6 or not isinstance(idx, int) or idx >= len(arr):
+            return idx
+        v = arr[idx]
+        if isinstance(v, dict):
+            out = {}
+            for k, vi in v.items():
+                out[k] = self._resolve_ref(arr, vi, depth + 1) if isinstance(vi, int) else vi
+            return out
+        if isinstance(v, list):
+            return [self._resolve_ref(arr, x, depth + 1) if isinstance(x, int) else x for x in v]
+        return v
+
+    def _fetch_payload(self):
+        """拉列表页 HTML 拿 build id，再取 _payload.json，返回扁平数组"""
+        html_text = self._get(self.list_url)
+        m = re.search(r'/_nuxt/builds/meta/([a-f0-9\-]+)\.json', html_text)
+        if not m:
+            raise RuntimeError(f"未找到 Nuxt build id: {self.list_url}")
+        build_id = m.group(1)
+        base = self.list_url.rstrip("/")
+        payload_url = f"{base}/_payload.json?{build_id}"
+        resp = requests.get(payload_url, headers=HEADERS, timeout=self.timeout)
+        resp.raise_for_status()
+        data = resp.json()
+        return data if isinstance(data, list) else data.get("data", data)
+
+    def _extract_items(self, arr):
+        """在扁平数组里找含 'list' 的分页对象，还原新闻条目列表"""
+        for node in arr:
+            if isinstance(node, dict) and "list" in node and isinstance(node["list"], int):
+                list_refs = arr[node["list"]]
+                if isinstance(list_refs, list):
+                    items = []
+                    for ref in list_refs:
+                        obj = self._resolve_ref(arr, ref)
+                        if isinstance(obj, dict) and "url" in obj:
+                            items.append(obj)
+                    if items:
+                        return items
+        return []
+
+    def collect(self, lookback_days: int = 90) -> List[Paper]:
+        logger.info(f"[Nuxt] 抓取 {self.source_name}: {self.list_url}")
+        cutoff = datetime.utcnow() - timedelta(days=lookback_days)
+        arr = self._fetch_payload()
+        raw_items = self._extract_items(arr)
+
+        papers = []
+        seen = set()
+        for n in raw_items:
+            url = (n.get("url") or "").strip()
+            if not url or url in seen:
+                continue
+            seen.add(url)
+            # 银河通用字段名错位：真正标题在 content/eng_content
+            title = (n.get("content") or n.get("title") or
+                     n.get("eng_content") or "").strip()
+            if not title:
+                continue
+            if self.noise_filter and is_company_noise(title):
+                continue
+            if self.keywords:
+                if not any(k.lower() in title.lower() for k in self.keywords):
+                    continue
+            published = parse_date(str(n.get("publish_time", ""))) or datetime.utcnow()
+            # 未来日期兜底
+            if published > datetime.utcnow() + timedelta(days=2):
+                published = datetime.utcnow()
+            if published < cutoff:
+                continue
+            papers.append(self._make_paper(title, url, "", published))
+            if len(papers) >= self.max_articles:
+                break
+
+        logger.info(f"[Nuxt] {self.source_name} 采集 {len(papers)} 篇")
+        return papers
+
+
 def build_html_collectors_from_config(config: dict) -> List["CompanyHTMLCollector"]:
     """从配置文件构建所有启用的 HTML 公司采集器"""
     collectors = []
     for comp in config.get("l1", {}).get("html_companies", []):
         if comp.get("enabled", False) and comp.get("list_url"):
-            collectors.append(CompanyHTMLCollector(
+            cls = NuxtPayloadCollector if comp.get("mode") == "nuxt_payload" else CompanyHTMLCollector
+            collectors.append(cls(
                 source_name=comp["name"],
                 list_url=comp["list_url"],
-                link_pattern=comp["link_pattern"],
+                link_pattern=comp.get("link_pattern", ""),
                 keywords=comp.get("keywords"),
                 region=comp.get("region", "US"),
                 max_articles=comp.get("max_articles", 12),

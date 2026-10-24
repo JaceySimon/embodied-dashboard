@@ -210,6 +210,21 @@ l1:
       region: "CN"
       enabled: true
 
+    - name: "银河通用 Galbot"
+      list_url: "https://www.galbot.com/news/"
+      mode: "nuxt_payload"
+      max_articles: 30
+      region: "CN"
+      enabled: true
+
+    - name: "宇树科技 Unitree"
+      list_url: "https://www.unitree.com/news/"
+      link_pattern: '/news/\d+'
+      mode: "list"
+      max_articles: 20
+      region: "CN"
+      enabled: true
+
   chinese_companies:
     - name: "智元机器人 AgiBot"
       url: "https://www.agibot.com/"
