@@ -32,6 +32,11 @@ else:
 # 按时间倒序
 papers.sort(key=lambda p: p["published_at"], reverse=True)
 
+# 事件归并：把同一进展的 arXiv 论文 / 官方博客 / 媒体报道聚合成一个事件
+from pipeline.event_merger import merge_events, SOURCE_LABEL
+merge_events(papers)
+papers_by_id = {p["id"]: p for p in papers}
+
 # 统计标签
 tag_count = Counter()
 for p in papers:
@@ -182,9 +187,42 @@ def render_paper(p):
     
     # 链接文本
     link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
-    
+
+    # 事件多源归并：主卡片渲染“同一进展的其他来源”，非主卡片默认折叠隐藏
+    event_id = p.get("event_id", "")
+    is_dup = "0" if p.get("event_primary", True) else "1"
+    event_sources_html = ""
+    if p.get("event_primary", True) and p.get("event_members"):
+        member_items = []
+        for mid in p["event_members"]:
+            mp = papers_by_id.get(mid)
+            if not mp:
+                continue
+            mtype = mp.get("source_type", "arxiv")
+            mlabel = SOURCE_LABEL.get(mtype, "其他")
+            mname = mp.get("source_name", "")
+            mtitle = mp.get("title", "")
+            murl = mp.get("url", "")
+            member_items.append(
+                f'<a class="event-source-link" href="{murl}" target="_blank">'
+                f'<span class="es-tag es-{mtype}">{html.escape(mlabel)}</span>'
+                f'<span class="es-title">{html.escape(mname)}</span>'
+                f'<span class="es-name">{html.escape(mtitle[:70])}</span></a>'
+            )
+        n = p.get("event_size", 1)
+        labels = " · ".join(dict.fromkeys(
+            [SOURCE_LABEL.get(papers_by_id[mid].get("source_type", "arxiv"), "其他")
+             for mid in [p["id"]] + p["event_members"] if mid in papers_by_id]
+        ))
+        if member_items:
+            event_sources_html = (
+                f'<details class="event-sources"><summary>'
+                f'🔗 同一进展 · {n} 个来源（{labels}）</summary>'
+                f'<div class="event-source-list">{"".join(member_items)}</div></details>'
+            )
+
     return f"""
-    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}">
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}" data-event-dup="{is_dup}" data-event-id="{html.escape(event_id)}">
         <div class="paper-header">
             <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
             <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
@@ -196,6 +234,7 @@ def render_paper(p):
         </div>
         <div class="paper-tags">{tags_html}</div>
         <div class="paper-abstract">{abstract}</div>
+        {event_sources_html}
         <div class="paper-links">
             <a href="{p['url']}" target="_blank">{link_text}</a>
             <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
@@ -462,6 +501,62 @@ html_content = f"""<!DOCTYPE html>
             margin-right: 15px;
         }}
         .paper-links a:hover {{ text-decoration: underline; }}
+
+        /* 事件多源归并 */
+        .event-sources {{
+            margin: 8px 0 2px;
+            padding: 8px 10px;
+            background: rgba(77, 166, 255, 0.06);
+            border: 1px solid rgba(77, 166, 255, 0.22);
+            border-radius: 8px;
+            font-size: 12px;
+        }}
+        .event-sources > summary {{
+            cursor: pointer;
+            color: #6fb4ff;
+            font-weight: 600;
+            list-style: none;
+            user-select: none;
+        }}
+        .event-sources > summary::-webkit-details-marker {{ display: none; }}
+        .event-sources > summary::before {{ content: "▸ "; }}
+        .event-sources[open] > summary::before {{ content: "▾ "; }}
+        .event-source-list {{
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }}
+        .event-source-link {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            text-decoration: none;
+            color: #cfd6e0;
+            line-height: 1.4;
+        }}
+        .event-source-link:hover {{ background: rgba(77,166,255,0.12); }}
+        .es-tag {{
+            flex: none;
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 4px;
+            font-weight: 600;
+        }}
+        .es-arxiv, .es-openreview, .es-huggingface, .es-github {{
+            background: rgba(77,166,255,0.22); color: #9ecbff;
+        }}
+        .es-company_blog, .es-lab_blog, .es-x_thread {{
+            background: rgba(255,159,67,0.2); color: #ffb27a;
+        }}
+        .es-media {{
+            background: rgba(74,222,128,0.18); color: #7be0a0;
+        }}
+        .es-title {{ flex: none; font-weight: 600; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+        .es-name {{ color: #9aa4b2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
         
         /* 热点 */
         .hot-section {{
@@ -834,7 +929,13 @@ html_content = f"""<!DOCTYPE html>
                 
                 let matchSource = !currentSource || card.dataset.source === currentSource;
                 
-                const matched = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource;
+                // 事件聚合：全览（无任何筛选）时，同一事件只显示主卡片，其余来源折叠隐藏；
+                // 一旦用户搜索/筛选，就允许命中具体来源（如媒体报道）本身
+                const browsingAll = !search && !currentTag && !currentProperty &&
+                    !showOnlyFavs && currentTimeRange === 0 && !currentSource;
+                const matchDup = !(browsingAll && card.dataset.eventDup === '1');
+                
+                const matched = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource && matchDup;
                 if (matched) {{
                     matchedCount++;
                     // 分页：只显示前 renderLimit 个匹配项
