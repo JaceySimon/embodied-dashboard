@@ -377,7 +377,35 @@ def render_paper(p):
     </div>
     """
 
-papers_html = "\n".join([render_paper(p) for p in papers])
+def _date_label(dstr):
+    try:
+        d = datetime.strptime(dstr[:10], "%Y-%m-%d").date()
+    except Exception:
+        return dstr[:10]
+    today = datetime.now().date()
+    delta = (today - d).days
+    if delta == 0:
+        return "今天"
+    if delta == 1:
+        return "昨天"
+    if 2 <= delta <= 6:
+        return f"{delta} 天前"
+    wk = ["周一","周二","周三","周四","周五","周六","周日"][d.weekday()]
+    return f"{d.month}月{d.day}日 {wk}"
+
+_blocks = []
+_last_date = None
+for _p in papers:
+    _d = str(_p["published_at"])[:10]
+    if _d != _last_date:
+        _blocks.append(
+            f'<div class="date-divider" data-date="{_d}">'
+            f'<span class="dd-label">{_date_label(_d)}</span>'
+            f'<span class="dd-date">{_d}</span>'
+            f'<span class="dd-count"></span></div>')
+        _last_date = _d
+    _blocks.append(render_paper(_p))
+papers_html = "\n".join(_blocks)
 
 # ============ 重要进展（事件）专区：按"事件"看全貌，一个进展所有来源一次看完 ============
 def _event_sort_key(ev):
@@ -768,7 +796,30 @@ html_content = f"""<!DOCTYPE html>
             background: #1e293b;
             color: #93c5fd;
         }}
-        
+
+        /* 日期分组锚点（信息流） */
+        .date-divider {{
+            display: flex; align-items: center; gap: 10px;
+            margin: 26px 0 12px; position: sticky; top: 0; z-index: 5;
+        }}
+        .date-divider .dd-label {{
+            font-size: 13px; font-weight: 600; color: #93c5fd;
+            background: rgba(30,41,59,0.92); border: 1px solid #2a3a52;
+            padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+            backdrop-filter: blur(4px);
+        }}
+        .date-divider .dd-date {{
+            font-size: 11px; color: #6b7280; font-variant-numeric: tabular-nums;
+        }}
+        .date-divider .dd-count {{
+            font-size: 11px; color: #5eead4; font-variant-numeric: tabular-nums;
+        }}
+        .date-divider::after {{
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, #2a3a52, transparent);
+        }}
+        .date-divider:first-child {{ margin-top: 4px; }}
+
         /* 搜索 */
         .search-bar {{
             margin-bottom: 20px;
@@ -1604,7 +1655,7 @@ html_content = f"""<!DOCTYPE html>
         
         function filterPapers() {{
             const search = document.getElementById('search').value.trim();
-            const terms = search.toLowerCase().split(/\s+/).filter(Boolean);
+            const terms = search.toLowerCase().split(/\\s+/).filter(Boolean);
             const cards = document.querySelectorAll('.paper-card');
             let matchedCount = 0;
             let shownCount = 0;
@@ -1721,6 +1772,7 @@ html_content = f"""<!DOCTYPE html>
 
             // 加载更多按钮
             updateLoadMore(matchedCount, shownCount);
+            updateDateDividers();
         }}
 
         function updateLoadMore(matched, shown) {{
@@ -1738,9 +1790,34 @@ html_content = f"""<!DOCTYPE html>
             }}
         }}
 
+        // 日期分组锚点：只在该日期组当前有可见卡片时显示，并标注篇数
+        function updateDateDividers() {{
+            const grid = document.getElementById('papers');
+            if (!grid) return;
+            let divider = null, count = 0;
+            const flush = () => {{
+                if (!divider) return;
+                if (count > 0) {{
+                    divider.style.display = 'flex';
+                    const c = divider.querySelector('.dd-count');
+                    if (c) c.textContent = count + ' 篇';
+                }} else {{
+                    divider.style.display = 'none';
+                }}
+            }};
+            grid.querySelectorAll(':scope > *').forEach(el => {{
+                if (el.classList.contains('date-divider')) {{
+                    flush();
+                    divider = el; count = 0;
+                }} else if (el.classList.contains('paper-card') && el.style.display === 'block') {{
+                    count++;
+                }}
+            }});
+            flush();
+        }}
+
         function loadMore() {{
-            renderLimit += PAGE_SIZE;
-            filterPapers();
+            renderLimit += PAGE_SIZE;            filterPapers();
             window.scrollBy({{ top: 200, behavior: 'smooth' }});
         }}
         
