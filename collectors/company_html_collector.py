@@ -21,6 +21,39 @@ HEADERS = {
                   "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 }
 
+# 强噪音：纯金融/人事/投资者关系/品牌栏目/办公室/展会/获奖/出货量/主题乐园，标题命中即排除
+NOISE_STRONG = [
+    r"registration statement", r"\bs-?4\b", r"business combination", r"churchill capital",
+    r"audit committee", r"board of directors", r"new directors", r"appoints? .*(ceo|cfo|director|chair|board)",
+    r"investor day", r"analyst day", r"stockholders", r"\bnyse\b", r"\bnasdaq\b", r"prospectus",
+    r"ask a roboticist", r"skillbridge", r"opens? .{0,20} office", r"time\s?100",
+    r"reports? (first|second|third|fourth|fiscal|quarterly|annual)", r"quarterly results",
+    # 出货量/市场排名
+    r"shipments", r"market share", r"counterpoint", r"idc data", r"ranks? no",
+    # 获奖/展会/主题乐园/巡演
+    r"gold medal", r"innovation award", r"recognized by", r"\bifa\b", r"\bleap\b",
+    r"theme park", r"resorts world", r"talent ecosystem",
+]
+# 弱噪音：办公扩张/战略合作/展会泛指，需同时无技术词才排除
+NOISE_WEAK = [
+    r"no\.?\s*1", r"ranks? ", r"trade ?show", r"expo",
+    r"showcases? .{0,15}(at|expo|summit|fair)", r"expands? .{0,15} presence",
+    r"partner(s)? (with|for) .{0,40}(ecosystem|innovation center|talent)",
+]
+# 技术词：命中任一即认为有技术含量，弱噪音豁免（仅看标题）
+TECH_HINTS = [
+    r"robot", r"humanoid", r"\bai\b", r"model", r"learning", r"vision", r"policy", r"dataset",
+    r"foundation", r"nvidia", r"gpu", r"compute", r"manipulation", r"locomotion", r"\bsim",
+    r"dexter", r"\bhand\b", r"neural", r"transformer", r"diffusion", r"\bvla\b", r"reinforcement",
+    r"imitation", r"perception", r"reasoning", r"benchmark", r"algorithm", r"battery",
+    r"sensor", r"\bgrasp", r"dexterous", r"open[- ]?source", r"introducing",
+    r"unveils? .*(robot|digit|model|system)", r"deploy",
+    r"开源", r"发布", r"模型", r"数据", r"算法", r"具身", r"机器",
+]
+_NOISE_STRONG_RE = re.compile("|".join(NOISE_STRONG), re.I)
+_NOISE_WEAK_RE = re.compile("|".join(NOISE_WEAK), re.I)
+_TECH_RE = re.compile("|".join(TECH_HINTS), re.I)
+
 
 def parse_date(raw: str) -> Optional[datetime]:
     """解析单个日期字符串，失败返回 None"""
@@ -154,7 +187,8 @@ class CompanyHTMLCollector(BaseCollector):
                  region: str = "US", delay: float = 1.0, max_articles: int = 15,
                  exclude: Optional[List[str]] = None,
                  mode: str = "detail", page_url: Optional[str] = None,
-                 max_pages: int = 1, source_type: str = "company_blog"):
+                 max_pages: int = 1, source_type: str = "company_blog",
+                 noise_filter: bool = True):
         self.source_name = source_name
         self.list_url = list_url
         self.link_pattern = re.compile(link_pattern)
@@ -171,6 +205,7 @@ class CompanyHTMLCollector(BaseCollector):
         self.page_url = page_url  # 分页模板，如 "https://x.com/news?page={page}"
         self.max_pages = max_pages
         self.source_type = source_type
+        self.noise_filter = noise_filter
 
     def _get(self, url: str) -> Optional[str]:
         try:
@@ -305,12 +340,23 @@ class CompanyHTMLCollector(BaseCollector):
             "code_url": code_url,
         }
 
-    def _is_relevant(self, text: str) -> bool:
-        """关键词过滤；若没配关键词则全部保留（公司博客本身相关度高）"""
-        if not self.keywords:
+    def _is_relevant(self, title: str, abstract: str = "") -> bool:
+        """相关性 + 噪音过滤。
+        正向关键词匹配标题+摘要；商业/IR 噪音只看标题（PR 性质由标题决定，
+        避免正文出现 robot 词就豁免）。"""
+        if self.keywords:
+            full = (title + " " + abstract).lower()
+            if not any(k.lower() in full for k in self.keywords):
+                return False
+        if not self.noise_filter:
             return True
-        text_lower = text.lower()
-        return any(k.lower() in text_lower for k in self.keywords)
+        # 强噪音：标题命中即排除
+        if _NOISE_STRONG_RE.search(title):
+            return False
+        # 弱噪音：标题命中且无任何技术词才排除
+        if _NOISE_WEAK_RE.search(title) and not _TECH_RE.search(title):
+            return False
+        return True
 
     def _make_paper(self, title: str, url: str, abstract: str,
                     published: datetime, code_url=None) -> Paper:
@@ -375,7 +421,7 @@ class CompanyHTMLCollector(BaseCollector):
                     pub = c["published_at"] or datetime.utcnow()
                     if pub < cutoff:
                         continue
-                    if not self._is_relevant(c["title"] + " " + c["abstract"]):
+                    if not self._is_relevant(c["title"], c["abstract"]):
                         continue
                     seen_urls.add(c["url"])
                     papers.append(self._make_paper(c["title"], c["url"], c["abstract"], pub))
@@ -404,7 +450,7 @@ class CompanyHTMLCollector(BaseCollector):
             if article["published_at"] < cutoff:
                 continue
 
-            if not self._is_relevant(article["title"] + " " + (article["abstract"] or "")):
+            if not self._is_relevant(article["title"], article["abstract"] or ""):
                 continue
 
             papers.append(self._make_paper(

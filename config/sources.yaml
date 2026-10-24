@@ -105,6 +105,7 @@ l1:
       url: "https://bair.berkeley.edu/"
       rss: "https://bair.berkeley.edu/blog/feed.xml"
       region: "US"
+      keywords: ["robot", "robotics", "manipulation", "policy", "embodied", "vision-language", "control"]
       enabled: true
 
   companies:
