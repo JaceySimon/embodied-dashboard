@@ -156,7 +156,7 @@ l0:
     window_days: 90
     base_url: https://hf-mirror.com   # 国内镜像；海外可改 https://huggingface.co
     organizations:
-      - {name: lerobot, label: LeRobot/Hugging Face, kind: orgs}        # π0/π0.5/SmolVLA 官方
+      - {name: lerobot, label: LeRobot, kind: orgs}        # π0/π0.5/SmolVLA 官方（HF×PI）
       - {name: physical-intelligence, label: Physical Intelligence, kind: orgs}
       - name: nvidia
         label: NVIDIA

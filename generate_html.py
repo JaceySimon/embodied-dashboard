@@ -164,6 +164,44 @@ week_top = ([dict(p, _zone="academic") for p in week_academic] +
             [dict(p, _zone="industry") for p in week_industry] +
             [dict(p, _zone="opensource") for p in week_opensource])
 
+# ============ 领域脉搏：方向热度 + 机构活跃榜 ============
+from collections import Counter as _Counter
+PULSE_TAGS = [("VLA", "VLA"), ("world_model", "世界模型"), ("manipulation", "操作"),
+              ("locomotion", "运动"), ("sim2real", "Sim2Real"),
+              ("foundation_model", "基座模型"), ("diffusion_policy", "Diffusion Policy")]
+_week7 = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+_tag_counts = _Counter()
+for _p in papers:
+    if _p.get("published_at", "")[:10] >= _week7:
+        for _t, _label in PULSE_TAGS:
+            if _t in (_p.get("tags") or []):
+                _tag_counts[_label] += 1
+pulse_dirs = _tag_counts.most_common(6)
+
+# 机构名归一化（一手源 / 开源 / 模型）
+_ORG_ALIASES = {
+    "agibot": "智元机器人", "agibot agibot": "智元机器人",
+    "nvidia research blog": "NVIDIA",
+    "google deepmind research": "Google DeepMind",
+    "mujoco": "MuJoCo", "isaaclab": "NVIDIA Isaac", "isaacsim": "NVIDIA Isaac",
+}
+def _org_name(p):
+    n = p.get("source_name", "")
+    for suf in [" · GitHub", " · Hugging Face", " · Company Blog", " · Lab Blog",
+                " Research Blog", " Research", " AgiBot", " Galbot"]:
+        n = n.replace(suf, "")
+    # 处理 "mujoco · Release" 这种
+    n = n.split(" · ")[0]
+    return _ORG_ALIASES.get(n.strip().lower(), n.strip())
+
+_month30 = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+_org_counts = _Counter()
+for _p in papers:
+    if _p.get("published_at", "")[:10] >= _month30 and \
+       _p.get("source_type") in ("company_blog", "lab_blog", "github", "huggingface"):
+        _org_counts[_org_name(_p)] += 1
+pulse_orgs = [(n, c) for n, c in _org_counts.most_common(10) if n and c >= 1][:9]
+
 # 生成论文卡片
 _INTERNAL_TAGS = {"open_source", "hf_model", "gh_release"}
 def _public_tags(tags, limit=5):
@@ -369,6 +407,51 @@ def render_event_card(ev):
     """
 
 events_html = "\n".join([render_event_card(ev) for ev in recent_events])
+
+# ============ 领域脉搏（方向热度 + 机构活跃榜）============
+_label_to_tag = {label: key for key, label in PULSE_TAGS}
+if pulse_dirs:
+    _max_dir = max(c for _, c in pulse_dirs)
+    _dir_bars = []
+    for _label, _c in pulse_dirs:
+        _w = int(_c / _max_dir * 100)
+        _key = _label_to_tag.get(_label, "")
+        _dir_bars.append(
+            f'<div class="pulse-row" onclick="filterByTag(\'{_key}\')">'
+            f'<span class="pulse-label">{html.escape(_label)}</span>'
+            f'<span class="pulse-track"><span class="pulse-fill" style="width:{_w}%"></span></span>'
+            f'<span class="pulse-num">{_c}</span></div>')
+    pulse_dirs_html = "".join(_dir_bars)
+else:
+    pulse_dirs_html = ""
+
+if pulse_orgs:
+    _max_org = max(c for _, c in pulse_orgs)
+    _org_items = []
+    for _name, _c in pulse_orgs:
+        _w = int(_c / _max_org * 100)
+        _q = html.escape(_name)
+        _org_items.append(
+            f'<div class="pulse-row" onclick="searchOrg(\'{_q}\')" title="查看 {_q} 的所有进展">'
+            f'<span class="pulse-label">{html.escape(_name)}</span>'
+            f'<span class="pulse-track"><span class="pulse-fill org-fill" style="width:{_w}%"></span></span>'
+            f'<span class="pulse-num">{_c}</span></div>')
+    pulse_orgs_html = "".join(_org_items)
+else:
+    pulse_orgs_html = ""
+
+pulse_html = f"""
+<div class="pulse-section">
+  <div class="pulse-col">
+    <h3>方向热度 <span class="pulse-hint">近 7 天论文</span></h3>
+    {pulse_dirs_html}
+  </div>
+  <div class="pulse-col">
+    <h3>机构活跃 <span class="pulse-hint">近 30 天一手 / 开源</span></h3>
+    {pulse_orgs_html}
+  </div>
+</div>
+"""
 
 # ============ AI 方向综述（带引用的研究简报）============
 briefing_path = PROJECT_ROOT / "data" / "briefing.json"
@@ -780,6 +863,29 @@ html_content = f"""<!DOCTYPE html>
         .es-name {{ color: #9aa4b2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
 
         /* 重要进展（事件）专区 */
+        /* 领域脉搏 */
+        .pulse-section {{
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+            margin-bottom: 24px;
+        }}
+        .pulse-col {{
+            background: #14171d; border: 1px solid #222; border-radius: 12px;
+            padding: 16px 18px;
+        }}
+        .pulse-col h3 {{ font-size: 14px; color: #fff; margin-bottom: 12px; }}
+        .pulse-hint {{ font-size: 11px; color: #6b7280; font-weight: 400; margin-left: 8px; }}
+        .pulse-row {{
+            display: grid; grid-template-columns: 92px 1fr 34px; align-items: center;
+            gap: 10px; padding: 3px 4px; border-radius: 6px; cursor: pointer;
+        }}
+        .pulse-row:hover {{ background: #1a1f27; }}
+        .pulse-label {{ font-size: 12px; color: #c2c9d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .pulse-track {{ background: #1b2028; border-radius: 5px; height: 8px; overflow: hidden; }}
+        .pulse-fill {{ display: block; height: 100%; background: linear-gradient(90deg,#2f6fb0,#4da6ff); border-radius: 5px; }}
+        .pulse-fill.org-fill {{ background: linear-gradient(90deg,#134e4a,#5eead4); }}
+        .pulse-num {{ font-size: 12px; color: #8a93a2; text-align: right; font-variant-numeric: tabular-nums; }}
+        @media (max-width: 768px) {{ .pulse-section {{ grid-template-columns: 1fr; }} }}
+
         .events-section {{
             margin-bottom: 30px;
             padding: 20px;
@@ -1107,14 +1213,16 @@ html_content = f"""<!DOCTYPE html>
                 </div>
                 
                 <div class="top-section">
-                    <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3 + 热门开源 2</span></h2>
+                    <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3 + 开源/模型 3</span></h2>
                     <div class="top-papers">
                         {week_top_html}
                     </div>
                 </div>
 
+                {pulse_html}
+
                 <div class="events-section">
-                    <h2>重要进展 · 跨源全貌 <span class="top-sub">同一进展的论文 / 官方 / 媒体，一次看完</span></h2>
+                    <h2>重要进展 · 跨源全貌 <span class="top-sub">同一进展的论文 / 官方 / 媒体 / 开源 / 模型，一次看完</span></h2>
                     <div class="event-cards">
                         {events_html}
                     </div>
@@ -1378,6 +1486,17 @@ html_content = f"""<!DOCTYPE html>
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
+        }}
+
+        function searchOrg(name) {{
+            // 机构脉搏：点击机构名 -> 全文搜索该机构，并重置来源/标签筛选
+            currentTag = ''; currentSource = ''; currentProperty = null;
+            showOnlyFavs = false; currentTimeRange = 0;
+            document.getElementById('search').value = name;
+            resetPagination();
+            filterPapers();
+            document.getElementById('papers').scrollIntoView({{block:'start'}});
+            window.scrollBy(0, -60);
         }}
         
         function filterByProperty(property, value) {{
