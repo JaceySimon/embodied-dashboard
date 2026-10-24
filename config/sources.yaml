@@ -139,10 +139,17 @@ l1:
 
     - name: "Boston Dynamics"
       url: "https://www.bostondynamics.com/blog"
-      rss: null  # 404
+      rss: null  # 404，改走 HTML 采集器
       region: "US"
       type: "humanoid"
       enabled: false
+
+    - name: "Sanctuary AI"
+      url: "https://sanctuary.ai/news/"
+      rss: "https://sanctuary.ai/feed/"
+      region: "CA"
+      type: "humanoid"
+      enabled: true
 
   # 无 RSS 的公司，用 HTML 采集器抓取新闻列表页
   html_companies:
@@ -168,6 +175,30 @@ l1:
       list_url: "https://skild.ai/blogs"
       link_pattern: '/blogs/[a-z0-9-]+'
       region: "US"
+      enabled: true
+
+    - name: "Boston Dynamics"
+      list_url: "https://bostondynamics.com/blog/"
+      link_pattern: '/blog/[a-z0-9-]+'
+      region: "US"
+      max_articles: 15
+      enabled: true
+
+    - name: "Agility Robotics"
+      list_url: "https://www.agilityrobotics.com/press-releases"
+      link_pattern: '/content/[a-z0-9-]+'
+      region: "US"
+      max_articles: 15
+      enabled: true
+
+    - name: "智元机器人 AgiBot"
+      list_url: "https://www.agibot.com/news"
+      link_pattern: '/article/\d+/detail/\d+\.html'
+      page_url: "https://www.agibot.com/news?page={page}"
+      max_pages: 6
+      mode: "list"
+      max_articles: 40
+      region: "CN"
       enabled: true
 
   chinese_companies:

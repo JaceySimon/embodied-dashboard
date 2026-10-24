@@ -152,7 +152,9 @@ class CompanyHTMLCollector(BaseCollector):
     def __init__(self, source_name: str, list_url: str, link_pattern: str,
                  base_url: Optional[str] = None, keywords: Optional[List[str]] = None,
                  region: str = "US", delay: float = 1.0, max_articles: int = 15,
-                 exclude: Optional[List[str]] = None):
+                 exclude: Optional[List[str]] = None,
+                 mode: str = "detail", page_url: Optional[str] = None,
+                 max_pages: int = 1, source_type: str = "company_blog"):
         self.source_name = source_name
         self.list_url = list_url
         self.link_pattern = re.compile(link_pattern)
@@ -164,6 +166,11 @@ class CompanyHTMLCollector(BaseCollector):
         self.exclude = exclude or ["/category", "/tag/", "/page/", "/categories/",
                                    "/author/", "page-", "?"]
         self.timeout = 12
+        # mode: "detail"=抓列表+逐篇详情；"list"=只从列表卡片提取（适合详情页JS渲染的站点）
+        self.mode = mode
+        self.page_url = page_url  # 分页模板，如 "https://x.com/news?page={page}"
+        self.max_pages = max_pages
+        self.source_type = source_type
 
     def _get(self, url: str) -> Optional[str]:
         try:
@@ -191,6 +198,64 @@ class CompanyHTMLCollector(BaseCollector):
             seen.add(path)
             links.append(urljoin(self.base_url, path))
         return links[:self.max_articles]
+
+    def _parse_list_cards(self, html_text: str) -> List[dict]:
+        """
+        从列表页直接提取文章卡片（标题+链接+日期），不抓详情页。
+        适配详情页 JS 渲染、但列表页是静态 HTML 的站点（如智元）。
+        用正则定位 <a>，规避 lxml 对 <a><div> 嵌套的容错丢 href 问题。
+        """
+        from html import unescape
+        cards = []
+        seen = set()
+        # 匹配 <a ...href="URL"...> 开标签
+        for m in re.finditer(r'<a\b([^>]*?)\bhref=["\']([^"\']+)["\']([^>]*)>',
+                             html_text, re.I):
+            attrs = (m.group(1) or "") + " " + (m.group(3) or "")
+            href = m.group(2)
+            if not self.link_pattern.search(href):
+                continue
+            if any(x in href for x in self.exclude):
+                continue
+
+            # 取 a 标签内部片段（到对应 </a>）
+            start = m.end()
+            end = html_text.find("</a>", start)
+            inner = html_text[start: end if end != -1 else start + 3000][:3000]
+            inner_soup = BeautifulSoup(inner, "lxml")
+
+            # 标题：开标签 title 属性与内部 h1-h5 取较长者（title 属性可能含未转义引号被截断）
+            tm = re.search(r'\btitle=["\'](.*?)["\']', attrs, re.I | re.S)
+            title_attr = unescape(tm.group(1)).strip() if tm else ""
+            title_h5 = ""
+            ht = inner_soup.find(["h1", "h2", "h3", "h4", "h5"])
+            if ht:
+                title_h5 = ht.get_text(" ", strip=True)
+            title = title_h5 if len(title_h5) > len(title_attr) else title_attr
+            if not title:
+                continue
+
+            # 日期：内部 class 含 time/date/pub，或正则
+            date = None
+            date_el = inner_soup.find(class_=re.compile(r"time|date|pub", re.I))
+            if date_el:
+                date = parse_date(date_el.get_text(" ", strip=True))
+            if not date:
+                dm = re.search(r"(20\d{2})[-./](\d{1,2})[-./](\d{1,2})", inner)
+                if dm:
+                    date = parse_date(dm.group(0).replace(".", "-").replace("/", "-"))
+
+            full_url = urljoin(self.base_url, href)
+            if full_url in seen:
+                continue
+            seen.add(full_url)
+            cards.append({
+                "title": title,
+                "url": full_url,
+                "published_at": date,
+                "abstract": "",
+            })
+        return cards
 
     def _parse_article(self, url: str, html_text: str) -> Optional[dict]:
         """解析文章详情页"""
@@ -247,8 +312,77 @@ class CompanyHTMLCollector(BaseCollector):
         text_lower = text.lower()
         return any(k.lower() in text_lower for k in self.keywords)
 
+    def _make_paper(self, title: str, url: str, abstract: str,
+                    published: datetime, code_url=None) -> Paper:
+        # 未来超过 2 天的日期几乎肯定是解析错误（页脚/版本号污染），回退为今天
+        if published and published > datetime.utcnow() + timedelta(days=2):
+            published = datetime.utcnow()
+        # 来源类型映射
+        st = SourceType.COMPANY_BLOG
+        if self.source_type == "lab_blog":
+            st = SourceType.LAB_BLOG
+        elif self.source_type == "media":
+            st = SourceType.MEDIA
+        return Paper(
+            id=f"html:{self.source_name.lower().replace(' ', '_')}:{hash(url) % 100000}",
+            source_id=f"html:{self.source_name}:{url}",
+            source_level=SourceLevel.L1,
+            source_type=st,
+            source_name=self.source_name,
+            source_url=self.list_url,
+            title=title,
+            abstract=abstract or "",
+            authors=[],
+            institutions=[],
+            url=url,
+            pdf_url=None,
+            code_url=code_url,
+            hf_url=None,
+            published_at=published,
+            categories=[],
+            tags=[],
+            title_hash=title_hash(title),
+            raw_metadata={"collector": "company_html", "mode": self.mode},
+        )
+
     def collect(self, lookback_days: int = 90) -> List[Paper]:
         logger.info(f"[HTML] 抓取 {self.source_name}: {self.list_url}")
+        cutoff = datetime.utcnow() - timedelta(days=lookback_days)
+
+        # 列表页 URL（可能多页）
+        list_urls = [self.list_url]
+        if self.mode == "list" and self.page_url and self.max_pages > 1:
+            for pg in range(2, self.max_pages + 1):
+                list_urls.append(self.page_url.format(page=pg))
+
+        papers = []
+        seen_urls = set()
+        if self.mode == "list":
+            # 只从列表卡片提取
+            for li, lu in enumerate(list_urls):
+                if li > 0:
+                    time.sleep(self.delay)
+                html_text = self._get(lu)
+                if not html_text:
+                    continue
+                cards = self._parse_list_cards(html_text)
+                logger.info(f"[HTML] {self.source_name} 列表卡片 {len(cards)} 篇 ({lu})")
+                for c in cards:
+                    if len(papers) >= self.max_articles:
+                        break
+                    if c["url"] in seen_urls:  # 跨页去重（轮播图重复）
+                        continue
+                    pub = c["published_at"] or datetime.utcnow()
+                    if pub < cutoff:
+                        continue
+                    if not self._is_relevant(c["title"] + " " + c["abstract"]):
+                        continue
+                    seen_urls.add(c["url"])
+                    papers.append(self._make_paper(c["title"], c["url"], c["abstract"], pub))
+            logger.info(f"[HTML] {self.source_name} 采集 {len(papers)} 篇")
+            return papers
+
+        # detail 模式：抓列表 + 逐篇详情
         list_html = self._get(self.list_url)
         if not list_html:
             return []
@@ -256,11 +390,6 @@ class CompanyHTMLCollector(BaseCollector):
         links = self._extract_article_links(list_html)
         logger.info(f"[HTML] {self.source_name} 发现 {len(links)} 篇文章")
 
-        cutoff = datetime.now(timezone.utc).replace(tzinfo=None)
-        from datetime import timedelta
-        cutoff = datetime.utcnow() - timedelta(days=lookback_days)
-
-        papers = []
         for i, url in enumerate(links):
             if i > 0:
                 time.sleep(self.delay)  # 限流，尊重对方服务器
@@ -278,28 +407,9 @@ class CompanyHTMLCollector(BaseCollector):
             if not self._is_relevant(article["title"] + " " + (article["abstract"] or "")):
                 continue
 
-            p = Paper(
-                id=f"html:{self.source_name.lower().replace(' ', '_')}:{hash(url) % 100000}",
-                source_id=f"html:{self.source_name}:{url}",
-                source_level=SourceLevel.L1,
-                source_type=SourceType.COMPANY_BLOG,
-                source_name=self.source_name,
-                source_url=self.list_url,
-                title=article["title"],
-                abstract=article["abstract"],
-                authors=[],
-                institutions=[],
-                url=url,
-                pdf_url=None,
-                code_url=article["code_url"],
-                hf_url=None,
-                published_at=article["published_at"],
-                categories=[],
-                tags=[],
-                title_hash=title_hash(article["title"]),
-                raw_metadata={"collector": "company_html"},
-            )
-            papers.append(p)
+            papers.append(self._make_paper(
+                article["title"], url, article["abstract"],
+                article["published_at"], article["code_url"]))
 
         logger.info(f"[HTML] {self.source_name} 采集 {len(papers)} 篇")
         return papers
@@ -317,5 +427,9 @@ def build_html_collectors_from_config(config: dict) -> List["CompanyHTMLCollecto
                 keywords=comp.get("keywords"),
                 region=comp.get("region", "US"),
                 max_articles=comp.get("max_articles", 12),
+                mode=comp.get("mode", "detail"),
+                page_url=comp.get("page_url"),
+                max_pages=comp.get("max_pages", 1),
+                source_type=comp.get("source_type", "company_blog"),
             ))
     return collectors
