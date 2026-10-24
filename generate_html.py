@@ -6,7 +6,7 @@ import json
 import html
 from pathlib import Path
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 PROJECT_ROOT = Path(__file__).parent
 
@@ -284,7 +284,7 @@ def render_event_card(ev):
         )
     labels = " · ".join(dict.fromkeys(labels))
     return f"""
-    <div class="event-card">
+    <div class="event-card" data-date="{pdate}">
         <div class="event-card-title">
             <a href="{primary.get('url','')}" target="_blank">{html.escape(primary.get('title',''))}</a>
         </div>
@@ -376,6 +376,26 @@ html_content = f"""<!DOCTYPE html>
         }}
         h1 {{ font-size: 28px; color: #fff; }}
         .stats {{ color: #888; font-size: 14px; }}
+        .since-banner {{
+            display: flex; align-items: center; gap: 14px;
+            margin: 14px 0 4px; padding: 11px 16px;
+            background: linear-gradient(90deg, #1a1410, #16181d);
+            border: 1px solid #7c2d12; border-radius: 10px;
+        }}
+        .since-text {{ color: #e8c9a8; font-size: 13px; flex: 1; }}
+        .since-btn {{
+            background: #7c2d12; color: #fdba74; border: none;
+            padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer;
+        }}
+        .since-btn:hover {{ background: #9a3412; }}
+        .since-close {{ color: #8b94a3; cursor: pointer; font-size: 13px; padding: 0 4px; }}
+        .header-tools {{ display: flex; align-items: center; gap: 12px; flex-shrink: 0; }}
+        .rss-link {{
+            color: #fdba74; font-size: 13px; text-decoration: none;
+            padding: 6px 12px; border-radius: 20px;
+            border: 1px solid #7c2d12;
+        }}
+        .rss-link:hover {{ background: #7c2d12; }}
         .fav-count {{
             background: #7c2d12;
             color: #fdba74;
@@ -843,9 +863,18 @@ html_content = f"""<!DOCTYPE html>
                     </div>
                 </div>
             </div>
-            <div class="fav-count" onclick="showFavs()">收藏 (<span id="favCount">0</span>)</div>
+            <div class="header-tools">
+                <a class="rss-link" href="feed.xml" target="_blank" title="用 RSS 阅读器订阅重要进展">RSS 订阅</a>
+                <div class="fav-count" onclick="showFavs()">收藏 (<span id="favCount">0</span>)</div>
+            </div>
         </header>
-        
+
+        <div id="sinceBanner" class="since-banner" style="display:none">
+            <span id="sinceText" class="since-text"></span>
+            <button id="sinceBtn" class="since-btn">查看新进展</button>
+            <span class="since-close" onclick="document.getElementById('sinceBanner').style.display='none'">✕</span>
+        </div>
+
         <div class="main-content">
             <div class="sidebar">
                 <div class="sidebar-section">
@@ -1265,11 +1294,45 @@ html_content = f"""<!DOCTYPE html>
             document.getElementById('modal').style.display = 'none';
         }}
         
+        // 自上次访问以来（localStorage 记录，纯前端轻量推送）
+        function initSinceVisit() {{
+            var now = new Date();
+            var last = localStorage.getItem('lastVisit');
+            localStorage.setItem('lastVisit', now.toISOString());
+            if (!last) return;
+            var lastDate = new Date(last);
+            var cutoff = lastDate.toISOString().slice(0,10);
+            var days = Math.floor((now - lastDate) / 86400000);
+            var dayText = days <= 0 ? '今天' : days + ' 天前';
+            // 优先统计新事件（跨源全貌）；其次统计一手/媒体新内容
+            var newEvents = 0;
+            document.querySelectorAll('.event-card').forEach(function(c){{
+                if ((c.getAttribute('data-date')||'') >= cutoff) newEvents++;
+            }});
+            var newSrc = 0;
+            document.querySelectorAll('.paper-card').forEach(function(c){{
+                if (c.getAttribute('data-source') !== 'arxiv'
+                    && (c.getAttribute('data-date')||'') >= cutoff) newSrc++;
+            }});
+            if (newEvents === 0 && newSrc === 0) return;
+            var msg = '自上次访问（' + dayText + '）以来：';
+            if (newEvents > 0) msg += newEvents + ' 个重要新进展';
+            if (newSrc > 0) msg += (newEvents>0?'，':'') + newSrc + ' 篇官方/媒体更新';
+            document.getElementById('sinceText').textContent = msg;
+            document.getElementById('sinceBanner').style.display = 'flex';
+            document.getElementById('sinceBtn').onclick = function() {{
+                document.getElementById('sinceBanner').style.display = 'none';
+                var target = newEvents > 0 ? '.events-section' : '#papers';
+                window.scrollTo(0, document.querySelector(target).offsetTop - 20);
+            }};
+        }}
+
         // 初始化
         updateFavCount();
         updateFavButtons();
         filterPapers();
         showOnboarding();
+        initSinceVisit();
     </script>
 </body>
 </html>
@@ -1284,3 +1347,74 @@ with open(out_file, "w", encoding="utf-8") as f:
 
 print(f"生成: {out_file}")
 print(f"论文数: {len(papers)}")
+
+# ============ 生成 RSS 订阅源（事件 + 精选，免费、无需服务器的推送能力）============
+from email.utils import formatdate as _formatdate
+
+def _rfc822(date_str):
+    try:
+        d = datetime.strptime(str(date_str)[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        return _formatdate(d.timestamp())
+    except Exception:
+        return _formatdate()
+
+def _esc(s):
+    return html.escape(str(s or ""), quote=True)
+
+def _feed_item(guid, title, link, pub_date, desc_html):
+    return f'''    <item>
+      <title>{_esc(title)}</title>
+      <link>{_esc(link)}</link>
+      <description><![CDATA[{desc_html}]]></description>
+      <pubDate>{_rfc822(pub_date)}</pubDate>
+      <guid isPermaLink="false">{_esc(guid)}</guid>
+    </item>'''
+
+feed_items = []
+_event_primary_ids = set()
+
+# 1) 重要进展事件（每个事件一条，描述含全部来源链接）
+for ev in recent_events:
+    primary = papers_by_id.get(ev["primary"])
+    if not primary:
+        continue
+    _event_primary_ids.add(ev["primary"])
+    src_li = []
+    for mid in ev["members"]:
+        mp = papers_by_id.get(mid)
+        if mp:
+            src_li.append(
+                f'<li>[{SOURCE_LABEL.get(mp.get("source_type"),"?")}] '
+                f'<a href="{_esc(mp.get("url"))}">{_esc(mp.get("source_name"))}</a></li>'
+            )
+    desc = f'{ev["size"]} 个来源（论文 / 官方 / 媒体）：<ul>{"".join(src_li)}</ul>'
+    feed_items.append(_feed_item(
+        "event:" + ev["primary"], primary.get("title"),
+        primary.get("url"), primary.get("published_at"), desc))
+
+# 2) 本周必看精选（与事件主条目去重）
+for p in week_top:
+    if p["id"] in _event_primary_ids:
+        continue
+    ab = (p.get("abstract", "") or "")[:300]
+    feed_items.append(_feed_item(
+        "pick:" + p["id"], p.get("title"), p.get("url"),
+        p.get("published_at"), _esc(ab)))
+
+rss_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>{_formatdate()}</lastBuildDate>
+{chr(10).join(feed_items)}
+  </channel>
+</rss>
+'''
+feed_file = out_dir / "feed.xml"
+with open(feed_file, "w", encoding="utf-8") as f:
+    f.write(rss_xml)
+print(f"生成: {feed_file} ({len(feed_items)} 条)")
+
