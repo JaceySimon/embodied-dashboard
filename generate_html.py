@@ -308,6 +308,15 @@ recent_events = [
     if papers_by_id.get(ev["primary"], {}).get("published_at", "") >= _event_window
 ][:12]
 
+# 事件级 AI 解读（必须在 render_event_card 调用前加载）
+event_brief_path = PROJECT_ROOT / "data" / "event_briefs.json"
+event_briefs = {}
+if event_brief_path.exists():
+    try:
+        event_briefs = json.load(open(event_brief_path, encoding="utf-8")).get("briefs", {})
+    except Exception:
+        event_briefs = {}
+
 def render_event_card(ev):
     primary = papers_by_id.get(ev["primary"])
     if not primary:
@@ -332,6 +341,18 @@ def render_event_card(ev):
             f'{html.escape(mp.get("source_name",""))}</a>'
         )
     labels = " · ".join(dict.fromkeys(labels))
+    # AI 事件解读（tldr 常显，方法/看点折叠）
+    eb = event_briefs.get(ev["primary"])
+    brief_html = ""
+    if eb:
+        brief_html = (
+            '<div class="event-brief">'
+            f'<div class="eb-tldr"><span class="ai-badge">AI 解读</span>{html.escape(eb.get("tldr",""))}</div>'
+            '<details class="eb-more"><summary>方法与看点</summary>'
+            f'<p class="eb-what"><b>方法</b>{html.escape(eb.get("what",""))}</p>'
+            f'<p class="eb-why"><b>看点</b>{html.escape(eb.get("why",""))}</p>'
+            '</details></div>'
+        )
     return f"""
     <div class="event-card" data-date="{pdate}">
         <div class="event-card-title">
@@ -342,6 +363,7 @@ def render_event_card(ev):
             <span class="event-card-date">{pdate}</span>
             <span class="event-card-count">{ev['size']} 个来源（{labels}）</span>
         </div>
+        {brief_html}
         <div class="event-card-sources">{''.join(member_links)}</div>
     </div>
     """
@@ -788,6 +810,19 @@ html_content = f"""<!DOCTYPE html>
             background: #171b21; border: 1px solid #262b33;
         }}
         .ev-src-link:hover {{ background: #1d232c; border-color: #3a4350; }}
+
+        /* 事件 AI 解读 */
+        .event-brief {{
+            background: #10161f; border: 1px solid #1f2c3d; border-left: 3px solid #4da6ff;
+            border-radius: 8px; padding: 9px 11px; margin-bottom: 10px;
+        }}
+        .eb-tldr {{ font-size: 12.5px; color: #dce4ee; line-height: 1.5; }}
+        .eb-tldr .ai-badge {{ margin-right: 6px; }}
+        .eb-more {{ margin-top: 6px; }}
+        .eb-more summary {{ cursor: pointer; font-size: 11.5px; color: #7fb4e8; user-select: none; }}
+        .eb-more summary:hover {{ color: #a9d0f5; }}
+        .eb-what, .eb-why {{ font-size: 12px; color: #aab4c0; line-height: 1.55; margin-top: 6px; }}
+        .eb-what b, .eb-why b {{ color: #8fb9e6; font-weight: 600; margin-right: 5px; }}
 
         /* AI 方向综述 */
         .briefing-section {{ margin-bottom: 30px; padding: 20px; background: #14171d; border: 1px solid #222; border-radius: 12px; }}
