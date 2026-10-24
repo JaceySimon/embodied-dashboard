@@ -13,10 +13,16 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def generate_weekly_report():
-    # 读取数据
-    data_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
-    with open(data_path, "r", encoding="utf-8") as f:
-        papers = json.load(f)
+    # 读取数据（优先读合并后的，包含工业界）
+    combined_path = PROJECT_ROOT / "data" / "combined.json"
+    arxiv_path = PROJECT_ROOT / "data" / "backfill" / "arxiv_backfill_90d_20261022.json"
+
+    if combined_path.exists():
+        with open(combined_path, "r", encoding="utf-8") as f:
+            papers = json.load(f)
+    else:
+        with open(arxiv_path, "r", encoding="utf-8") as f:
+            papers = json.load(f)
 
     # 本周论文
     week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
@@ -45,6 +51,10 @@ def generate_weekly_report():
 
     top_papers = sorted(week_papers, key=lambda x: x["score"], reverse=True)[:10]
 
+    # 工业界动态
+    industry_papers = [p for p in week_papers if p.get("source_type") in ("company_blog", "lab_blog")]
+    media_papers = [p for p in week_papers if p.get("source_type") == "media"]
+
     # 生成 Markdown
     today = datetime.now().strftime("%Y-%m-%d")
     md = f"""# 具身智能周报 · {today}
@@ -53,7 +63,10 @@ def generate_weekly_report():
 
 ## 本周概况
 
-- 本周新论文：**{len(week_papers)} 篇**
+- 本周新内容：**{len(week_papers)} 条**
+- 学术论文：**{sum(1 for p in week_papers if p.get('source_type', 'arxiv') == 'arxiv')} 篇**
+- 工业界博客：**{len(industry_papers)} 篇**
+- 媒体报道：**{len(media_papers)} 篇**
 - 真机实验：**{sum(1 for p in week_papers if p.get("has_real_robot", False))} 篇**
 - 开源：**{sum(1 for p in week_papers if p.get("is_open_source", False))} 篇**
 
@@ -62,6 +75,12 @@ def generate_weekly_report():
 """
     for tag, count in tag_count.most_common(5):
         md += f"- {tag}: {count} 篇\n"
+
+    # 工业界动态
+    if industry_papers:
+        md += "\n## 🏭 工业界动态\n\n"
+        for p in industry_papers[:10]:
+            md += f"- **{p.get('source_name', '')}**: [{p['title']}]({p['url']}) ({str(p['published_at'])[:10]})\n"
 
     md += "\n## 本周必看 10 篇\n\n"
 

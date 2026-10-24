@@ -1,0 +1,70 @@
+name: Daily Update
+
+on:
+  schedule:
+    # 每天 UTC 02:00（北京时间 10:00）跑一次
+    - cron: "0 2 * * *"
+  workflow_dispatch:  # 支持手动触发
+
+permissions:
+  contents: write  # 允许提交更新
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect arXiv (90 days backfill)
+        run: |
+          if [ ! -f data/backfill/arxiv_backfill_90d_*.json ]; then
+            python pipeline/backfill.py 90
+          fi
+
+      - name: Merge RSS sources
+        run: python pipeline/merge_sources.py
+
+      - name: Generate HTML
+        run: python generate_html.py
+
+      - name: Generate weekly report
+        run: python pipeline/weekly_report.py
+
+      # 可选：AI 摘要（需要在 repo settings 配置 LLM_API_KEY secret）
+      - name: Generate AI summaries
+        env:
+          LLM_PROVIDER: deepseek
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          if [ -n "$LLM_API_KEY" ]; then
+            python pipeline/gen_summaries.py 20 || echo "摘要生成失败，跳过"
+          else
+            echo "未配置 LLM_API_KEY，跳过 AI 摘要"
+          fi
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/ output/
+          git diff --staged --quiet || git commit -m "chore: daily update $(date +%Y-%m-%d)"
+          git push
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages
+          force_orphan: true

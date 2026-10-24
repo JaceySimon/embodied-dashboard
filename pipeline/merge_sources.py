@@ -10,56 +10,26 @@ from datetime import datetime, timedelta
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from collectors.rss_collector import RSSCollector
+from collectors.rss_collector import build_rss_collectors_from_config
 from utils import logger
 
 
 def collect_rss_papers(lookback_days: int = 90):
-    """采集所有启用的 RSS 源"""
+    """采集所有启用的 RSS 源（实验室博客 + 公司博客 + 媒体）"""
     with open(PROJECT_ROOT / "config" / "sources.yaml", "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     all_papers = []
+    collectors = build_rss_collectors_from_config(config)
+    logger.info(f"[RSS] 共 {len(collectors)} 个启用的 RSS 源")
 
-    # 实验室博客
-    for lab in config["l1"]["labs"]:
-        if not lab.get("enabled", False) or not lab.get("rss"):
-            continue
-
+    for collector in collectors:
         try:
-            collector = RSSCollector(
-                source_name=lab["name"],
-                rss_url=lab["rss"],
-                source_level="L1",
-                source_type="company_blog",
-                keywords=lab.get("keywords", []),
-                region=lab.get("region", "US"),
-            )
             papers = collector.collect(lookback_days=lookback_days)
             all_papers.extend(papers)
-            logger.info(f"[RSS] {lab['name']}: {len(papers)} 篇")
+            logger.info(f"[RSS] {collector.source_name}: {len(papers)} 篇")
         except Exception as e:
-            logger.warning(f"[RSS] {lab['name']} 失败: {e}")
-
-    # L2 媒体
-    for media in config["l2"]["media"]:
-        if not media.get("enabled", False) or not media.get("rss"):
-            continue
-
-        try:
-            collector = RSSCollector(
-                source_name=media["name"],
-                rss_url=media["rss"],
-                source_level="L2",
-                source_type="media",
-                keywords=media.get("keywords", []),
-                region=media.get("region", "US"),
-            )
-            papers = collector.collect(lookback_days=lookback_days)
-            all_papers.extend(papers)
-            logger.info(f"[RSS] {media['name']}: {len(papers)} 篇")
-        except Exception as e:
-            logger.warning(f"[RSS] {media['name']} 失败: {e}")
+            logger.warning(f"[RSS] {collector.source_name} 失败: {e}")
 
     return all_papers
 
@@ -77,13 +47,18 @@ def main():
     logger.info(f"RSS 博客: {len(rss_papers)} 篇")
 
     # 转换 RSS Paper 对象为 dict
+    def enum_val(v, default):
+        if hasattr(v, "value"):
+            return v.value
+        return str(v) if v else default
+
     rss_dicts = []
     for p in rss_papers:
         d = {
             "id": p.id,
             "source_id": p.source_id,
-            "source_level": str(p.source_level.value) if hasattr(p.source_level, "value") else "L1",
-            "source_type": str(p.source_type.value) if hasattr(p.source_type, "value") else "company_blog",
+            "source_level": enum_val(p.source_level, "L1"),
+            "source_type": enum_val(p.source_type, "company_blog"),
             "source_name": p.source_name,
             "title": p.title,
             "abstract": p.abstract,

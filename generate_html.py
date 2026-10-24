@@ -82,12 +82,15 @@ def render_paper(p):
     source_type = p.get("source_type", "arxiv")
     source_name = p.get("source_name", "arXiv")
     
-    if source_type == "company_blog":
+    if source_type in ("company_blog", "lab_blog"):
         source_badge = f'<span class="badge badge-industry">{html.escape(source_name)}</span>'
+        source_group = "industry"
     elif source_type == "media":
         source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
+        source_group = "media"
     else:
         source_badge = '<span class="badge badge-academic">学术</span>'
+        source_group = "arxiv"
     
     # 作者（RSS 可能没有作者）
     authors_list = p.get("authors", [])
@@ -114,7 +117,7 @@ def render_paper(p):
     link_text = "阅读原文" if source_type != "arxiv" else "arXiv"
     
     return f"""
-    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_type}">
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}">
         <div class="paper-header">
             <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
             <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
@@ -462,6 +465,42 @@ html_content = f"""<!DOCTYPE html>
             font-size: 24px;
             cursor: pointer;
         }}
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {{
+            .container {{ padding: 12px; }}
+            header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 15px 0;
+            }}
+            h1 {{ font-size: 22px; }}
+            .stats-bar {{ gap: 15px; flex-wrap: wrap; }}
+            .stat-num {{ font-size: 18px; }}
+            .main-content {{
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }}
+            .sidebar {{
+                position: static;
+                display: flex;
+                gap: 15px;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }}
+            .sidebar-section {{
+                margin-bottom: 0;
+                flex-shrink: 0;
+                min-width: 130px;
+            }}
+            .sidebar h3 {{ font-size: 12px; margin-bottom: 8px; }}
+            .sidebar-item {{ font-size: 13px; padding: 6px 10px; white-space: nowrap; }}
+            .paper-card {{ padding: 15px; }}
+            .paper-title {{ font-size: 15px; }}
+            .top-section, .hot-section {{ padding: 15px; }}
+            .modal-content {{ width: 90%; padding: 20px; }}
+        }}
     </style>
 </head>
 <body>
@@ -497,7 +536,7 @@ html_content = f"""<!DOCTYPE html>
                     <h3>内容类型</h3>
                     <div class="sidebar-item active" onclick="filterBySource('')">全部</div>
                     <div class="sidebar-item" onclick="filterBySource('arxiv')">学术论文</div>
-                    <div class="sidebar-item" onclick="filterBySource('company_blog')">工业界博客</div>
+                    <div class="sidebar-item" onclick="filterBySource('industry')">工业界博客</div>
                     <div class="sidebar-item" onclick="filterBySource('media')">媒体</div>
                 </div>
                 <div class="sidebar-section">
