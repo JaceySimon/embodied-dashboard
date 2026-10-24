@@ -136,6 +136,33 @@ for _p in papers:
         _org_counts[_org_name(_p)] += 1
 pulse_orgs = [(n, c) for n, c in _org_counts.most_common(10) if n and c >= 1][:9]
 
+# 方向趋势：近 12 周各方向每周论文数（看哪个方向在升温）
+TREND_TAGS = [("VLA", "VLA"), ("world_model", "世界模型"),
+              ("humanoid", "人形"), ("sim2real", "Sim2Real")]
+TREND_WEEKS = 12
+_now = datetime.now()
+_trend = {label: [0] * TREND_WEEKS for _, label in TREND_TAGS}
+for _p in papers:
+    try:
+        _d = datetime.strptime(_p.get("published_at", "")[:10], "%Y-%m-%d")
+    except Exception:
+        continue
+    _days = (_now - _d).days
+    if 0 <= _days < TREND_WEEKS * 7:
+        _bucket = TREND_WEEKS - 1 - _days // 7
+        for _t, _label in TREND_TAGS:
+            if _t in (_p.get("tags") or []):
+                _trend[_label][_bucket] += 1
+trend_data = {
+    "labels": [f"W-{TREND_WEEKS-1-i}" for i in range(TREND_WEEKS)],
+    "series": [{"name": k, "data": v} for k, v in _trend.items()],
+}
+trend_labels_json = json.dumps([f"{i+1}周前" if i < TREND_WEEKS-1 else "本周"
+                                for i in range(TREND_WEEKS)][::-1], ensure_ascii=False)
+trend_series_json = json.dumps(
+    [{"name": k, "data": v} for k, v in _trend.items()], ensure_ascii=False)
+
+
 # ============ 智能资源链接：从 code_url / raw_metadata / abstract 提取代码/项目/数据集 ============
 import re as _re
 _URL_RE = _re.compile(r"https?://[^\s\)\]\}>，。；;]+")
@@ -476,6 +503,11 @@ pulse_html = f"""
     <h3>机构活跃 <span class="pulse-hint">近 30 天一手 / 开源</span></h3>
     {pulse_orgs_html}
   </div>
+</div>
+<div class="trend-section">
+  <h3>方向趋势 <span class="pulse-hint">近 12 周每周论文数，看哪个方向在升温</span></h3>
+  <div class="trend-legend" id="trendLegend"></div>
+  <svg id="trendChart" viewBox="0 0 760 220" preserveAspectRatio="xMidYMid meet" role="img"></svg>
 </div>
 """
 
@@ -958,6 +990,21 @@ html_content = f"""<!DOCTYPE html>
         .pulse-fill.org-fill {{ background: linear-gradient(90deg,#134e4a,#5eead4); }}
         .pulse-num {{ font-size: 12px; color: #8a93a2; text-align: right; font-variant-numeric: tabular-nums; }}
         @media (max-width: 768px) {{ .pulse-section {{ grid-template-columns: 1fr; }} }}
+        .trend-section {{
+            background: #14171d; border: 1px solid #232a34; border-radius: 12px;
+            padding: 16px 20px; margin-bottom: 30px;
+        }}
+        .trend-section h3 {{ margin: 0 0 12px; font-size: 15px; color: #e6eaf0; }}
+        .trend-legend {{ display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }}
+        .trend-legend-item {{ display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #aab4c0; cursor: pointer; }}
+        .trend-legend-dot {{ width: 10px; height: 3px; border-radius: 2px; display: inline-block; }}
+        #trendChart {{ width: 100%; height: auto; display: block; }}
+        .trend-line {{ fill: none; stroke-width: 2; }}
+        .trend-dot {{ stroke: #14171d; stroke-width: 1.5; }}
+        .trend-axis {{ stroke: #2a313c; stroke-width: 1; }}
+        .trend-glabel {{ fill: #6b7280; font-size: 10px; }}
+        .trend-ylabel {{ fill: #6b7280; font-size: 9px; text-anchor: end; }}
+        .trend-section.off .trend-legend-item {{ opacity: 0.45; }}
 
         .events-section {{
             margin-bottom: 30px;
@@ -1678,11 +1725,70 @@ html_content = f"""<!DOCTYPE html>
             // 机构脉搏：点击机构名 -> 全文搜索该机构，并重置来源/标签筛选
             currentTag = ''; currentSource = ''; currentProperty = null;
             showOnlyFavs = false; currentTimeRange = 0;
+            readFilter = 'all';
             document.getElementById('search').value = name;
             resetPagination();
             filterPapers();
             document.getElementById('papers').scrollIntoView({{block:'start'}});
             window.scrollBy(0, -60);
+        }}
+
+        // ===== 方向趋势图（纯 SVG 折线）=====
+        const TREND_DATA = {trend_series_json};
+        const TREND_WLABELS = {trend_labels_json};
+        const TREND_COLORS = {{'VLA':'#4da6ff','世界模型':'#f0c674','人形':'#5eead4','Sim2Real':'#c084fc'}};
+        const trendHidden = new Set();
+        function drawTrendChart() {{
+            const svg = document.getElementById('trendChart');
+            if (!svg) return;
+            const W = 760, H = 220, L = 36, R = 14, T = 12, B = 24;
+            const iw = W - L - R, ih = H - T - B;
+            const n = TREND_WLABELS.length;
+            const active = TREND_DATA.filter(s => !trendHidden.has(s.name));
+            let maxV = 0;
+            active.forEach(s => s.data.forEach(v => {{ if (v > maxV) maxV = v; }}));
+            if (maxV === 0) maxV = 1;
+            maxV = Math.ceil(maxV / 10) * 10 || 10;
+            const X = i => L + (n === 1 ? 0 : i * iw / (n - 1));
+            const Y = v => T + ih - (v / maxV) * ih;
+            let html = '';
+            // 水平网格 + y 刻度
+            for (let g = 0; g <= 4; g++) {{
+                const yv = Math.round(maxV * g / 4);
+                const y = Y(yv);
+                html += `<line class="trend-axis" x1="${{L}}" y1="${{y}}" x2="${{W-R}}" y2="${{y}}" opacity="0.5"/>`;
+                html += `<text class="trend-ylabel" x="${{L-5}}" y="${{y+3}}">${{yv}}</text>`;
+            }}
+            // x 标签（首、中、末）
+            [0, Math.floor((n-1)/2), n-1].forEach(i => {{
+                html += `<text class="trend-glabel" x="${{X(i)}}" y="${{H-6}}" text-anchor="middle">${{TREND_WLABELS[i]}}</text>`;
+            }});
+            // 折线
+            active.forEach(s => {{
+                const c = TREND_COLORS[s.name] || '#888';
+                const pts = s.data.map((v,i) => `${{X(i)}},${{Y(v)}}`).join(' ');
+                html += `<polyline class="trend-line" stroke="${{c}}" points="${{pts}}"/>`;
+                s.data.forEach((v,i) => {{
+                    html += `<circle class="trend-dot" cx="${{X(i)}}" cy="${{Y(v)}}" r="2.6" fill="${{c}}"><title>${{s.name}} · ${{TREND_WLABELS[i]}}：${{v}} 篇</title></circle>`;
+                }});
+            }});
+            svg.innerHTML = html;
+            // 图例
+            const lg = document.getElementById('trendLegend');
+            lg.innerHTML = TREND_DATA.map(s => {{
+                const c = TREND_COLORS[s.name] || '#888';
+                const last = s.data[s.data.length-1], prev = s.data[s.data.length-2] || last;
+                const arrow = last > prev ? '↑' : (last < prev ? '↓' : '→');
+                const ac = last > prev ? '#5eead4' : (last < prev ? '#f87171' : '#8a93a2');
+                return `<span class="trend-legend-item" data-name="${{s.name}}" style="${{trendHidden.has(s.name)?'opacity:.4':''}}">
+                    <span class="trend-legend-dot" style="background:${{c}}"></span>${{s.name}}
+                    <span style="color:${{ac}};font-variant-numeric:tabular-nums">${{last}} ${{arrow}}</span></span>`;
+            }}).join('');
+            lg.querySelectorAll('.trend-legend-item').forEach(el => el.addEventListener('click', () => {{
+                const name = el.dataset.name;
+                if (trendHidden.has(name)) trendHidden.delete(name); else trendHidden.add(name);
+                lg.classList.add('off'); drawTrendChart();
+            }}));
         }}
         
         function filterByProperty(property, value) {{
@@ -1876,6 +1982,7 @@ html_content = f"""<!DOCTYPE html>
         filterPapers();
         showOnboarding();
         initSinceVisit();
+        drawTrendChart();
     </script>
 </body>
 </html>
