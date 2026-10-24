@@ -263,6 +263,32 @@ def render_paper(p):
     
     # 论文 ID（用于收藏）
     paper_id = str(p["id"]).replace("/", "_")
+
+    # 一键 BibTeX（仅学术论文；数据齐备）
+    bibtex_attr = ""
+    cite_link = ""
+    if source_type == "arxiv":
+        _aid = str(p["id"]).split("arxiv:", 1)[-1]
+        _aid = _aid.split("v")[0] if _aid[:1].isdigit() and "v" in _aid.split("/")[-1] else _aid
+        _year = str(p.get("published_at", ""))[:4]
+        _alist = p.get("authors", []) or []
+        def _bib_author(name):
+            parts = name.strip().split()
+            if len(parts) >= 2:
+                return parts[-1] + ", " + " ".join(parts[:-1])
+            return name.strip()
+        _bib_authors = " and ".join(_bib_author(a) for a in _alist) or "Unknown"
+        _firstlast = (_alist[0].strip().split()[-1] if _alist else "anon").lower()
+        _key = f"{_firstlast}{_year}"
+        _btitle = p.get("title", "").replace("{", "").replace("}", "")
+        _bib = (f"@article{{{_key},\n"
+                f"  title={{{_btitle}}},\n"
+                f"  author={{{_bib_authors}}},\n"
+                f"  journal={{arXiv preprint arXiv:{_aid}}},\n"
+                f"  year={{{_year}}}\n}}}}")
+        bibtex_attr = f' data-bibtex="{html.escape(_bib, quote=True)}"'
+        cite_link = f'<a href="javascript:void(0)" onclick="copyBib(\'{paper_id}\')">引用</a>'
+
     
     # 链接文本
     if source_type == "github":
@@ -325,7 +351,7 @@ def render_paper(p):
     ])
 
     return f"""
-    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}" data-event-dup="{is_dup}" data-event-id="{html.escape(event_id)}">
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}" data-event-dup="{is_dup}" data-event-id="{html.escape(event_id)}"{bibtex_attr}>
         <div class="paper-header">
             <div class="paper-title"><a href="{p['url']}" target="_blank" onclick="markRead('{paper_id}')">{html.escape(p['title'])}</a></div>
             <div class="card-actions">
@@ -346,6 +372,7 @@ def render_paper(p):
             <a href="{p['url']}" target="_blank" onclick="markRead('{paper_id}')">{link_text}</a>
             {resources_html}
             <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
+            {cite_link}
         </div>
     </div>
     """
@@ -1451,6 +1478,37 @@ html_content = f"""<!DOCTYPE html>
             document.getElementById('favCount').textContent = favorites.length;
         }}
         
+        function copyBib(id) {{
+            const card = document.querySelector(`[data-id="${{id}}"]`);
+            if (!card || !card.dataset.bibtex) return;
+            const text = card.dataset.bibtex;
+            const modal = document.getElementById('modal');
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <h2 style="margin:0 0 12px;color:#fff">BibTeX 引用</h2>
+                <textarea id="bibText" style="width:100%;height:230px;box-sizing:border-box;background:#0f1115;color:#cfe3ff;border:1px solid #2a313c;border-radius:8px;padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.6"></textarea>
+                <div style="text-align:right;margin-top:12px">
+                    <button onclick="closeModal()" style="background:transparent;color:#8a93a2;border:1px solid #334155;padding:8px 16px;border-radius:8px;margin-right:8px;cursor:pointer">关闭</button>
+                    <button id="bibCopyBtn" style="background:#4da6ff;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer">复制到剪贴板</button>
+                </div>`;
+            const ta = document.getElementById('bibText');
+            ta.value = text;
+            const btn = document.getElementById('bibCopyBtn');
+            const doCopy = () => {{
+                ta.focus(); ta.select();
+                let ok = false;
+                try {{ ok = document.execCommand('copy'); }} catch (e) {{}}
+                if (navigator.clipboard && navigator.clipboard.writeText) {{
+                    navigator.clipboard.writeText(ta.value).then(
+                        () => {{ btn.textContent = '已复制 ✓'; }},
+                        () => {{ if (ok) btn.textContent = '已复制 ✓'; }});
+                }} else if (ok) {{ btn.textContent = '已复制 ✓'; }}
+            }};
+            btn.onclick = doCopy;
+            modal.style.display = 'flex';
+            doCopy();
+        }}
+
         function toggleFav(id) {{
             const idx = favorites.indexOf(id);
             if (idx > -1) {{
