@@ -5,6 +5,7 @@
 """
 import re
 import time
+import hashlib
 import requests
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
@@ -437,6 +438,18 @@ class CompanyHTMLCollector(BaseCollector):
             return True
         return not is_company_noise(title)
 
+    @staticmethod
+    def _stable_id(url: str) -> str:
+        """用稳定的 URL slug（或 md5 前 10 位）生成 id，避免内置 hash() 跨进程随机。"""
+        slug = ""
+        m = re.search(r"/([^/?#]+)/?(?:\?.*)?$", url)
+        if m:
+            slug = re.sub(r"\.(html?|aspx?|php)$", "", m.group(1)).lower()
+            slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+        if len(slug) < 4:
+            slug = hashlib.md5(url.encode("utf-8")).hexdigest()[:10]
+        return slug[:80]
+
     def _make_paper(self, title: str, url: str, abstract: str,
                     published: datetime, code_url=None) -> Paper:
         # 未来超过 2 天的日期几乎肯定是解析错误（页脚/版本号污染），回退为今天
@@ -449,7 +462,7 @@ class CompanyHTMLCollector(BaseCollector):
         elif self.source_type == "media":
             st = SourceType.MEDIA
         return Paper(
-            id=f"html:{self.source_name.lower().replace(' ', '_')}:{hash(url) % 100000}",
+            id=f"html:{self.source_name.lower().replace(' ', '_')}:{self._stable_id(url)}",
             source_id=f"html:{self.source_name}:{url}",
             source_level=SourceLevel.L1,
             source_type=st,
