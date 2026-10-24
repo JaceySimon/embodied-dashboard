@@ -34,7 +34,7 @@ papers.sort(key=lambda p: p["published_at"], reverse=True)
 
 # 事件归并：把同一进展的 arXiv 论文 / 官方博客 / 媒体报道聚合成一个事件
 from pipeline.event_merger import merge_events, SOURCE_LABEL
-merge_events(papers)
+event_result = merge_events(papers)
 papers_by_id = {p["id"]: p for p in papers}
 
 # 统计标签
@@ -243,6 +243,61 @@ def render_paper(p):
     """
 
 papers_html = "\n".join([render_paper(p) for p in papers])
+
+# ============ 重要进展（事件）专区：按"事件"看全貌，一个进展所有来源一次看完 ============
+def _event_sort_key(ev):
+    primary = papers_by_id.get(ev["primary"])
+    date = primary.get("published_at", "") if primary else ""
+    return (date, ev["size"])
+
+# 仅展示近 120 天事件（与 backfill 一致），最多 12 个
+_events_sorted = sorted(event_result["events"].values(),
+                        key=_event_sort_key, reverse=True)
+_event_window = (datetime.now() - timedelta(days=120)).strftime("%Y-%m-%d")
+recent_events = [
+    ev for ev in _events_sorted
+    if papers_by_id.get(ev["primary"], {}).get("published_at", "") >= _event_window
+][:12]
+
+def render_event_card(ev):
+    primary = papers_by_id.get(ev["primary"])
+    if not primary:
+        return ""
+    ptype = primary.get("source_type", "arxiv")
+    plabel = SOURCE_LABEL.get(ptype, "论文")
+    pdate = str(primary.get("published_at", ""))[:10]
+
+    # 所有成员来源（主条目 + 其余），类型徽章 + 名称 + 直达链接
+    member_links = []
+    labels = []
+    for mid in ev["members"]:
+        mp = papers_by_id.get(mid)
+        if not mp:
+            continue
+        mtype = mp.get("source_type", "arxiv")
+        labels.append(SOURCE_LABEL.get(mtype, "其他"))
+        member_links.append(
+            f'<a class="ev-src-link" href="{mp.get("url","")}" target="_blank" '
+            f'title="{html.escape(mp.get("title",""))}">'
+            f'<span class="es-tag es-{mtype}">{html.escape(SOURCE_LABEL.get(mtype,"其他"))}</span>'
+            f'{html.escape(mp.get("source_name",""))}</a>'
+        )
+    labels = " · ".join(dict.fromkeys(labels))
+    return f"""
+    <div class="event-card">
+        <div class="event-card-title">
+            <a href="{primary.get('url','')}" target="_blank">{html.escape(primary.get('title',''))}</a>
+        </div>
+        <div class="event-card-meta">
+            <span class="es-tag es-{ptype}">{html.escape(plabel)}</span>
+            <span class="event-card-date">{pdate}</span>
+            <span class="event-card-count">{ev['size']} 个来源（{labels}）</span>
+        </div>
+        <div class="event-card-sources">{''.join(member_links)}</div>
+    </div>
+    """
+
+events_html = "\n".join([render_event_card(ev) for ev in recent_events])
 
 # 本周热点
 hot_tags_html = "".join([f'<span class="hot-tag">{t} ({c})</span>' for t, c in hot_tags_top])
@@ -557,7 +612,40 @@ html_content = f"""<!DOCTYPE html>
         }}
         .es-title {{ flex: none; font-weight: 600; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
         .es-name {{ color: #9aa4b2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
-        
+
+        /* 重要进展（事件）专区 */
+        .events-section {{
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #14171d;
+            border: 1px solid #222;
+            border-radius: 12px;
+        }}
+        .events-section h2 {{ font-size: 16px; color: #fff; margin-bottom: 6px; }}
+        .event-cards {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }}
+        .event-card {{
+            background: #101318;
+            border: 1px solid #23272f;
+            border-radius: 10px;
+            padding: 13px 14px;
+        }}
+        .event-card:hover {{ border-color: #3a4350; }}
+        .event-card-title {{ font-size: 14px; font-weight: 600; line-height: 1.35; margin-bottom: 9px; }}
+        .event-card-title a {{ color: #e8edf3; }}
+        .event-card-title a:hover {{ color: #4da6ff; }}
+        .event-card-meta {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 9px; }}
+        .event-card-date {{ color: #8b94a3; font-size: 12px; }}
+        .event-card-count {{ color: #9aa4b2; font-size: 12px; }}
+        .event-card-sources {{ display: flex; flex-wrap: wrap; gap: 6px; }}
+        .ev-src-link {{
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 12px; color: #c2c9d4;
+            padding: 3px 9px 3px 4px; border-radius: 6px;
+            background: #171b21; border: 1px solid #262b33;
+        }}
+        .ev-src-link:hover {{ background: #1d232c; border-color: #3a4350; }}
+
+
         /* 热点 */
         .hot-section {{
             margin-bottom: 30px;
@@ -709,6 +797,7 @@ html_content = f"""<!DOCTYPE html>
                 grid-template-columns: 1fr;
                 gap: 15px;
             }}
+            .event-cards {{ grid-template-columns: 1fr; }}
             .sidebar {{
                 position: static;
                 display: flex;
@@ -806,7 +895,14 @@ html_content = f"""<!DOCTYPE html>
                         {week_top_html}
                     </div>
                 </div>
-                
+
+                <div class="events-section">
+                    <h2>重要进展 · 跨源全貌 <span class="top-sub">同一进展的论文 / 官方 / 媒体，一次看完</span></h2>
+                    <div class="event-cards">
+                        {events_html}
+                    </div>
+                </div>
+
                 <div class="hot-section">
                     <h2>本周热点</h2>
                     <div class="hot-tags">
