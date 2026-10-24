@@ -202,6 +202,55 @@ for _p in papers:
         _org_counts[_org_name(_p)] += 1
 pulse_orgs = [(n, c) for n, c in _org_counts.most_common(10) if n and c >= 1][:9]
 
+# ============ 智能资源链接：从 code_url / raw_metadata / abstract 提取代码/项目/数据集 ============
+import re as _re
+_URL_RE = _re.compile(r"https?://[^\s\)\]\}>，。；;]+")
+_GH_RE = _re.compile(r"https?://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+")
+def _clean_url(u):
+    u = u.rstrip(".,;)']")
+    if u.lower().endswith(".git"):
+        u = u[:-4]
+    return u
+def _resource_links(p):
+    """返回 [(key, url, label, icon)]，去重，最多 3 个；key: code/page/data"""
+    rm = p.get("raw_metadata") or {}
+    found = {}
+    def add(key, url, label, icon):
+        url = _clean_url(url or "")
+        low = url.lower()
+        # 过滤视频 / 非资源链接
+        if any(x in low for x in ("youtu.be", "youtube.com", "vimeo.com", ".mp4")):
+            return
+        if url and key not in found:
+            found[key] = (url, label, icon)
+    # 1) 结构化字段（arxiv comment 提取）
+    add("code", p.get("code_url") or rm.get("code"), "代码", "🐙")
+    add("page", rm.get("project_page"), "项目主页", "🌐")
+    add("data", rm.get("dataset"), "数据集", "🤗")
+    # 2) 兜底：从摘要里找 GitHub / 项目主页 / 数据集
+    text = (p.get("abstract") or "")
+    if "code" not in found:
+        for m in _GH_RE.findall(text):
+            u = _clean_url(m)
+            if not u.lower().endswith((".pdf", ".png", ".jpg")):
+                add("code", u, "代码", "🐙")
+                break
+    if "page" not in found:
+        for m in _URL_RE.findall(text):
+            u = _clean_url(m)
+            low = u.lower()
+            if "github.com" in low:
+                continue
+            if "project" in low or low.endswith("github.io") or ".github.io/" in low:
+                add("page", u, "项目主页", "🌐")
+                break
+    if "data" not in found:
+        for m in _URL_RE.findall(text):
+            if "huggingface.co/datasets" in m.lower():
+                add("data", m, "数据集", "🤗")
+                break
+    return [(k, v[0], v[1], v[2]) for k, v in found.items()]
+
 # 生成论文卡片
 _INTERNAL_TAGS = {"open_source", "hf_model", "gh_release"}
 def _public_tags(tags, limit=5):
@@ -307,6 +356,13 @@ def render_paper(p):
                 f'<div class="event-source-list">{"".join(member_items)}</div></details>'
             )
 
+    # 智能资源链接（代码 / 项目主页 / 数据集）
+    _res = _resource_links(p)
+    resources_html = "".join([
+        f'<a class="res-link res-{k}" href="{html.escape(u)}" target="_blank" rel="noopener" onclick="markRead(\'{paper_id}\')">{icon} {label}</a>'
+        for k, u, label, icon in _res
+    ])
+
     return f"""
     <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}" data-event-dup="{is_dup}" data-event-id="{html.escape(event_id)}">
         <div class="paper-header">
@@ -327,6 +383,7 @@ def render_paper(p):
         {event_sources_html}
         <div class="paper-links">
             <a href="{p['url']}" target="_blank" onclick="markRead('{paper_id}')">{link_text}</a>
+            {resources_html}
             <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
         </div>
     </div>
@@ -832,6 +889,17 @@ html_content = f"""<!DOCTYPE html>
             margin-right: 15px;
         }}
         .paper-links a:hover {{ text-decoration: underline; }}
+        .res-link {{
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 2px 9px !important; border-radius: 6px; font-size: 11.5px !important;
+            border: 1px solid transparent; text-decoration: none !important;
+        }}
+        .res-code {{ color: #7ee2a8 !important; background: rgba(63,185,80,0.10); border-color: rgba(63,185,80,0.28); }}
+        .res-code:hover {{ background: rgba(63,185,80,0.18); }}
+        .res-page {{ color: #7fb4e8 !important; background: rgba(77,166,255,0.10); border-color: rgba(77,166,255,0.28); }}
+        .res-page:hover {{ background: rgba(77,166,255,0.18); }}
+        .res-data {{ color: #d6a8f5 !important; background: rgba(190,120,220,0.10); border-color: rgba(190,120,220,0.28); }}
+        .res-data:hover {{ background: rgba(190,120,220,0.18); }}
 
         /* 事件多源归并 */
         .event-sources {{
