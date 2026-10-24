@@ -11,6 +11,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from collectors.rss_collector import build_rss_collectors_from_config
+from collectors.company_html_collector import build_html_collectors_from_config
 from utils import logger
 
 
@@ -30,6 +31,16 @@ def collect_rss_papers(lookback_days: int = 90):
             logger.info(f"[RSS] {collector.source_name}: {len(papers)} 篇")
         except Exception as e:
             logger.warning(f"[RSS] {collector.source_name} 失败: {e}")
+
+    # 无 RSS 的公司网站，走 HTML 采集器
+    html_collectors = build_html_collectors_from_config(config)
+    logger.info(f"[HTML] 共 {len(html_collectors)} 个 HTML 公司源")
+    for collector in html_collectors:
+        try:
+            papers = collector.collect(lookback_days=lookback_days)
+            all_papers.extend(papers)
+        except Exception as e:
+            logger.warning(f"[HTML] {collector.source_name} 失败: {e}")
 
     return all_papers
 

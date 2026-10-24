@@ -14,6 +14,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from collectors.arxiv_collector import ArxivCollector
 from collectors.rss_collector import RSSCollector, build_rss_collectors_from_config
+from collectors.company_html_collector import build_html_collectors_from_config
 from collectors.x_collector import XCollector
 from collectors.x_api_collector import build_x_collector_from_config
 from pipeline.clean import deduplicate_papers
@@ -60,6 +61,18 @@ def run_daily(config_path: str = None, lookback_days: int = 7):
         rss_papers.extend(collector.collect(lookback_days=lookback_days))
     all_papers.extend(rss_papers)
     print(f"  RSS 总计: {len(rss_papers)} 篇")
+
+    # 无 RSS 的公司网站（HTML 采集）
+    print(f"\n[2b/5] 采集无 RSS 的公司网站（HTML）...")
+    html_collectors = build_html_collectors_from_config(config)
+    html_papers = []
+    for collector in html_collectors:
+        try:
+            html_papers.extend(collector.collect(lookback_days=lookback_days))
+        except Exception as e:
+            print(f"  {collector.source_name} 失败: {e}")
+    all_papers.extend(html_papers)
+    print(f"  HTML 公司源总计: {len(html_papers)} 篇")
 
     # ========== 3. X 采集 ==========
     print(f"\n[3/5] 采集 X 白名单账号...")

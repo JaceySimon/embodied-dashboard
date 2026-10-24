@@ -6,6 +6,8 @@ arxiv>=2.1.0            # arXiv API 官方封装
 feedparser>=6.0.11      # RSS 解析
 requests>=2.31.0        # HTTP
 pyyaml>=6.0             # 配置文件
+beautifulsoup4>=4.12.0  # HTML 解析（无 RSS 公司博客采集）
+lxml>=4.9.0             # bs4 解析后端
 
 # 数据处理
 sqlalchemy>=2.0.0       # ORM

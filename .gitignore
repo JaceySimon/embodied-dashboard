@@ -26,6 +26,10 @@ output/
 test_*.py
 inspect_*.py
 check_*.py
+debug_*.py
+probe_*.py
+*_out.txt
+*_out2.txt
 rss_test_output.txt
 
 # IDE

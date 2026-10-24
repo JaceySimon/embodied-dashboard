@@ -144,6 +144,32 @@ l1:
       type: "humanoid"
       enabled: false
 
+  # 无 RSS 的公司，用 HTML 采集器抓取新闻列表页
+  html_companies:
+    - name: "Physical Intelligence"
+      list_url: "https://www.pi.website/blog"
+      link_pattern: '/blog/[a-z0-9-]+'
+      region: "US"
+      enabled: true
+
+    - name: "Figure AI"
+      list_url: "https://www.figure.ai/news"
+      link_pattern: '/news/[a-z0-9-]+'
+      region: "US"
+      enabled: true
+
+    - name: "1X Technologies"
+      list_url: "https://www.1x.tech/discover"
+      link_pattern: '/discover/[a-z0-9-]+'
+      region: "NO"
+      enabled: true
+
+    - name: "Skild AI"
+      list_url: "https://skild.ai/blogs"
+      link_pattern: '/blogs/[a-z0-9-]+'
+      region: "US"
+      enabled: true
+
   chinese_companies:
     - name: "智元机器人 AgiBot"
       url: "https://www.agibot.com/"
