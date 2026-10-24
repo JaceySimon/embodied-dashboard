@@ -86,7 +86,7 @@ def render_paper(p):
     paper_id = p["id"].replace("/", "_")
     
     return f"""
-    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}">
+    <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{p['published_at'][:10]}">
         <div class="paper-header">
             <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
             <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
@@ -158,6 +158,24 @@ html_content = f"""<!DOCTYPE html>
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
+            flex-shrink: 0;
+        }}
+        .stats-bar {{
+            display: flex;
+            gap: 25px;
+            margin-top: 12px;
+        }}
+        .stat-item {{
+            text-align: center;
+        }}
+        .stat-num {{
+            font-size: 22px;
+            font-weight: bold;
+            color: #4da6ff;
+        }}
+        .stat-label {{
+            font-size: 11px;
+            color: #666;
         }}
         
         /* 布局 */
@@ -201,15 +219,28 @@ html_content = f"""<!DOCTYPE html>
         /* 搜索 */
         .search-bar {{
             margin-bottom: 20px;
+            position: relative;
         }}
         .search-bar input {{
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 45px 12px 16px;
             background: #1a1d23;
             border: 1px solid #333;
             border-radius: 8px;
             color: #e0e0e0;
             font-size: 14px;
+        }}
+        .search-hint {{
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 12px;
+            background: #0a0c10;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #222;
         }}
         
         /* 论文卡片 */
@@ -260,6 +291,12 @@ html_content = f"""<!DOCTYPE html>
             font-size: 12px;
             line-height: 1.5;
             margin-bottom: 10px;
+        }}
+        mark {{
+            background: #f59e0b;
+            color: #000;
+            padding: 0 2px;
+            border-radius: 2px;
         }}
         .paper-links {{ font-size: 12px; }}
         .paper-links a {{
@@ -375,7 +412,24 @@ html_content = f"""<!DOCTYPE html>
         <header>
             <div>
                 <h1>具身智能看板</h1>
-                <div class="stats">最近 90 天 · {len(papers)} 篇论文 · 聚焦 VLA / 世界模型 / 仿真器</div>
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-num">{len(papers)}</div>
+                        <div class="stat-label">90天论文</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">{len(week_papers)}</div>
+                        <div class="stat-label">本周新增</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">{sum(1 for p in papers if p.get('has_real_robot', False))}</div>
+                        <div class="stat-label">真机实验</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num">{sum(1 for p in papers if p.get('is_open_source', False))}</div>
+                        <div class="stat-label">已开源</div>
+                    </div>
+                </div>
             </div>
             <div class="fav-count" onclick="showFavs()">收藏 (<span id="favCount">0</span>)</div>
         </header>
@@ -392,15 +446,28 @@ html_content = f"""<!DOCTYPE html>
                     <div class="sidebar-item" onclick="filterByTag('foundation_model')">Foundation Model</div>
                 </div>
                 <div class="sidebar-section">
+                    <h3>时间范围</h3>
+                    <div class="sidebar-item active" onclick="filterByTime(0)">全部</div>
+                    <div class="sidebar-item" onclick="filterByTime(1)">今天</div>
+                    <div class="sidebar-item" onclick="filterByTime(7)">本周</div>
+                    <div class="sidebar-item" onclick="filterByTime(30)">本月</div>
+                </div>
+                <div class="sidebar-section">
                     <h3>其他筛选</h3>
                     <div class="sidebar-item" onclick="filterByProperty('real', true)">有真机实验</div>
                     <div class="sidebar-item" onclick="filterByProperty('open', true)">已开源</div>
+                </div>
+                <div class="sidebar-section">
+                    <h3>工具</h3>
+                    <div class="sidebar-item" onclick="exportFavs()">导出收藏 (Markdown)</div>
+                    <div class="sidebar-item" onclick="clearAllFilters()">清除所有筛选</div>
                 </div>
             </div>
             
             <div class="content">
                 <div class="search-bar">
                     <input type="text" id="search" placeholder="搜索标题、作者、摘要..." oninput="filterPapers()">
+                    <span class="search-hint">按 / 快速搜索</span>
                 </div>
                 
                 <div class="top-section">
@@ -420,6 +487,12 @@ html_content = f"""<!DOCTYPE html>
                 <div id="papers">
                     {papers_html}
                 </div>
+                
+                <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:#666">
+                    <div style="font-size:48px;margin-bottom:15px">🔍</div>
+                    <p style="margin-bottom:10px">没有找到匹配的论文</p>
+                    <p style="font-size:13px">试试换个关键词，或者清除筛选条件</p>
+                </div>
             </div>
         </div>
     </div>
@@ -436,6 +509,7 @@ html_content = f"""<!DOCTYPE html>
         let currentTag = '';
         let currentProperty = '';
         let currentPropertyValue = '';
+        let currentTimeRange = 0;
         let showOnlyFavs = false;
         let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         
@@ -480,12 +554,17 @@ html_content = f"""<!DOCTYPE html>
         function filterPapers() {{
             const search = document.getElementById('search').value.toLowerCase();
             const cards = document.querySelectorAll('.paper-card');
+            let visibleCount = 0;
             
             cards.forEach(card => {{
-                const title = card.querySelector('.paper-title').textContent.toLowerCase();
-                const authors = card.querySelector('.paper-authors').textContent.toLowerCase();
-                const abstract = card.querySelector('.paper-abstract').textContent.toLowerCase();
+                const titleEl = card.querySelector('.paper-title');
+                const authorsEl = card.querySelector('.paper-authors');
+                const abstractEl = card.querySelector('.paper-abstract');
                 const tags = card.dataset.tags || '';
+                
+                const title = titleEl.textContent.toLowerCase();
+                const authors = authorsEl.textContent.toLowerCase();
+                const abstract = abstractEl.textContent.toLowerCase();
                 
                 const matchSearch = title.includes(search) || authors.includes(search) || abstract.includes(search);
                 const matchTag = !currentTag || tags.includes(currentTag);
@@ -500,8 +579,76 @@ html_content = f"""<!DOCTYPE html>
                     matchFav = favorites.includes(card.dataset.id);
                 }}
                 
-                card.style.display = (matchSearch && matchTag && matchProperty && matchFav) ? 'block' : 'none';
+                let matchTime = true;
+                if (currentTimeRange > 0) {{
+                    const cutoff = new Date();
+                    cutoff.setDate(cutoff.getDate() - currentTimeRange);
+                    const paperDate = new Date(card.dataset.date);
+                    matchTime = paperDate >= cutoff;
+                }}
+                
+                const visible = matchSearch && matchTag && matchProperty && matchFav && matchTime;
+                card.style.display = visible ? 'block' : 'none';
+                if (visible) visibleCount++;
+                
+                // 搜索高亮
+                if (search && visible) {{
+                    highlightText(titleEl, search);
+                    highlightText(abstractEl, search);
+                }} else {{
+                    // 恢复原文
+                    if (card.dataset.originalTitle) {{
+                        titleEl.innerHTML = card.dataset.originalTitle;
+                    }}
+                    if (card.dataset.originalAbstract) {{
+                        abstractEl.innerHTML = card.dataset.originalAbstract;
+                    }}
+                }}
             }});
+            
+            // 空状态
+            const emptyState = document.getElementById('emptyState');
+            if (visibleCount === 0) {{
+                emptyState.style.display = 'block';
+            }} else {{
+                emptyState.style.display = 'none';
+            }}
+        }}
+        
+        function highlightText(el, keyword) {{
+            if (!el.dataset.originalHtml) {{
+                el.dataset.originalHtml = el.innerHTML;
+            }}
+            const original = el.dataset.originalHtml;
+            const escaped = keyword.replace(/[.*+?^$()|[\]\\]/g, '\\$&');
+            const regex = new RegExp('(' + escaped + ')', 'gi');
+            el.innerHTML = original.replace(regex, '<mark>$1</mark>');
+        }}
+        
+        function showOnboarding() {{
+            if (localStorage.getItem('onboarded')) return;
+            const modal = document.getElementById('modal');
+            const body = document.getElementById('modalBody');
+            body.innerHTML = `
+                <h2 style="margin-bottom:20px;color:#fff">👋 欢迎使用具身智能看板</h2>
+                <div style="color:#ccc;font-size:14px;line-height:1.8">
+                    <p style="margin-bottom:15px">这个工具帮你<b>少读 80% 垃圾</b>，5 分钟看完本周关键进展。</p>
+                    <p style="margin-bottom:10px"><b>📌 怎么用：</b></p>
+                    <ul style="margin-left:20px;margin-bottom:15px">
+                        <li>顶部：<b>本周必看 10 篇</b>（按重要性排序）</li>
+                        <li>左侧：按标签筛选（VLA / 世界模型 / 仿真器）</li>
+                        <li>搜索框：全文搜索标题、作者、摘要</li>
+                        <li>点击 ☆ 收藏论文，刷新不丢失</li>
+                        <li>点击"相关论文"看同方向的其他工作</li>
+                    </ul>
+                    <p style="margin-bottom:15px">聚焦三个方向：<b>VLA / 世界模型 / 仿真器</b></p>
+                    <button onclick="closeModal();localStorage.setItem('onboarded','1');" 
+                        style="background:#4da6ff;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px">
+                        开始使用
+                    </button>
+                </div>
+            `;
+            modal.style.display = 'block';
         }}
         
         function filterByTag(tag) {{
@@ -516,6 +663,69 @@ html_content = f"""<!DOCTYPE html>
             currentPropertyValue = value ? 'true' : 'false';
             filterPapers();
         }}
+        
+        function filterByTime(days) {{
+            currentTimeRange = days;
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            filterPapers();
+        }}
+        
+        function clearAllFilters() {{
+            currentTag = '';
+            currentProperty = '';
+            currentPropertyValue = '';
+            currentTimeRange = 0;
+            showOnlyFavs = false;
+            document.getElementById('search').value = '';
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            document.querySelector('.sidebar-item').classList.add('active');
+            filterPapers();
+        }}
+        
+        function exportFavs() {{
+            if (favorites.length === 0) {{
+                alert('还没有收藏的论文');
+                return;
+            }}
+            
+            let md = '# 我的收藏 - 具身智能看板\n\n';
+            const cards = document.querySelectorAll('.paper-card');
+            let count = 0;
+            
+            cards.forEach(card => {{
+                if (favorites.includes(card.dataset.id)) {{
+                    count++;
+                    const title = card.querySelector('.paper-title a').textContent;
+                    const url = card.querySelector('.paper-title a').href;
+                    const authors = card.querySelector('.paper-authors').textContent;
+                    const tags = card.dataset.tags;
+                    md += `## ${{count}}. ${{title}}\n\n`;
+                    md += `- **作者**: ${{authors}}\n`;
+                    md += `- **标签**: ${{tags}}\n`;
+                    md += `- **链接**: ${{url}}\n\n`;
+                }}
+            }});
+            
+            const blob = new Blob([md], {{ type: 'text/markdown' }});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `favorites_${{new Date().toISOString().slice(0,10)}}.md`;
+            a.click();
+        }}
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {{
+            // 按 / 聚焦搜索
+            if (e.key === '/' && document.activeElement.id !== 'search') {{
+                e.preventDefault();
+                document.getElementById('search').focus();
+            }}
+            // ESC 关闭模态框
+            if (e.key === 'Escape') {{
+                closeModal();
+            }}
+        }});
         
         function showRelated(id) {{
             const card = document.querySelector(`[data-id="${{id}}"]`);
@@ -554,6 +764,7 @@ html_content = f"""<!DOCTYPE html>
         // 初始化
         updateFavCount();
         updateFavButtons();
+        showOnboarding();
     </script>
 </body>
 </html>

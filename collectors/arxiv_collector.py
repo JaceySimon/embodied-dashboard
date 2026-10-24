@@ -1,5 +1,6 @@
 """
 arXiv 采集器 - 具身智能相关论文
+带重试、缓存、错误处理
 """
 import arxiv
 from datetime import datetime, timedelta, timezone
@@ -11,6 +12,7 @@ from urllib.parse import urlparse
 from collectors.base import BaseCollector
 from models.paper import Paper, SourceLevel, SourceType
 from pipeline.clean import normalize_url, normalize_title, title_hash
+from utils import retry, SimpleCache, logger
 
 
 def _extract_url_from_comment(comment: Optional[str]) -> dict:
@@ -54,6 +56,7 @@ class ArxivCollector(BaseCollector):
         self.categories = categories
         self.keywords = keywords
         self.max_results = max_results
+        self.cache = SimpleCache(cache_dir="data/cache/arxiv", ttl_hours=6)  # 缓存 6 小时
 
     def _build_query(self) -> str:
         """构建 arXiv 查询字符串"""
@@ -65,14 +68,21 @@ class ArxivCollector(BaseCollector):
         query = f"({cat_conditions}) AND ({kw_conditions})"
         return query
 
+    @retry(max_retries=3, delay=2.0, backoff=2.0)
     def collect(self, lookback_days: int = 7) -> List[Paper]:
-        """采集最近 N 天的论文"""
+        """采集最近 N 天的论文（带缓存）"""
+        cache_key = f"arxiv_{lookback_days}_{self.max_results}"
+        cached = self.cache.get(cache_key)
+        if cached:
+            logger.info(f"[arXiv] 命中缓存: {len(cached)} 篇")
+            return [Paper(**p) if isinstance(p, dict) else p for p in cached]
+
         query = self._build_query()
-        print(f"[arXiv] 查询: {query[:100]}...")
+        logger.info(f"[arXiv] 查询: {query[:100]}...")
 
         client = arxiv.Client(
             page_size=50,
-            delay_seconds=3.0,  # 礼貌访问，3 秒一次
+            delay_seconds=3.0,
             num_retries=3,
         )
 
@@ -88,23 +98,17 @@ class ArxivCollector(BaseCollector):
 
         try:
             for paper in client.results(search):
-                # 过滤时间
                 published = paper.published.replace(tzinfo=None)
                 if published < cutoff:
                     continue
 
-                # 从 comment 抽链接
                 comment = paper.comment or ""
                 extra_links = _extract_url_from_comment(comment)
 
-                # 规范化 URL
                 norm_url = normalize_url(paper.entry_id)
                 norm_pdf = normalize_url(paper.pdf_url) if paper.pdf_url else None
-
-                # 生成 id
                 paper_id = f"arxiv:{paper.entry_id.split('/')[-1]}"
 
-                # 转换为 Paper 模型
                 p = Paper(
                     id=paper_id,
                     source_id=paper_id,
@@ -119,7 +123,7 @@ class ArxivCollector(BaseCollector):
                     url=norm_url,
                     pdf_url=norm_pdf,
                     code_url=extra_links["code"],
-                    hf_url=None,  # v2 从 HuggingFace 关联
+                    hf_url=None,
                     published_at=published,
                     updated_at=paper.updated.replace(tzinfo=None) if paper.updated else None,
                     categories=[c.strip() for c in paper.categories],
@@ -135,9 +139,13 @@ class ArxivCollector(BaseCollector):
                 results.append(p)
 
         except Exception as e:
-            print(f"[arXiv] 采集失败: {e}")
+            logger.error(f"[arXiv] 采集失败: {e}")
+            raise
 
-        print(f"[arXiv] 采集到 {len(results)} 篇论文（最近 {lookback_days} 天）")
+        # 写入缓存
+        self.cache.set(cache_key, [p.to_dict() if hasattr(p, "to_dict") else p for p in results])
+
+        logger.info(f"[arXiv] 采集到 {len(results)} 篇论文（最近 {lookback_days} 天）")
         return results
 
 
