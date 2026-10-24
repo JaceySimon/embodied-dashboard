@@ -75,12 +75,58 @@ def calc_score(p):
     score += min(len(p.get("authors", [])), 5)
     return score
 
+# 工业界重大发布评分（公司博客/实验室博客/媒体）
+def calc_industry_score(p):
+    score = 0
+    text = ((p.get("title") or "") + " " + (p.get("abstract") or "")).lower()
+    # 重大技术信号：权重向模型/开源/数据集/基准/世界模型倾斜
+    signals = [
+        ("world model", 10), ("vision-language-action", 10), ("vla", 9),
+        ("foundation model", 9), ("open-source", 8), ("open source", 8), ("opensources", 8),
+        ("dataset", 7), ("benchmark", 7), ("simulator", 7), ("imitation", 6),
+        ("reinforcement learning", 6), ("introducing", 6), ("launches", 5), ("unveils", 5),
+        ("humanoid", 5), ("deploys", 4), ("generalist", 4), ("manipulation", 4),
+        ("robot model", 4), ("policy", 3), ("robot", 2),
+    ]
+    for kw, w in signals:
+        if kw in text:
+            score += w
+    if p.get("is_open_source"):
+        score += 5
+    if p.get("has_real_robot"):
+        score += 3
+    if p.get("code_url"):
+        score += 3
+    # 头部源加权（模型型公司/实验室）
+    top_sources = {"Google DeepMind Research": 4, "Physical Intelligence": 4,
+                   "Figure AI": 3, "Skild AI": 3, "NVIDIA Research Blog": 3,
+                   "智元机器人 AgiBot": 3, "逐际动力 LimX": 2, "1X Technologies": 2,
+                   "Sanctuary AI": 2, "Boston Dynamics": 2}
+    score += top_sources.get(p.get("source_name", ""), 0)
+    return score
+
 # 给本周论文打分
 for p in week_papers:
     p["score"] = calc_score(p)
 
-# 按分数排序，取前 10
-week_top = sorted(week_papers, key=lambda x: x["score"], reverse=True)[:10]
+# 本周必看 = 学术 Top 7（近 7 天，arXiv/OpenReview）+ 工业界 Top 3（近 30 天，
+# 公司/实验室/媒体——工业界发布频率低、生命周期长，用更宽窗口）
+week_academic = sorted(
+    [p for p in week_papers if p.get("source_type") in ("arxiv", "openreview", "huggingface", "github")],
+    key=lambda x: x["score"], reverse=True)[:7]
+
+ind_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+# 本周必看的工业界槽位只放公司/实验室一手源（媒体是二手报道，且合集/广告多，留在卡片流）
+industry_papers = [p for p in papers
+                   if p.get("source_type") in ("company_blog", "lab_blog")
+                   and p["published_at"] >= ind_ago]
+for p in industry_papers:
+    p["ind_score"] = calc_industry_score(p)
+week_industry = sorted(industry_papers, key=lambda x: x["ind_score"], reverse=True)[:3]
+
+# 学术 7 篇 + 工业 3 篇，各自带分区标记
+week_top = ([dict(p, _zone="academic") for p in week_academic] +
+            [dict(p, _zone="industry") for p in week_industry])
 
 # 生成论文卡片
 def render_paper(p):
@@ -159,6 +205,16 @@ def render_top_paper(p, rank):
     if not authors:
         authors = p.get("source_name", "")
 
+    # 来源徽章（学术/工业/媒体）
+    source_type = p.get("source_type", "arxiv")
+    source_name = p.get("source_name", "arXiv")
+    if source_type in ("company_blog", "lab_blog"):
+        source_badge = f'<span class="badge badge-industry">{html.escape(source_name)}</span>'
+    elif source_type == "media":
+        source_badge = f'<span class="badge badge-media">{html.escape(source_name)}</span>'
+    else:
+        source_badge = '<span class="badge badge-academic">学术</span>'
+
     ai_summary = p.get("ai_summary")
     summary_html = ""
     if ai_summary:
@@ -169,14 +225,24 @@ def render_top_paper(p, rank):
         <div class="rank">{rank}</div>
         <div class="top-paper-content">
             <div class="top-paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
-            <div class="top-paper-authors">{html.escape(authors)}</div>
+            <div class="top-paper-authors">{source_badge}<span class="top-paper-src">{html.escape(authors)}</span><span class="top-paper-date">{str(p['published_at'])[:10]}</span></div>
             <div class="top-paper-tags">{tags_html}</div>
             {summary_html}
         </div>
     </div>
     """
 
-week_top_html = "\n".join([render_top_paper(p, i+1) for i, p in enumerate(week_top)])
+def _top_zone_divider(label):
+    return f'<div class="top-zone-divider"><span>{label}</span></div>'
+
+_top_parts = []
+_rank = 1
+for p in week_top:
+    if p.get("_zone") == "industry" and _rank == len(week_academic) + 1:
+        _top_parts.append(_top_zone_divider("工业界 · 近 30 天重大发布"))
+    _top_parts.append(render_top_paper(p, _rank))
+    _rank += 1
+week_top_html = "\n".join(_top_parts)
 
 html_content = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -421,6 +487,7 @@ html_content = f"""<!DOCTYPE html>
             color: #fff;
             margin-bottom: 15px;
         }}
+        .top-sub {{ font-size: 12px; color: #888; font-weight: 400; margin-left: 8px; }}
         .top-paper {{
             display: flex;
             align-items: flex-start;
@@ -446,7 +513,18 @@ html_content = f"""<!DOCTYPE html>
         .top-paper-title {{ font-size: 14px; margin-bottom: 4px; }}
         .top-paper-title a {{ color: #fff; text-decoration: none; }}
         .top-paper-title a:hover {{ color: #4da6ff; }}
-        .top-paper-authors {{ color: #888; font-size: 12px; margin-bottom: 6px; }}
+        .top-paper-authors {{ color: #888; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
+        .top-paper-src {{ color: #999; }}
+        .top-paper-date {{ color: #666; margin-left: auto; }}
+        .top-zone-divider {{
+            margin: 16px 0 6px;
+            padding-top: 12px;
+            border-top: 1px dashed #2a2a2a;
+            font-size: 12px;
+            color: #ff9d4d;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }}
         .top-paper-tags {{ display: flex; gap: 4px; flex-wrap: wrap; }}
         .ai-summary {{
             margin-top: 10px;
@@ -615,7 +693,7 @@ html_content = f"""<!DOCTYPE html>
                 </div>
                 
                 <div class="top-section">
-                    <h2>本周必看 10 篇</h2>
+                    <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3</span></h2>
                     <div class="top-papers">
                         {week_top_html}
                     </div>

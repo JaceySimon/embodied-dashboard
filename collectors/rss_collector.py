@@ -13,6 +13,7 @@ import time
 from collectors.base import BaseCollector
 from models.paper import Paper, SourceLevel, SourceType
 from pipeline.clean import normalize_url, title_hash
+from collectors.company_html_collector import is_company_noise, is_media_noise
 
 
 class RSSCollector(BaseCollector):
@@ -113,6 +114,14 @@ class RSSCollector(BaseCollector):
             if self.keywords:
                 title_lower = title.lower()
                 if not any(kw.lower() in title_lower for kw in self.keywords):
+                    continue
+
+            # 噪音过滤：媒体源过滤大会广告/栏目合集；公司源过滤金融/人事/PR
+            if self.source_type == "media":
+                if is_media_noise(title):
+                    continue
+            elif self.source_type in ("company_blog", "lab_blog"):
+                if is_company_noise(title):
                     continue
 
             # 链接

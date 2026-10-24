@@ -25,20 +25,26 @@ HEADERS = {
 NOISE_STRONG = [
     r"registration statement", r"\bs-?4\b", r"business combination", r"churchill capital",
     r"audit committee", r"board of directors", r"new directors", r"appoints? .*(ceo|cfo|director|chair|board)",
+    r"welcoming .{0,30} as (cfo|vp|svp|chief|officer|president|head|people|engineering)",
+    r"joins .{0,20} as (cfo|vp|svp|chief|ceo|officer)",
     r"investor day", r"analyst day", r"stockholders", r"\bnyse\b", r"\bnasdaq\b", r"prospectus",
     r"ask a roboticist", r"skillbridge", r"opens? .{0,20} office", r"time\s?100",
     r"reports? (first|second|third|fourth|fiscal|quarterly|annual)", r"quarterly results",
+    r"融资", r"pre-?ipo", r"上市",
     # 出货量/市场排名
     r"shipments", r"market share", r"counterpoint", r"idc data", r"ranks? no",
-    # 获奖/展会/主题乐园/巡演
+    # 获奖/展会/主题乐园/巡演/行业峰会
     r"gold medal", r"innovation award", r"recognized by", r"\bifa\b", r"\bleap\b",
     r"theme park", r"resorts world", r"talent ecosystem",
+    r"brings? apc \d{4}", r"hosts? .{0,10}apc", r"vivatech", r"industry summit",
+    r"partner conference",
 ]
-# 弱噪音：办公扩张/战略合作/展会泛指，需同时无技术词才排除
+# 弱噪音：办公扩张/战略合作/播客/展会泛指，需同时无技术词才排除
 NOISE_WEAK = [
     r"no\.?\s*1", r"ranks? ", r"trade ?show", r"expo",
     r"showcases? .{0,15}(at|expo|summit|fair)", r"expands? .{0,15} presence",
     r"partner(s)? (with|for) .{0,40}(ecosystem|innovation center|talent)",
+    r"podcast",
 ]
 # 技术词：命中任一即认为有技术含量，弱噪音豁免（仅看标题）
 TECH_HINTS = [
@@ -54,6 +60,29 @@ _NOISE_STRONG_RE = re.compile("|".join(NOISE_STRONG), re.I)
 _NOISE_WEAK_RE = re.compile("|".join(NOISE_WEAK), re.I)
 _TECH_RE = re.compile("|".join(TECH_HINTS), re.I)
 
+# 媒体专属噪音：自家大会推广/固定栏目合集/倒计时/读者活动
+MEDIA_NOISE_STRONG = [
+    r"techcrunch disrupt", r"\bdisrupt 20\d{2}\b", r"\d+ (days|hours) to ",
+    r"last day", r"save \d+%", r"lock in your", r"hear directly from",
+    r"video friday", r"a day in the life of", r"^\s*q&a\b", r"newsletter",
+    r"epics? in ieee", r"webinar", r"register now", r"buy tickets",
+]
+_MEDIA_NOISE_RE = re.compile("|".join(MEDIA_NOISE_STRONG), re.I)
+
+
+def is_company_noise(title: str) -> bool:
+    """公司/实验室博客标题是否为商业/IR/PR 噪音（True=应过滤）"""
+    if _NOISE_STRONG_RE.search(title):
+        return True
+    if _NOISE_WEAK_RE.search(title) and not _TECH_RE.search(title):
+        return True
+    return False
+
+
+def is_media_noise(title: str) -> bool:
+    """媒体标题是否为大会广告/固定栏目合集（True=应过滤）"""
+    return bool(_MEDIA_NOISE_RE.search(title))
+
 
 def parse_date(raw: str) -> Optional[datetime]:
     """解析单个日期字符串，失败返回 None"""
@@ -62,6 +91,22 @@ def parse_date(raw: str) -> Optional[datetime]:
     raw = raw.strip()
 
     m = re.search(r"(20\d{2})-(\d{1,2})-(\d{1,2})", raw)
+    if m:
+        try:
+            return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except ValueError:
+            pass
+
+    # 中文日期：2026年5月25日 / 2026年05月25日
+    m = re.search(r"(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?", raw)
+    if m:
+        try:
+            return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except ValueError:
+            pass
+
+    # 斜杠/点分隔：2026/09/23 / 2026.9.23
+    m = re.search(r"(20\d{2})[/\.](\d{1,2})[/\.](\d{1,2})", raw)
     if m:
         try:
             return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
@@ -115,6 +160,16 @@ def _extract_date(soup, html_text: str) -> Optional[datetime]:
     for s in soup.find_all("script", type="application/ld+json"):
         txt = s.string or s.get_text()
         m = re.search(r'"datePublished"\s*:\s*"([^"]+)"', txt)
+        if m:
+            d = parse_date(m.group(1))
+            if d:
+                return d
+
+    # 2.5 内嵌 JSON（Next.js/Sanity/CMS）的显式发布字段。
+    # 注意 _createdAt/_updatedAt 是 CMS 内部迁移时间，不可用；要取业务字段 date/publishedAt。
+    for field in ["datePublished", "publishedAt", "publishDate", "firstPublishedAt",
+                  "published_date", r'"date"']:
+        m = re.search(field + r'\s*:\s*"?(20\d{2}-\d{2}-\d{2}T[^"<\\\s]+)', html_text)
         if m:
             d = parse_date(m.group(1))
             if d:
@@ -270,15 +325,22 @@ class CompanyHTMLCollector(BaseCollector):
             if not title:
                 continue
 
-            # 日期：内部 class 含 time/date/pub，或正则
+            # 日期：内部 class 含 time/date/pub，或正则（支持中文/斜杠/连字符）
+            # 注意只在"可见文本"里找，避免 img src 中的上传日期污染
+            inner_text = inner_soup.get_text(" ", strip=True)
             date = None
             date_el = inner_soup.find(class_=re.compile(r"time|date|pub", re.I))
             if date_el:
                 date = parse_date(date_el.get_text(" ", strip=True))
             if not date:
-                dm = re.search(r"(20\d{2})[-./](\d{1,2})[-./](\d{1,2})", inner)
+                dm = re.search(
+                    r"(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?|"
+                    r"(20\d{2})[-/\.](\d{1,2})[-/\.](\d{1,2})", inner_text)
                 if dm:
-                    date = parse_date(dm.group(0).replace(".", "-").replace("/", "-"))
+                    if dm.group(1):
+                        date = parse_date(f"{dm.group(1)}-{dm.group(2)}-{dm.group(3)}")
+                    else:
+                        date = parse_date(f"{dm.group(4)}-{dm.group(5)}-{dm.group(6)}")
 
             full_url = urljoin(self.base_url, href)
             if full_url in seen:
@@ -350,13 +412,7 @@ class CompanyHTMLCollector(BaseCollector):
                 return False
         if not self.noise_filter:
             return True
-        # 强噪音：标题命中即排除
-        if _NOISE_STRONG_RE.search(title):
-            return False
-        # 弱噪音：标题命中且无任何技术词才排除
-        if _NOISE_WEAK_RE.search(title) and not _TECH_RE.search(title):
-            return False
-        return True
+        return not is_company_noise(title)
 
     def _make_paper(self, title: str, url: str, abstract: str,
                     published: datetime, code_url=None) -> Paper:

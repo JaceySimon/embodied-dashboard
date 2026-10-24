@@ -33,11 +33,12 @@ def collect_rss_papers(lookback_days: int = 90):
             logger.warning(f"[RSS] {collector.source_name} 失败: {e}")
 
     # 无 RSS 的公司网站，走 HTML 采集器
+    # 公司产品/技术发布更新频率低、生命周期长，用 180 天窗口（比论文的 90 天宽）
     html_collectors = build_html_collectors_from_config(config)
     logger.info(f"[HTML] 共 {len(html_collectors)} 个 HTML 公司源")
     for collector in html_collectors:
         try:
-            papers = collector.collect(lookback_days=lookback_days)
+            papers = collector.collect(lookback_days=180)
             all_papers.extend(papers)
         except Exception as e:
             logger.warning(f"[HTML] {collector.source_name} 失败: {e}")

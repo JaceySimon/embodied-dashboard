@@ -202,6 +202,14 @@ l1:
       region: "CN"
       enabled: true
 
+    - name: "逐际动力 LimX"
+      list_url: "https://www.limxdynamics.com/zh/news"
+      link_pattern: '/zh/news/BK\d+'
+      mode: "list"
+      max_articles: 20
+      region: "CN"
+      enabled: true
+
   chinese_companies:
     - name: "智元机器人 AgiBot"
       url: "https://www.agibot.com/"
