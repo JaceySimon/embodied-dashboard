@@ -310,8 +310,11 @@ def render_paper(p):
     return f"""
     <div class="paper-card" data-id="{paper_id}" data-tags="{html.escape(tags_data)}" data-real="{has_real}" data-open="{has_open}" data-date="{str(p['published_at'])[:10]}" data-source="{source_group}" data-event-dup="{is_dup}" data-event-id="{html.escape(event_id)}">
         <div class="paper-header">
-            <div class="paper-title"><a href="{p['url']}" target="_blank">{html.escape(p['title'])}</a></div>
-            <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
+            <div class="paper-title"><a href="{p['url']}" target="_blank" onclick="markRead('{paper_id}')">{html.escape(p['title'])}</a></div>
+            <div class="card-actions">
+                <button class="read-btn" onclick="toggleRead('{paper_id}')" title="标记已读 / 未读">◯</button>
+                <button class="fav-btn" onclick="toggleFav('{paper_id}')">☆</button>
+            </div>
         </div>
         <div class="paper-meta">
             {source_badge}
@@ -323,7 +326,7 @@ def render_paper(p):
         <div class="paper-abstract">{abstract}</div>
         {event_sources_html}
         <div class="paper-links">
-            <a href="{p['url']}" target="_blank">{link_text}</a>
+            <a href="{p['url']}" target="_blank" onclick="markRead('{paper_id}')">{link_text}</a>
             <a href="javascript:void(0)" onclick="showRelated('{paper_id}')">相关论文</a>
         </div>
     </div>
@@ -732,6 +735,30 @@ html_content = f"""<!DOCTYPE html>
         }}
         .fav-btn:hover {{ color: #fdba74; }}
         .fav-btn.favorited {{ color: #fdba74; }}
+        .card-actions {{ display: flex; align-items: center; gap: 2px; margin-left: 10px; flex-shrink: 0; }}
+        .read-btn {{
+            background: none; border: none; color: #555; font-size: 15px;
+            cursor: pointer; padding: 2px 4px; line-height: 1; transition: color 0.2s;
+        }}
+        .read-btn:hover {{ color: #7fb4e8; }}
+        .read-btn.read {{ color: #4da6ff; }}
+        /* 已读卡片淡化 */
+        .paper-card.is-read {{ opacity: 0.55; }}
+        .paper-card.is-read .paper-title a {{ color: #8a93a2; }}
+        /* 阅读状态工具条 */
+        .read-filter {{
+            display: flex; align-items: center; gap: 8px;
+            margin: 2px 0 16px; font-size: 12.5px;
+        }}
+        .rf-label {{ color: #6b7280; }}
+        .rf-item {{
+            padding: 3px 12px; border-radius: 14px; cursor: pointer;
+            color: #aab4c0; background: #161a21; border: 1px solid #262b33;
+            user-select: none;
+        }}
+        .rf-item:hover {{ border-color: #3a4350; color: #dce4ee; }}
+        .rf-item.active {{ background: #1c2c40; border-color: #4da6ff; color: #7fb4e8; }}
+        .rf-item b {{ color: #4da6ff; font-weight: 600; margin-left: 2px; }}
         .paper-authors {{ color: #888; font-size: 13px; }}
         .paper-meta {{
             display: flex;
@@ -1211,6 +1238,13 @@ html_content = f"""<!DOCTYPE html>
                     <input type="text" id="search" placeholder="搜索标题、作者、摘要...（2000+篇）" oninput="onSearchInput()">
                     <span class="search-hint">按 / 快速搜索</span>
                 </div>
+
+                <div class="read-filter">
+                    <span class="rf-label">阅读状态</span>
+                    <span class="rf-item active" onclick="filterByRead('all')">全部</span>
+                    <span class="rf-item" onclick="filterByRead('unread')">未读 <b id="unreadCount">0</b></span>
+                    <span class="rf-item" onclick="filterByRead('read')">已读</span>
+                </div>
                 
                 <div class="top-section">
                     <h2>本周必看 <span class="top-sub">学术前沿 7 + 工业界重大发布 3 + 开源/模型 3</span></h2>
@@ -1309,6 +1343,64 @@ html_content = f"""<!DOCTYPE html>
                 }}
             }});
         }}
+
+        // ===== 已读 / 未读追踪 =====
+        let readItems = JSON.parse(localStorage.getItem('readItems') || '[]');
+        let readFilter = 'all';   // all | unread | read
+
+        function markRead(id) {{
+            if (!readItems.includes(id)) {{
+                readItems.push(id);
+                localStorage.setItem('readItems', JSON.stringify(readItems));
+                updateReadButtons();
+                updateUnreadCount();
+                if (readFilter !== 'all') filterPapers();
+            }}
+        }}
+
+        function toggleRead(id) {{
+            const idx = readItems.indexOf(id);
+            if (idx > -1) readItems.splice(idx, 1);
+            else readItems.push(id);
+            localStorage.setItem('readItems', JSON.stringify(readItems));
+            updateReadButtons();
+            updateUnreadCount();
+            filterPapers();
+        }}
+
+        function updateReadButtons() {{
+            document.querySelectorAll('.paper-card').forEach(card => {{
+                const btn = card.querySelector('.read-btn');
+                if (!btn) return;
+                if (readItems.includes(card.dataset.id)) {{
+                    btn.classList.add('read');
+                    btn.textContent = '●';
+                    card.classList.add('is-read');
+                }} else {{
+                    btn.classList.remove('read');
+                    btn.textContent = '◯';
+                    card.classList.remove('is-read');
+                }}
+            }});
+        }}
+
+        function updateUnreadCount() {{
+            const el = document.getElementById('unreadCount');
+            if (!el) return;
+            let n = 0;
+            document.querySelectorAll('.paper-card').forEach(card => {{
+                if (!readItems.includes(card.dataset.id)) n++;
+            }});
+            el.textContent = n;
+        }}
+
+        function filterByRead(mode) {{
+            readFilter = mode;
+            document.querySelectorAll('.read-filter .rf-item').forEach(i => i.classList.remove('active'));
+            if (event.target.classList.contains('rf-item')) event.target.classList.add('active');
+            resetPagination();
+            filterPapers();
+        }}
         
         function showFavs() {{
             showOnlyFavs = !showOnlyFavs;
@@ -1354,14 +1446,21 @@ html_content = f"""<!DOCTYPE html>
                 }}
                 
                 let matchSource = !currentSource || card.dataset.source === currentSource;
-                
+
+                // 已读筛选
+                let matchRead = true;
+                if (readFilter === 'unread') matchRead = !readItems.includes(card.dataset.id);
+                else if (readFilter === 'read') matchRead = readItems.includes(card.dataset.id);
+
                 // 事件聚合：全览（无任何筛选）时，同一事件只显示主卡片，其余来源折叠隐藏；
                 // 一旦用户搜索/筛选，就允许命中具体来源（如媒体报道）本身
                 const browsingAll = !search && !currentTag && !currentProperty &&
-                    !showOnlyFavs && currentTimeRange === 0 && !currentSource;
+                    !showOnlyFavs && currentTimeRange === 0 && !currentSource &&
+                    readFilter === 'all';
                 const matchDup = !(browsingAll && card.dataset.eventDup === '1');
-                
-                const matched = matchSearch && matchTag && matchProperty && matchFav && matchTime && matchSource && matchDup;
+
+                const matched = matchSearch && matchTag && matchProperty && matchFav &&
+                    matchTime && matchSource && matchRead && matchDup;
                 if (matched) {{
                     matchedCount++;
                     // 分页：只显示前 renderLimit 个匹配项
@@ -1521,8 +1620,10 @@ html_content = f"""<!DOCTYPE html>
             currentTimeRange = 0;
             currentSource = '';
             showOnlyFavs = false;
+            readFilter = 'all';
             document.getElementById('search').value = '';
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.rf-item').forEach(item => item.classList.remove('active'));
             document.querySelector('.sidebar-item').classList.add('active');
             resetPagination();
             filterPapers();
@@ -1652,6 +1753,8 @@ html_content = f"""<!DOCTYPE html>
         // 初始化
         updateFavCount();
         updateFavButtons();
+        updateReadButtons();
+        updateUnreadCount();
         filterPapers();
         showOnboarding();
         initSinceVisit();
