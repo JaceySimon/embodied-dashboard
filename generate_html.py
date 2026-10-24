@@ -633,6 +633,18 @@ html_content = f"""<!DOCTYPE html>
             border: 1px solid #7c2d12;
         }}
         .rss-link:hover {{ background: #7c2d12; }}
+        .rss-menu {{ position: relative; }}
+        .rss-dropdown {{
+            display: none; position: absolute; top: calc(100% + 8px); right: 0; z-index: 200;
+            background: #1a1d24; border: 1px solid #2a313c; border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 6px; min-width: 250px;
+        }}
+        .rss-menu:hover .rss-dropdown, .rss-menu:focus-within .rss-dropdown {{ display: block; }}
+        .rss-dropdown a {{
+            display: block; padding: 9px 12px; border-radius: 7px;
+            color: #c9d3e0; font-size: 13px; text-decoration: none; white-space: nowrap;
+        }}
+        .rss-dropdown a:hover {{ background: #243044; color: #fff; }}
         .fav-count {{
             background: #7c2d12;
             color: #fdba74;
@@ -1213,6 +1225,12 @@ html_content = f"""<!DOCTYPE html>
             .paper-card {{ padding: 15px; }}
             .paper-title {{ font-size: 15px; }}
             .top-section, .hot-section {{ padding: 15px; }}
+            .intro-section {{ padding: 14px 15px; }}
+            .intro-headline {{ font-size: 14.5px; }}
+            .intro-why {{ padding-left: 0; }}
+            .read-filter {{ overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }}
+            .rf-item {{ white-space: nowrap; flex-shrink: 0; }}
+            .paper-links {{ flex-wrap: wrap; }}
             .modal-content {{ width: 90%; padding: 20px; }}
         }}
     </style>
@@ -1242,7 +1260,15 @@ html_content = f"""<!DOCTYPE html>
                 </div>
             </div>
             <div class="header-tools">
-                <a class="rss-link" href="feed.xml" target="_blank" title="用 RSS 阅读器订阅重要进展">RSS 订阅</a>
+                <div class="rss-menu">
+                    <a class="rss-link" href="feed.xml" target="_blank" title="用 RSS 阅读器订阅重要进展">RSS 订阅 ▾</a>
+                    <div class="rss-dropdown">
+                        <a href="feed.xml" target="_blank">📌 全部重要进展（事件+精选）</a>
+                        <a href="feed-vla.xml" target="_blank">🧠 VLA 视觉语言动作</a>
+                        <a href="feed-world-model.xml" target="_blank">🌍 世界模型</a>
+                        <a href="feed-industry.xml" target="_blank">🏭 工业界一手发布</a>
+                    </div>
+                </div>
                 <div class="fav-count" onclick="showFavs()">收藏 (<span id="favCount">0</span>)</div>
             </div>
         </header>
@@ -1887,20 +1913,59 @@ for p in week_top:
         "pick:" + p["id"], p.get("title"), p.get("url"),
         p.get("published_at"), _esc(ab)))
 
-rss_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+def _write_feed(filename, title, desc, items):
+    body = "\n".join(items)
+    xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <title>{_esc(title)}</title>
     <link>https://github.com/embodied-dashboard</link>
-    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <description>{_esc(desc)}</description>
     <language>zh-CN</language>
     <lastBuildDate>{_formatdate()}</lastBuildDate>
-{chr(10).join(feed_items)}
+{body}
   </channel>
 </rss>
 '''
-feed_file = out_dir / "feed.xml"
-with open(feed_file, "w", encoding="utf-8") as f:
-    f.write(rss_xml)
-print(f"生成: {feed_file} ({len(feed_items)} 条)")
+    path = out_dir / filename
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(xml)
+    print(f"生成: {path} ({len(items)} 条)")
+
+# 主 feed：重要进展事件 + 本周必看精选
+_write_feed(
+    "feed.xml",
+    "Embodied AI / VLA Dashboard — 重要进展",
+    "具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。",
+    feed_items,
+)
+
+# 方向级 feed：研究者可只订阅自己关心的方向（近 30 天高分内容）
+def _tag_feed(filename, tag, title, desc, limit=30):
+    d = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    pool = [p for p in papers if tag in p.get("tags", []) and p.get("published_at", "")[:10] >= d]
+    for p in pool:
+        p["_fscore"] = calc_score(p)
+    pool = sorted(pool, key=lambda x: x["_fscore"], reverse=True)[:limit]
+    items = [_feed_item(p["id"], p.get("title"), p.get("url"), p.get("published_at"),
+                        _esc((p.get("abstract", "") or "")[:300])) for p in pool]
+    _write_feed(filename, title, desc, items)
+
+_tag_feed("feed-vla.xml", "VLA", "Embodied AI — VLA（视觉语言动作）方向",
+          "视觉语言动作模型（VLA）方向的最新论文与进展。")
+_tag_feed("feed-world-model.xml", "world_model", "Embodied AI — 世界模型方向",
+          "机器人 / 具身世界模型（World Model）方向的最新论文与进展。")
+
+# 工业界一手发布 feed（公司 / 实验室官方博客）
+_ind_d = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+_ind = [p for p in papers if p.get("source_type") in ("company_blog", "lab_blog")
+        and p.get("published_at", "")[:10] >= _ind_d]
+for p in _ind:
+    p["_fscore"] = calc_industry_score(p)
+_ind = sorted(_ind, key=lambda x: x["_fscore"], reverse=True)[:30]
+_ind_items = [_feed_item(p["id"], p.get("title"), p.get("url"), p.get("published_at"),
+                         _esc((p.get("abstract", "") or "")[:300])) for p in _ind]
+_write_feed("feed-industry.xml", "Embodied AI — 工业界一手发布",
+            "机器人公司与重点实验室的官方技术发布与开源动态。", _ind_items)
+
 

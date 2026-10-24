@@ -35,7 +35,7 @@
 - **全文搜索 + 高亮**、标签筛选、时间筛选、真机/开源筛选、键盘快捷键（`/` 搜索）
 
 ### 订阅与个人工具
-- **RSS 订阅**：站点输出 `feed.xml`（事件 + 精选），可接入任意 RSS 阅读器
+- **RSS 订阅**：站点输出主 feed `feed.xml`（事件 + 精选），并提供方向级 feed：`feed-vla.xml`、`feed-world-model.xml`、`feed-industry.xml`；头部"RSS 订阅 ▾"按需订阅，只收自己关心的方向
 - **自上次访问以来**：回访时自动提示新增事件与更新数
 - **已读 / 未读追踪**：点原文即自动标记已读（淡化），可一键只看未读，持续追踪不重不漏
 - **收藏**：本地保存、刷新不丢失、一键导出 Markdown
@@ -137,7 +137,10 @@ embodied-dashboard/
 ├── docs/
 └── output/
     ├── index.html
-    ├── feed.xml
+    ├── feed.xml                 # 主 feed（事件+精选）
+    ├── feed-vla.xml             # 方向级 feed
+    ├── feed-world-model.xml
+    ├── feed-industry.xml
     └── weekly_*.md
 ```
 
@@ -172,6 +175,8 @@ embodied-dashboard/
 - [x] v2.9：已读 / 未读追踪（持续回访不重不漏）
 - [x] v3.0：智能资源直达（代码 / 项目主页 / 数据集自动提取）
 - [x] v3.1：AI 本周导读（顶部执行摘要，30 秒抓住 3 件必看）
+- [x] v3.2：修复公司博客文章 id 跨进程随机（事件解读缓存/已读不再失效）
+- [x] v3.3：方向级 RSS（VLA / 世界模型 / 工业界，精准订阅）
 - [ ] 后续：X 接入、LLM 语义归并、HF 数据集采集、更聪明的个性化推送
 
 ## Open-Core 策略
