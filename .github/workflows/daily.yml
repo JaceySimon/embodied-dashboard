@@ -1,5 +1,6 @@
 name: Daily Update
 
+# 每日自动采集 → 生成看板 → 部署 GitHub Pages；也可在 Actions 页手动 Run workflow。
 on:
   schedule:
     # 每天 UTC 02:00（北京时间 10:00）跑一次
