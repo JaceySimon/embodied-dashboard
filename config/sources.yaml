@@ -387,7 +387,7 @@ l1:
       enabled: false
 
   x_whitelist:
-    enabled: false  # 公共 RSSHub 实例跑不通，v2 用 X 官方 API
+    enabled: true  # 已接入 X 官方 API v2；额度耗尽时自动降级跳过
     accounts:
       - "@sergey_levine"
       - "@chelseafinn"

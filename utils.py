@@ -4,6 +4,8 @@
 import time
 import json
 import logging
+import os
+import socket
 from pathlib import Path
 from functools import wraps
 from typing import Any, Callable, Optional
@@ -124,3 +126,37 @@ def find_latest_file(directory: Path, pattern: str) -> Optional[Path]:
         return None
 
     return max(files, key=lambda f: f.stat().st_mtime)
+
+
+_PROXY_CACHE: Optional[str] = "UNSET"
+
+
+def detect_proxy(probe_timeout: float = 0.4) -> Optional[dict]:
+    """
+    检测可用的 HTTP(S) 代理，返回 requests 可用的 proxies dict；没有则 None。
+    优先级：环境变量 HTTPS_PROXY/HTTP_PROXY/ALL_PROXY → 本地常见客户端端口探测
+    （Clash/Mihomo 7897/7890、v2rayN 10809/10808）。结果缓存，只探测一次。
+    CI（GitHub Actions 在美国）无需代理，探测会快速失败并返回 None。
+    """
+    global _PROXY_CACHE
+    if _PROXY_CACHE != "UNSET":
+        return {"http": _PROXY_CACHE, "https": _PROXY_CACHE} if _PROXY_CACHE else None
+
+    for k in ("HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY"):
+        v = os.environ.get(k) or os.environ.get(k.lower())
+        if v:
+            _PROXY_CACHE = v
+            return {"http": v, "https": v}
+
+    for port in (7897, 7890, 10809, 10808):
+        try:
+            s = socket.create_connection(("127.0.0.1", port), timeout=probe_timeout)
+            s.close()
+            v = "http://127.0.0.1:%d" % port
+            _PROXY_CACHE = v
+            return {"http": v, "https": v}
+        except OSError:
+            continue
+
+    _PROXY_CACHE = ""
+    return None
