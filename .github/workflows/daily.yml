@@ -58,12 +58,18 @@ jobs:
         run: python pipeline/weekly_report.py
 
       - name: Commit changes
+        # data/、output/ 在 .gitignore 中（每次运行重新生成，不入库），
+        # 因此这里通常没有可提交内容；整步容错，保证后面的部署一定执行。
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/ output/
-          git diff --staged --quiet || git commit -m "chore: daily update $(date +%Y-%m-%d)"
-          git push
+          git add -A 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "无需要提交的改动（data/output 为运行时产物，不入库）"
+          else
+            git commit -m "chore: daily update $(date +%Y-%m-%d)"
+            git push || echo "push 跳过"
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
