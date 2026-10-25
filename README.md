@@ -3,6 +3,10 @@
 > 具身智能 / VLA 方向的动态知识导航看板
 > 帮你少读 80% 垃圾，5 分钟看完本周关键进展
 
+**🌐 在线访问（无需安装，打开即用）：** <https://gbgbgbhhhh.github.io/embodied-dashboard/>
+
+每天 UTC 02:00（北京 10:00）由 GitHub Actions 自动采集 arXiv、公司/实验室官网、GitHub、Hugging Face 并重新部署，无需本地运行。
+
 ## 这是什么？
 
 一个面向具身智能研究者的**事件级**信息聚合器——把散在 arXiv、公司/实验室博客、垂直媒体、GitHub、Hugging Face 上的**同一件事**聚合成一条（论文 + 官方公告 + 媒体报道 + 开源代码 + 模型权重），按重要性排序，并用 LLM 生成带引用的方向综述，让你 5 分钟看完本周领域发生了什么。
@@ -160,6 +164,14 @@ embodied-dashboard/
 | `GITHUB_TOKEN` | GitHub 采集提高配额（未认证 60 次/小时，有 token 5000 次/小时，无需勾选权限） | 可选 |
 | `HF_TOKEN` | Hugging Face 采集提高配额（可选，无 token 也能采白名单机构） | 可选 |
 | `X_BEARER_TOKEN` | X/Twitter 采集 | 可选 |
+
+## 部署到你自己的 GitHub Pages
+
+1. Fork 或新建仓库后推送本仓库（`master` 分支）。
+2. 仓库 **Settings → Pages**，Source 选择 `gh-pages` 分支（根目录）。
+3. 推送到 `master` 会触发 `.github/workflows/daily.yml`：每天自动采集并通过 `peaceiris/actions-gh-pages` 部署；也可在 Actions 页手动 **Run workflow**。
+4. 几分钟后得到 `https://<你的用户名>.github.io/<仓库名>/` 公开网址。
+5. （可选）让在线版也有 AI 导读/综述：仓库 **Settings → Secrets and variables → Actions → New repository secret**，新增 `LLM_API_KEY`（DeepSeek key）。不配则 AI 摘要步骤自动跳过，看板其余功能正常。
 
 ## 技术栈
 
