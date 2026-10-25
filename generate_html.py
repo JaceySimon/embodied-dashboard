@@ -681,195 +681,226 @@ html_content = f"""<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>具身智能看板 - Embodied AI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <style>
+        :root {{
+            --bg: #F5F4EF;
+            --surface: #FFFFFF;
+            --surface-2: #FBFAF6;
+            --ink: #1C1B19;
+            --muted: #6B6B66;
+            --faint: #E4E2D9;
+            --faint-2: #D2D0C6;
+            --serif: "Newsreader", "Tiempos", "Signifier", "Source Serif 4", Georgia, "Times New Roman", serif;
+            --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --ink-1: #1C1B19;
+            --ink-2: #A8543E;
+            --ink-3: #6B7A4F;
+            --ink-4: #4A6D8C;
+            --ink-5: #B0832E;
+        }}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #0a0c10;
-            color: #e0e0e0;
+            font-family: var(--mono);
+            background: var(--bg);
+            color: var(--ink);
             line-height: 1.6;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
         }}
-        .container {{ max-width: 1200px; margin: 0 auto; padding: 20px; }}
+        .container {{ max-width: 1180px; margin: 0 auto; padding: 24px 20px; }}
         header {{
-            padding: 30px 0;
-            border-bottom: 1px solid #222;
-            margin-bottom: 30px;
+            padding: 22px 0 26px;
+            border-bottom: 1.5px solid var(--ink);
+            margin-bottom: 28px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }}
-        h1 {{ font-size: 28px; color: #fff; }}
-        .stats {{ color: #888; font-size: 14px; }}
+        h1 {{ font-family: var(--serif); font-size: 32px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }}
+        .stats {{ color: var(--muted); font-size: 13px; }}
         .since-banner {{
             display: flex; align-items: center; gap: 14px;
-            margin: 14px 0 4px; padding: 11px 16px;
-            background: linear-gradient(90deg, #1a1410, #16181d);
-            border: 1px solid #7c2d12; border-radius: 10px;
+            margin: 6px 0 4px; padding: 11px 16px;
+            background: var(--surface); border: 1px solid var(--ink); border-radius: 2px;
         }}
-        .since-text {{ color: #e8c9a8; font-size: 13px; flex: 1; }}
+        .since-text {{ color: var(--ink); font-size: 13px; flex: 1; }}
         .since-btn {{
-            background: #7c2d12; color: #fdba74; border: none;
-            padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer;
+            background: var(--ink); color: var(--bg); border: none;
+            padding: 7px 16px; border-radius: 2px; font-size: 13px; cursor: pointer;
+            font-family: var(--mono);
         }}
-        .since-btn:hover {{ background: #9a3412; }}
-        .since-close {{ color: #8b94a3; cursor: pointer; font-size: 13px; padding: 0 4px; }}
-        .header-tools {{ display: flex; align-items: center; gap: 12px; flex-shrink: 0; }}
+        .since-btn:hover {{ background: #3a3833; }}
+        .since-close {{ color: var(--muted); cursor: pointer; font-size: 13px; padding: 0 4px; }}
+        .header-tools {{ display: flex; align-items: center; gap: 10px; flex-shrink: 0; }}
         .rss-link {{
-            color: #fdba74; font-size: 13px; text-decoration: none;
-            padding: 6px 12px; border-radius: 20px;
-            border: 1px solid #7c2d12;
+            color: var(--ink); font-size: 13px; text-decoration: none;
+            padding: 7px 13px; border-radius: 2px;
+            border: 1px solid var(--ink); background: var(--surface);
         }}
-        .rss-link:hover {{ background: #7c2d12; }}
+        .rss-link:hover {{ background: var(--ink); color: var(--bg); }}
         .rss-menu {{ position: relative; }}
         .rss-dropdown {{
             display: none; position: absolute; top: calc(100% + 8px); right: 0; z-index: 200;
-            background: #1a1d24; border: 1px solid #2a313c; border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 6px; min-width: 250px;
+            background: var(--surface); border: 1px solid var(--ink); border-radius: 2px;
+            box-shadow: 4px 4px 0 rgba(28,27,25,0.18); padding: 6px; min-width: 260px;
         }}
         .rss-menu:hover .rss-dropdown, .rss-menu:focus-within .rss-dropdown {{ display: block; }}
         .rss-dropdown a {{
-            display: block; padding: 9px 12px; border-radius: 7px;
-            color: #c9d3e0; font-size: 13px; text-decoration: none; white-space: nowrap;
+            display: block; padding: 9px 12px; border-radius: 2px;
+            color: var(--ink); font-size: 12.5px; text-decoration: none; white-space: nowrap;
         }}
-        .rss-dropdown a:hover {{ background: #243044; color: #fff; }}
+        .rss-dropdown a:hover {{ background: var(--ink); color: var(--bg); }}
         .fav-count {{
-            background: #7c2d12;
-            color: #fdba74;
-            padding: 6px 12px;
-            border-radius: 20px;
+            background: var(--ink);
+            color: var(--bg);
+            padding: 7px 13px;
+            border-radius: 2px;
             font-size: 13px;
             cursor: pointer;
             flex-shrink: 0;
         }}
+        .fav-count:hover {{ background: #3a3833; }}
         .stats-bar {{
             display: flex;
-            gap: 25px;
-            margin-top: 12px;
+            gap: 22px;
+            margin-top: 14px;
         }}
         .stat-item {{
-            text-align: center;
+            text-align: left;
         }}
         .stat-clickable {{
             cursor: pointer;
-            padding: 2px 10px;
-            border-radius: 8px;
-            transition: background 0.15s, transform 0.1s;
+            padding: 2px 10px 2px 0;
+            border-radius: 2px;
+            transition: transform 0.1s;
         }}
         .stat-clickable:hover {{
-            background: rgba(77,166,255,0.10);
             transform: translateY(-1px);
         }}
-        .stat-clickable:hover .stat-num {{ color: #4da6ff; }}
+        .stat-clickable:hover .stat-num {{ color: var(--ink-2); }}
         .stat-num {{
-            font-size: 22px;
-            font-weight: bold;
-            color: #4da6ff;
+            font-size: 23px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.1;
         }}
         .stat-label {{
             font-size: 11px;
-            color: #666;
+            color: var(--muted);
         }}
         
         /* 布局 */
         .main-content {{
             display: grid;
             grid-template-columns: 200px 1fr;
-            gap: 30px;
+            gap: 36px;
         }}
-        
+
         /* 侧边栏 */
         .sidebar {{
             position: sticky;
-            top: 20px;
+            top: 24px;
         }}
         .sidebar h3 {{
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 15px;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 10px;
             text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
         }}
         .sidebar-section {{
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }}
         .sidebar-item {{
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border-radius: 2px;
             cursor: pointer;
-            font-size: 14px;
-            color: #ccc;
-            transition: all 0.2s;
+            font-size: 13px;
+            color: var(--ink);
+            border-left: 2px solid transparent;
+            transition: background 0.15s, border-color 0.15s;
         }}
         .sidebar-item:hover {{
-            background: #1a1d23;
-            color: #fff;
+            background: var(--surface);
+            border-left-color: var(--faint-2);
         }}
         .sidebar-item.active {{
-            background: #1e293b;
-            color: #93c5fd;
+            background: var(--surface);
+            border-left-color: var(--ink);
+            font-weight: 600;
         }}
 
         /* 日期分组锚点（信息流） */
         .date-divider {{
-            display: flex; align-items: center; gap: 10px;
-            margin: 26px 0 12px; position: sticky; top: 0; z-index: 5;
+            display: flex; align-items: center; gap: 12px;
+            margin: 30px 0 14px; position: sticky; top: 0; z-index: 5;
+            background: var(--bg);
+            padding: 4px 0;
         }}
         .date-divider .dd-label {{
-            font-size: 13px; font-weight: 600; color: #93c5fd;
-            background: rgba(30,41,59,0.92); border: 1px solid #2a3a52;
-            padding: 4px 12px; border-radius: 20px; white-space: nowrap;
-            backdrop-filter: blur(4px);
+            font-size: 13px; font-weight: 600; color: var(--ink);
+            background: var(--bg); border: 1px solid var(--ink);
+            padding: 3px 11px; border-radius: 2px; white-space: nowrap;
         }}
         .date-divider .dd-date {{
-            font-size: 11px; color: #6b7280; font-variant-numeric: tabular-nums;
+            font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
         }}
         .date-divider .dd-count {{
-            font-size: 11px; color: #5eead4; font-variant-numeric: tabular-nums;
+            font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums;
         }}
         .date-divider::after {{
             content: ''; flex: 1; height: 1px;
-            background: linear-gradient(90deg, #2a3a52, transparent);
+            background: var(--faint-2);
         }}
         .date-divider:first-child {{ margin-top: 4px; }}
 
         /* 搜索 */
         .search-bar {{
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             position: relative;
         }}
         .search-bar input {{
             width: 100%;
-            padding: 12px 45px 12px 16px;
-            background: #1a1d23;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 14px;
+            padding: 11px 120px 11px 15px;
+            background: var(--surface);
+            border: 1px solid var(--ink);
+            border-radius: 2px;
+            color: var(--ink);
+            font-size: 13.5px;
+            font-family: var(--mono);
         }}
+        .search-bar input::placeholder {{ color: var(--muted); }}
+        .search-bar input:focus {{ outline: none; box-shadow: 3px 3px 0 rgba(28,27,25,0.15); }}
         .search-hint {{
             position: absolute;
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #555;
-            font-size: 12px;
-            background: #0a0c10;
+            color: var(--muted);
+            font-size: 11.5px;
+            background: var(--bg);
             padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid #222;
+            border-radius: 2px;
+            border: 1px solid var(--faint-2);
         }}
-        
+
         /* 论文卡片 */
         .paper-card {{
-            background: #14171d;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: border-color 0.2s;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
+            padding: 18px 20px;
+            margin-bottom: 13px;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }}
-        .paper-card:hover {{ border-color: #444; }}
+        .paper-card:hover {{ border-color: var(--ink); }}
         .paper-card.favorited {{
-            border-color: #7c2d12;
+            border-color: var(--ink);
+            box-shadow: 3px 3px 0 rgba(28,27,25,0.18);
         }}
         .paper-header {{
             display: flex;
@@ -877,145 +908,154 @@ html_content = f"""<!DOCTYPE html>
             align-items: flex-start;
             margin-bottom: 8px;
         }}
-        .paper-title {{ font-size: 16px; flex: 1; }}
-        .paper-title a {{ color: #fff; text-decoration: none; }}
-        .paper-title a:hover {{ color: #4da6ff; }}
+        .paper-title {{ font-size: 15px; flex: 1; line-height: 1.4; }}
+        .paper-title a {{ color: var(--ink); text-decoration: none; font-weight: 600; }}
+        .paper-title a:hover {{ color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }}
         .fav-btn {{
             background: none;
             border: none;
-            color: #666;
-            font-size: 20px;
+            color: var(--faint-2);
+            font-size: 19px;
             cursor: pointer;
             margin-left: 10px;
-            transition: color 0.2s;
+            transition: color 0.15s;
         }}
-        .fav-btn:hover {{ color: #fdba74; }}
-        .fav-btn.favorited {{ color: #fdba74; }}
+        .fav-btn:hover {{ color: var(--ink); }}
+        .fav-btn.favorited {{ color: var(--ink-2); }}
         .card-actions {{ display: flex; align-items: center; gap: 2px; margin-left: 10px; flex-shrink: 0; }}
         .read-btn {{
-            background: none; border: none; color: #555; font-size: 15px;
-            cursor: pointer; padding: 2px 4px; line-height: 1; transition: color 0.2s;
+            background: none; border: none; color: var(--muted); font-size: 14px;
+            cursor: pointer; padding: 2px 4px; line-height: 1; transition: color 0.15s;
         }}
-        .read-btn:hover {{ color: #7fb4e8; }}
-        .read-btn.read {{ color: #4da6ff; }}
+        .read-btn:hover {{ color: var(--ink); }}
+        .read-btn.read {{ color: var(--ink); }}
         /* 已读卡片淡化 */
-        .paper-card.is-read {{ opacity: 0.55; }}
-        .paper-card.is-read .paper-title a {{ color: #8a93a2; }}
+        .paper-card.is-read {{ opacity: 0.5; }}
+        .paper-card.is-read .paper-title a {{ color: var(--muted); }}
         .paper-card.focused {{
-            border-color: #4da6ff;
-            box-shadow: 0 0 0 2px rgba(77,166,255,0.35), 0 4px 18px rgba(0,0,0,0.35);
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px var(--ink);
         }}
         /* 阅读状态工具条 */
         .read-filter {{
             display: flex; align-items: center; gap: 8px;
             margin: 2px 0 16px; font-size: 12.5px;
         }}
-        .rf-label {{ color: #6b7280; }}
+        .rf-label {{ color: var(--muted); }}
         .rf-item {{
-            padding: 3px 12px; border-radius: 14px; cursor: pointer;
-            color: #aab4c0; background: #161a21; border: 1px solid #262b33;
+            padding: 3px 12px; border-radius: 2px; cursor: pointer;
+            color: var(--ink); background: var(--surface); border: 1px solid var(--faint-2);
             user-select: none;
         }}
-        .rf-item:hover {{ border-color: #3a4350; color: #dce4ee; }}
-        .rf-item.active {{ background: #1c2c40; border-color: #4da6ff; color: #7fb4e8; }}
-        .rf-item b {{ color: #4da6ff; font-weight: 600; margin-left: 2px; }}
-        .paper-authors {{ color: #888; font-size: 13px; }}
+        .rf-item:hover {{ border-color: var(--ink); }}
+        .rf-item.active {{ background: var(--ink); border-color: var(--ink); color: var(--bg); }}
+        .rf-item b {{ color: inherit; font-weight: 600; margin-left: 2px; }}
+        .paper-authors {{ color: var(--muted); font-size: 12.5px; }}
         .paper-meta {{
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             margin-bottom: 10px;
         }}
         .badge {{
             display: inline-block;
             padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
+            border-radius: 2px;
+            font-size: 10.5px;
+            font-weight: 600;
+            line-height: 1.5;
         }}
         .badge-academic {{
-            background: #1e3a5f;
-            color: #93c5fd;
+            background: var(--surface);
+            color: var(--ink);
+            border: 1px solid var(--ink);
         }}
         .badge-industry {{
-            background: #7c2d12;
-            color: #fdba74;
+            background: var(--ink);
+            color: var(--bg);
         }}
         .badge-media {{
-            background: #365314;
-            color: #bef264;
+            background: var(--surface);
+            color: var(--muted);
+            border: 1px solid var(--faint-2);
         }}
         .badge-github {{
-            background: #134e4a;
-            color: #5eead4;
+            background: var(--ink);
+            color: var(--bg);
         }}
         .badge-hf {{
-            background: #831843;
-            color: #f9a8d4;
+            background: var(--surface);
+            color: var(--ink);
+            border: 1px solid var(--ink);
         }}
-        .gh-stars {{ color: #5eead4; font-size: 12px; margin-left: auto; }}
-        .hf-likes {{ color: #f9a8d4; font-size: 12px; margin-left: auto; }}
+        .gh-stars {{ color: var(--muted); font-size: 11.5px; margin-left: auto; }}
+        .hf-likes {{ color: var(--muted); font-size: 11.5px; margin-left: auto; }}
         .gh-new {{
-            background: #134e4a; color: #5eead4; font-size: 11px; font-weight: 600;
-            padding: 1px 7px; border-radius: 4px;
+            background: var(--ink); color: var(--bg); font-size: 10.5px; font-weight: 600;
+            padding: 1px 7px; border-radius: 2px;
         }}
         .hf-new {{
-            background: #831843; color: #f9a8d4; font-size: 11px; font-weight: 600;
-            padding: 1px 7px; border-radius: 4px;
+            background: var(--ink); color: var(--bg); font-size: 10.5px; font-weight: 600;
+            padding: 1px 7px; border-radius: 2px;
         }}
-        .paper-date {{ color: #666; font-size: 12px; }}
+        .paper-date {{ color: var(--muted); font-size: 12px; }}
         .paper-tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }}
         .tag {{
-            background: #1e293b;
-            color: #93c5fd;
+            background: var(--surface);
+            color: var(--ink);
             padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 11px;
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
+            font-size: 10.5px;
+            cursor: pointer;
+            transition: border-color 0.15s;
         }}
+        .tag:hover {{ border-color: var(--ink); }}
         .paper-abstract {{
-            color: #888;
-            font-size: 12px;
-            line-height: 1.5;
+            color: var(--muted);
+            font-size: 12.5px;
+            line-height: 1.6;
             margin-bottom: 10px;
         }}
         mark {{
-            background: #f59e0b;
-            color: #000;
+            background: #E8D49A;
+            color: var(--ink);
             padding: 0 2px;
-            border-radius: 2px;
+            border-radius: 1px;
         }}
         .paper-links {{ font-size: 12px; }}
         .paper-links a {{
-            color: #4da6ff;
-            text-decoration: none;
+            color: var(--ink);
+            text-decoration: underline;
+            text-underline-offset: 2px;
             margin-right: 15px;
         }}
-        .paper-links a:hover {{ text-decoration: underline; }}
+        .paper-links a:hover {{ color: var(--ink-2); }}
         .res-link {{
-            display: inline-flex; align-items: center; gap: 3px;
-            padding: 2px 9px !important; border-radius: 6px; font-size: 11.5px !important;
-            border: 1px solid transparent; text-decoration: none !important;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 9px !important; border-radius: 2px; font-size: 11px !important;
+            margin-right: 6px !important; text-decoration: none !important;
         }}
-        .res-code {{ color: #7ee2a8 !important; background: rgba(63,185,80,0.10); border-color: rgba(63,185,80,0.28); }}
-        .res-code:hover {{ background: rgba(63,185,80,0.18); }}
-        .res-page {{ color: #7fb4e8 !important; background: rgba(77,166,255,0.10); border-color: rgba(77,166,255,0.28); }}
-        .res-page:hover {{ background: rgba(77,166,255,0.18); }}
-        .res-data {{ color: #d6a8f5 !important; background: rgba(190,120,220,0.10); border-color: rgba(190,120,220,0.28); }}
-        .res-data:hover {{ background: rgba(190,120,220,0.18); }}
+        .res-code {{ color: var(--bg) !important; background: var(--ink); }}
+        .res-code:hover {{ background: #3a3833; }}
+        .res-page {{ color: var(--ink) !important; background: var(--surface); border: 1px solid var(--ink); }}
+        .res-page:hover {{ background: var(--bg); }}
+        .res-data {{ color: var(--ink) !important; background: var(--surface); border: 1px dashed var(--ink); }}
+        .res-data:hover {{ background: var(--bg); }}
 
         /* 事件多源归并 */
         .event-sources {{
             margin: 8px 0 2px;
-            padding: 8px 10px;
-            background: rgba(77, 166, 255, 0.06);
-            border: 1px solid rgba(77, 166, 255, 0.22);
-            border-radius: 8px;
+            padding: 8px 11px;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
             font-size: 12px;
         }}
         .event-sources > summary {{
             cursor: pointer;
-            color: #6fb4ff;
+            color: var(--ink);
             font-weight: 600;
             list-style: none;
             user-select: none;
@@ -1034,31 +1074,30 @@ html_content = f"""<!DOCTYPE html>
             align-items: center;
             gap: 8px;
             padding: 6px 8px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--faint);
+            border-radius: 2px;
             text-decoration: none;
-            color: #cfd6e0;
+            color: var(--ink);
             line-height: 1.4;
         }}
-        .event-source-link:hover {{ background: rgba(77,166,255,0.12); }}
+        .event-source-link:hover {{ border-color: var(--ink); background: var(--surface); }}
         .es-tag {{
             flex: none;
-            font-size: 11px;
+            font-size: 10.5px;
             padding: 1px 7px;
-            border-radius: 4px;
+            border-radius: 2px;
             font-weight: 600;
         }}
-        .es-arxiv, .es-openreview, .es-huggingface, .es-github {{
-            background: rgba(77,166,255,0.22); color: #9ecbff;
-        }}
+        .es-arxiv, .es-openreview, .es-huggingface, .es-github,
         .es-company_blog, .es-lab_blog, .es-x_thread {{
-            background: rgba(255,159,67,0.2); color: #ffb27a;
+            background: var(--ink); color: var(--bg);
         }}
         .es-media {{
-            background: rgba(74,222,128,0.18); color: #7be0a0;
+            background: var(--surface); color: var(--ink); border: 1px solid var(--ink);
         }}
         .es-title {{ flex: none; font-weight: 600; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
-        .es-name {{ color: #9aa4b2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+        .es-name {{ color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
 
         /* 重要进展（事件）专区 */
         /* 领域脉搏 */
@@ -1067,207 +1106,208 @@ html_content = f"""<!DOCTYPE html>
             margin-bottom: 24px;
         }}
         .pulse-col {{
-            background: #14171d; border: 1px solid #222; border-radius: 12px;
+            background: var(--surface); border: 1px solid var(--faint-2); border-radius: 2px;
             padding: 16px 18px;
         }}
-        .pulse-col h3 {{ font-size: 14px; color: #fff; margin-bottom: 12px; }}
-        .pulse-hint {{ font-size: 11px; color: #6b7280; font-weight: 400; margin-left: 8px; }}
+        .pulse-col h3 {{ font-size: 13.5px; color: var(--ink); margin-bottom: 12px; font-weight: 700; }}
+        .pulse-hint {{ font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; }}
         .pulse-row {{
             display: grid; grid-template-columns: 92px 1fr 34px; align-items: center;
-            gap: 10px; padding: 3px 4px; border-radius: 6px; cursor: pointer;
+            gap: 10px; padding: 3px 4px; border-radius: 2px; cursor: pointer;
         }}
-        .pulse-row:hover {{ background: #1a1f27; }}
-        .pulse-label {{ font-size: 12px; color: #c2c9d4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-        .pulse-track {{ background: #1b2028; border-radius: 5px; height: 8px; overflow: hidden; }}
-        .pulse-fill {{ display: block; height: 100%; background: linear-gradient(90deg,#2f6fb0,#4da6ff); border-radius: 5px; }}
-        .pulse-fill.org-fill {{ background: linear-gradient(90deg,#134e4a,#5eead4); }}
-        .pulse-num {{ font-size: 12px; color: #8a93a2; text-align: right; font-variant-numeric: tabular-nums; }}
+        .pulse-row:hover {{ background: var(--surface-2); }}
+        .pulse-label {{ font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .pulse-track {{ background: var(--faint); border-radius: 1px; height: 8px; overflow: hidden; }}
+        .pulse-fill {{ display: block; height: 100%; background: var(--ink); border-radius: 1px; }}
+        .pulse-fill.org-fill {{ background: var(--muted); }}
+        .pulse-num {{ font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }}
         @media (max-width: 768px) {{ .pulse-section {{ grid-template-columns: 1fr; }} }}
         .trend-section {{
-            background: #14171d; border: 1px solid #232a34; border-radius: 12px;
+            background: var(--surface); border: 1px solid var(--faint-2); border-radius: 2px;
             padding: 16px 20px; margin-bottom: 30px;
         }}
-        .trend-section h3 {{ margin: 0 0 12px; font-size: 15px; color: #e6eaf0; }}
+        .trend-section h3 {{ margin: 0 0 12px; font-size: 14px; color: var(--ink); font-weight: 700; }}
         .trend-legend {{ display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }}
-        .trend-legend-item {{ display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #aab4c0; cursor: pointer; }}
-        .trend-legend-dot {{ width: 10px; height: 3px; border-radius: 2px; display: inline-block; }}
+        .trend-legend-item {{ display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink); cursor: pointer; }}
+        .trend-legend-dot {{ width: 12px; height: 3px; border-radius: 1px; display: inline-block; }}
         #trendChart {{ width: 100%; height: auto; display: block; }}
         .trend-line {{ fill: none; stroke-width: 2; }}
-        .trend-dot {{ stroke: #14171d; stroke-width: 1.5; }}
-        .trend-axis {{ stroke: #2a313c; stroke-width: 1; }}
-        .trend-glabel {{ fill: #6b7280; font-size: 10px; }}
-        .trend-ylabel {{ fill: #6b7280; font-size: 9px; text-anchor: end; }}
-        .trend-section.off .trend-legend-item {{ opacity: 0.45; }}
+        .trend-dot {{ stroke: var(--surface); stroke-width: 1.5; }}
+        .trend-axis {{ stroke: var(--faint-2); stroke-width: 1; }}
+        .trend-glabel {{ fill: var(--muted); font-size: 10px; }}
+        .trend-ylabel {{ fill: var(--muted); font-size: 9px; text-anchor: end; }}
+        .trend-section.off .trend-legend-item {{ opacity: 0.4; }}
 
         .events-section {{
             margin-bottom: 30px;
             padding: 20px;
-            background: #14171d;
-            border: 1px solid #222;
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
         }}
-        .events-section h2 {{ font-size: 16px; color: #fff; margin-bottom: 6px; }}
+        .events-section h2 {{ font-size: 16px; color: var(--ink); margin-bottom: 6px; font-weight: 700; }}
         .event-cards {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }}
         .event-card {{
-            background: #101318;
-            border: 1px solid #23272f;
-            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
             padding: 13px 14px;
         }}
-        .event-card:hover {{ border-color: #3a4350; }}
-        .event-card-title {{ font-size: 14px; font-weight: 600; line-height: 1.35; margin-bottom: 9px; }}
-        .event-card-title a {{ color: #e8edf3; }}
-        .event-card-title a:hover {{ color: #4da6ff; }}
+        .event-card:hover {{ border-color: var(--ink); }}
+        .event-card-title {{ font-size: 13.5px; font-weight: 600; line-height: 1.4; margin-bottom: 9px; }}
+        .event-card-title a {{ color: var(--ink); }}
+        .event-card-title a:hover {{ color: var(--ink-2); }}
         .event-card-meta {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 9px; }}
-        .event-card-date {{ color: #8b94a3; font-size: 12px; }}
-        .event-card-count {{ color: #9aa4b2; font-size: 12px; }}
+        .event-card-date {{ color: var(--muted); font-size: 12px; }}
+        .event-card-count {{ color: var(--muted); font-size: 12px; }}
         .event-card-sources {{ display: flex; flex-wrap: wrap; gap: 6px; }}
         .ev-src-link {{
             display: inline-flex; align-items: center; gap: 5px;
-            font-size: 12px; color: #c2c9d4;
-            padding: 3px 9px 3px 4px; border-radius: 6px;
-            background: #171b21; border: 1px solid #262b33;
+            font-size: 11.5px; color: var(--ink);
+            padding: 3px 9px 3px 5px; border-radius: 2px;
+            background: var(--surface); border: 1px solid var(--faint-2);
         }}
-        .ev-src-link:hover {{ background: #1d232c; border-color: #3a4350; }}
+        .ev-src-link:hover {{ border-color: var(--ink); background: var(--surface-2); }}
 
         /* 事件 AI 解读 */
         .event-brief {{
-            background: #10161f; border: 1px solid #1f2c3d; border-left: 3px solid #4da6ff;
-            border-radius: 8px; padding: 9px 11px; margin-bottom: 10px;
+            background: var(--surface-2); border: 1px solid var(--faint-2); border-left: 3px solid var(--ink);
+            border-radius: 2px; padding: 9px 11px; margin-bottom: 10px;
         }}
-        .eb-tldr {{ font-size: 12.5px; color: #dce4ee; line-height: 1.5; }}
+        .eb-tldr {{ font-size: 12.5px; color: var(--ink); line-height: 1.5; }}
         .eb-tldr .ai-badge {{ margin-right: 6px; }}
         .eb-more {{ margin-top: 6px; }}
-        .eb-more summary {{ cursor: pointer; font-size: 11.5px; color: #7fb4e8; user-select: none; }}
-        .eb-more summary:hover {{ color: #a9d0f5; }}
-        .eb-what, .eb-why {{ font-size: 12px; color: #aab4c0; line-height: 1.55; margin-top: 6px; }}
-        .eb-what b, .eb-why b {{ color: #8fb9e6; font-weight: 600; margin-right: 5px; }}
+        .eb-more summary {{ cursor: pointer; font-size: 11.5px; color: var(--muted); user-select: none; }}
+        .eb-more summary:hover {{ color: var(--ink); }}
+        .eb-what, .eb-why {{ font-size: 12px; color: var(--muted); line-height: 1.55; margin-top: 6px; }}
+        .eb-what b, .eb-why b {{ color: var(--ink); font-weight: 600; margin-right: 5px; }}
 
         /* AI 方向综述 */
-        .briefing-section {{ margin-bottom: 30px; padding: 20px; background: #14171d; border: 1px solid #222; border-radius: 12px; }}
-        .briefing-section h2 {{ font-size: 16px; color: #fff; margin-bottom: 14px; }}
+        .briefing-section {{ margin-bottom: 30px; padding: 20px; background: var(--surface); border: 1px solid var(--faint-2); border-radius: 2px; }}
+        .briefing-section h2 {{ font-size: 16px; color: var(--ink); margin-bottom: 14px; font-weight: 700; }}
         .brief-tabs {{ display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }}
         .brief-tab {{
-            background: #171b21; border: 1px solid #262b33; color: #9aa4b2;
-            padding: 7px 14px; border-radius: 8px; font-size: 13px; cursor: pointer;
+            background: var(--surface); border: 1px solid var(--faint-2); color: var(--ink);
+            padding: 7px 14px; border-radius: 2px; font-size: 13px; cursor: pointer;
         }}
-        .brief-tab:hover {{ border-color: #3a4350; color: #c2c9d4; }}
-        .brief-tab.active {{ background: #1c2735; border-color: #3a6ea5; color: #9ecbff; }}
+        .brief-tab:hover {{ border-color: var(--ink); }}
+        .brief-tab.active {{ background: var(--ink); border-color: var(--ink); color: var(--bg); }}
         .brief-panel {{ display: none; }}
         .brief-panel.active {{ display: block; }}
-        .brief-overview {{ color: #d4dae3; font-size: 13.5px; line-height: 1.7; margin-bottom: 16px; padding: 12px 14px; background: #101318; border-left: 3px solid #3a6ea5; border-radius: 6px; }}
+        .brief-overview {{ color: var(--ink); font-size: 13px; line-height: 1.7; margin-bottom: 16px; padding: 12px 14px; background: var(--surface-2); border-left: 3px solid var(--ink); border-radius: 2px; }}
         .brief-lines {{ display: flex; flex-direction: column; gap: 13px; margin-bottom: 16px; }}
-        .brief-line-name {{ font-size: 13.5px; font-weight: 600; color: #e8edf3; margin-bottom: 5px; }}
-        .brief-line-point {{ color: #aab2bd; font-size: 13px; line-height: 1.65; margin-bottom: 7px; }}
+        .brief-line-name {{ font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }}
+        .brief-line-point {{ color: var(--muted); font-size: 13px; line-height: 1.65; margin-bottom: 7px; }}
         .brief-cites {{ display: flex; flex-wrap: wrap; gap: 6px; }}
         .cite-chip {{
-            font-size: 11.5px; color: #9ecbff; text-decoration: none;
-            padding: 2px 9px; border-radius: 5px;
-            background: rgba(77,166,255,0.1); border: 1px solid rgba(77,166,255,0.25);
+            font-size: 11.5px; color: var(--ink); text-decoration: none;
+            padding: 2px 9px; border-radius: 2px;
+            background: var(--surface); border: 1px solid var(--faint-2);
         }}
-        .cite-chip:hover {{ background: rgba(77,166,255,0.2); }}
-        .brief-trends {{ background: #101318; border-radius: 8px; padding: 12px 14px; }}
-        .brief-trends b {{ color: #e8edf3; font-size: 13px; }}
+        .cite-chip:hover {{ border-color: var(--ink); background: var(--surface-2); }}
+        .brief-trends {{ background: var(--surface-2); border-radius: 2px; padding: 12px 14px; }}
+        .brief-trends b {{ color: var(--ink); font-size: 13px; }}
         .brief-trends ul {{ margin: 8px 0 0; padding-left: 18px; }}
-        .brief-trends li {{ color: #c2c9d4; font-size: 13px; line-height: 1.7; }}
+        .brief-trends li {{ color: var(--muted); font-size: 13px; line-height: 1.7; }}
 
         /* 热点 */
         .hot-section {{
             margin-bottom: 30px;
             padding: 20px;
-            background: #14171d;
-            border: 1px solid #222;
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
         }}
         .hot-section h2 {{
             font-size: 16px;
-            color: #fff;
+            color: var(--ink);
             margin-bottom: 15px;
+            font-weight: 700;
         }}
         .hot-tag {{
             display: inline-block;
-            background: #7c2d12;
-            color: #fdba74;
-            padding: 4px 10px;
-            border-radius: 20px;
+            background: var(--ink);
+            color: var(--bg);
+            padding: 4px 11px;
+            border-radius: 2px;
             font-size: 12px;
             margin-right: 8px;
             margin-bottom: 8px;
         }}
         
-        /* 本周必看 */
         /* AI 本周导读（顶部执行摘要） */
         .intro-section {{
             margin-bottom: 24px; padding: 18px 20px;
-            background: linear-gradient(135deg, #131c2b 0%, #14171d 60%);
-            border: 1px solid #243246; border-radius: 12px;
-            border-left: 3px solid #4da6ff;
+            background: var(--surface);
+            border: 1px solid var(--faint-2); border-radius: 2px;
+            border-left: 3px solid var(--ink);
         }}
         .intro-head {{ display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }}
-        .intro-headline {{ font-size: 15.5px; font-weight: 600; color: #eef3f9; line-height: 1.5; }}
+        .intro-headline {{ font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.5; }}
         .intro-items {{ display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }}
-        .intro-item {{ background: rgba(255,255,255,0.025); border: 1px solid #232a34; border-radius: 8px; padding: 9px 12px; }}
-        .intro-title {{ display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; color: #cfe3f7; text-decoration: none; line-height: 1.4; }}
-        .intro-title:hover {{ color: #7fb4e8; }}
+        .intro-item {{ background: var(--surface-2); border: 1px solid var(--faint); border-radius: 2px; padding: 9px 12px; }}
+        .intro-title {{ display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; line-height: 1.4; }}
+        .intro-title:hover {{ color: var(--ink-2); }}
         .intro-num {{
             flex: none; display: inline-flex; align-items: center; justify-content: center;
-            width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 700;
-            background: #1c3a55; color: #7fb4e8;
+            width: 19px; height: 19px; border-radius: 2px; font-size: 11px; font-weight: 700;
+            background: var(--ink); color: var(--bg);
         }}
-        .intro-why {{ font-size: 12.5px; color: #97a2b2; line-height: 1.5; margin-top: 4px; padding-left: 26px; }}
-        .intro-trend {{ font-size: 12.5px; color: #aab4c0; line-height: 1.5; padding-top: 10px; border-top: 1px dashed #2a313c; }}
+        .intro-why {{ font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 4px; padding-left: 27px; }}
+        .intro-trend {{ font-size: 12.5px; color: var(--muted); line-height: 1.5; padding-top: 10px; border-top: 1px dashed var(--faint-2); }}
         .intro-trend-label {{
-            display: inline-block; font-size: 11px; color: #f0c674; background: rgba(240,198,116,0.10);
-            border: 1px solid rgba(240,198,116,0.28); border-radius: 5px; padding: 1px 7px; margin-right: 8px;
+            display: inline-block; font-size: 11px; color: var(--ink); background: var(--surface);
+            border: 1px solid var(--ink); border-radius: 2px; padding: 1px 8px; margin-right: 8px;
         }}
 
         .top-section {{
             margin-bottom: 30px;
             padding: 20px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--faint-2);
+            border-radius: 2px;
         }}
         .top-section h2 {{
-            font-size: 18px;
-            color: #fff;
+            font-size: 17px;
+            color: var(--ink);
             margin-bottom: 15px;
+            font-weight: 700;
         }}
-        .top-sub {{ font-size: 12px; color: #888; font-weight: 400; margin-left: 8px; }}
+        .top-sub {{ font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; }}
         .top-paper {{
             display: flex;
             align-items: flex-start;
             padding: 12px 0;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid var(--faint);
         }}
         .top-paper:last-child {{ border-bottom: none; }}
         .rank {{
-            width: 28px;
-            height: 28px;
-            background: #f59e0b;
-            color: #000;
-            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            background: var(--ink);
+            color: var(--bg);
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 13px;
+            font-weight: 700;
             margin-right: 15px;
             flex-shrink: 0;
         }}
         .top-paper-content {{ flex: 1; }}
-        .top-paper-title {{ font-size: 14px; margin-bottom: 4px; }}
-        .top-paper-title a {{ color: #fff; text-decoration: none; }}
-        .top-paper-title a:hover {{ color: #4da6ff; }}
-        .top-paper-authors {{ color: #888; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
-        .top-paper-src {{ color: #999; }}
-        .top-paper-date {{ color: #666; margin-left: auto; }}
+        .top-paper-title {{ font-size: 13.5px; margin-bottom: 4px; }}
+        .top-paper-title a {{ color: var(--ink); text-decoration: none; }}
+        .top-paper-title a:hover {{ color: var(--ink-2); }}
+        .top-paper-authors {{ color: var(--muted); font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
+        .top-paper-src {{ color: var(--muted); }}
+        .top-paper-date {{ color: var(--muted); margin-left: auto; }}
         .top-zone-divider {{
             margin: 16px 0 6px;
             padding-top: 12px;
-            border-top: 1px dashed #2a2a2a;
-            font-size: 12px;
-            color: #ff9d4d;
+            border-top: 1px dashed var(--faint-2);
+            font-size: 11.5px;
+            color: var(--ink);
             font-weight: 600;
             letter-spacing: 0.5px;
         }}
@@ -1275,27 +1315,27 @@ html_content = f"""<!DOCTYPE html>
         .ai-summary {{
             margin-top: 10px;
             padding: 10px 12px;
-            background: rgba(77, 166, 255, 0.08);
-            border-left: 3px solid #4da6ff;
-            border-radius: 0 6px 6px 0;
-            font-size: 13px;
+            background: var(--surface-2);
+            border-left: 3px solid var(--ink);
+            border-radius: 2px;
+            font-size: 12.5px;
             line-height: 1.6;
-            color: #c7d2e0;
+            color: var(--ink);
         }}
         .ai-badge {{
             display: inline-block;
-            background: #1e3a5f;
-            color: #93c5fd;
+            background: var(--ink);
+            color: var(--bg);
             font-size: 10px;
             font-weight: 600;
             padding: 2px 7px;
-            border-radius: 4px;
+            border-radius: 2px;
             margin-right: 8px;
             vertical-align: top;
             white-space: nowrap;
         }}
-        .ai-text {{ color: #c7d2e0; }}
-        
+        .ai-text {{ color: var(--ink); }}
+
         /* 模态框 */
         .modal {{
             display: none;
@@ -1304,7 +1344,7 @@ html_content = f"""<!DOCTYPE html>
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(28,27,25,0.45);
             z-index: 1000;
         }}
         .modal-content {{
@@ -1312,13 +1352,14 @@ html_content = f"""<!DOCTYPE html>
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #14171d;
-            border: 1px solid #333;
-            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--ink);
+            border-radius: 2px;
             padding: 30px;
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 6px 6px 0 rgba(28,27,25,0.2);
         }}
         .modal-close {{
             position: absolute;
@@ -1326,10 +1367,11 @@ html_content = f"""<!DOCTYPE html>
             right: 15px;
             background: none;
             border: none;
-            color: #888;
+            color: var(--muted);
             font-size: 24px;
             cursor: pointer;
         }}
+        .modal-close:hover {{ color: var(--ink); }}
         
         /* 移动端适配 */
         @media (max-width: 768px) {{
@@ -1507,15 +1549,15 @@ html_content = f"""<!DOCTYPE html>
                 
                 <div id="searchHint" style="display:none;margin:10px 0 4px;padding:8px 14px;background:rgba(240,198,116,0.08);border:1px solid rgba(240,198,116,0.25);border-radius:8px;color:#f0c674;font-size:12.5px"></div>
 
-                <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:#666">
+                <div id="emptyState" style="display:none;text-align:center;padding:60px 20px;color:#6B6B66">
                     <div style="font-size:48px;margin-bottom:15px">🔍</div>
                     <p id="emptyTitle" style="margin-bottom:10px">没有找到匹配的论文</p>
                     <p style="font-size:13px">试试换个关键词，或减少关键词、清除筛选条件</p>
                 </div>
 
                 <div id="loadMoreWrap" style="text-align:center;padding:25px 0 10px">
-                    <div id="loadMoreInfo" style="color:#666;font-size:12px;margin-bottom:10px"></div>
-                    <button id="loadMoreBtn" onclick="loadMore()" style="display:none;background:#1e293b;color:#e2e8f0;border:1px solid #334155;padding:10px 28px;border-radius:8px;font-size:14px;cursor:pointer"></button>
+                    <div id="loadMoreInfo" style="color:#6B6B66;font-size:12px;margin-bottom:10px"></div>
+                    <button id="loadMoreBtn" onclick="loadMore()" style="display:none;background:#1C1B19;color:#F5F4EF;border:1px solid #1C1B19;padding:10px 28px;border-radius:2px;font-size:13px;cursor:pointer;font-family:inherit"></button>
                 </div>
             </div>
         </div>
@@ -1552,10 +1594,10 @@ html_content = f"""<!DOCTYPE html>
             const body = document.getElementById('modalBody');
             body.innerHTML = `
                 <h2 style="margin:0 0 12px;color:#fff">BibTeX 引用</h2>
-                <textarea id="bibText" style="width:100%;height:230px;box-sizing:border-box;background:#0f1115;color:#cfe3ff;border:1px solid #2a313c;border-radius:8px;padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.6"></textarea>
+                <textarea id="bibText" style="width:100%;height:230px;box-sizing:border-box;background:#FBFAF6;color:#1C1B19;border:1px solid #D2D0C6;border-radius:2px;padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.6"></textarea>
                 <div style="text-align:right;margin-top:12px">
-                    <button onclick="closeModal()" style="background:transparent;color:#8a93a2;border:1px solid #334155;padding:8px 16px;border-radius:8px;margin-right:8px;cursor:pointer">关闭</button>
-                    <button id="bibCopyBtn" style="background:#4da6ff;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer">复制到剪贴板</button>
+                    <button onclick="closeModal()" style="background:transparent;color:#6B6B66;border:1px solid #D2D0C6;padding:8px 16px;border-radius:2px;margin-right:8px;cursor:pointer">关闭</button>
+                    <button id="bibCopyBtn" style="background:#1C1B19;color:#F5F4EF;border:none;padding:8px 18px;border-radius:2px;cursor:pointer">复制到剪贴板</button>
                 </div>`;
             const ta = document.getElementById('bibText');
             ta.value = text;
@@ -1877,7 +1919,7 @@ html_content = f"""<!DOCTYPE html>
                     </ul>
                     <p style="margin-bottom:15px">聚焦三个方向：<b>VLA / 世界模型 / 仿真器</b></p>
                     <button onclick="closeModal();localStorage.setItem('onboarded','1');" 
-                        style="background:#4da6ff;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px">
+                        style="background:#1C1B19;color:#F5F4EF;border:none;padding:10px 20px;border-radius:2px;cursor:pointer;font-size:13.5px;font-family:inherit">
                         开始使用
                     </button>
                 </div>
@@ -1925,7 +1967,7 @@ html_content = f"""<!DOCTYPE html>
         // ===== 方向趋势图（纯 SVG 折线）=====
         const TREND_DATA = {trend_series_json};
         const TREND_WLABELS = {trend_labels_json};
-        const TREND_COLORS = {{'VLA':'#4da6ff','世界模型':'#f0c674','人形':'#5eead4','Sim2Real':'#c084fc'}};
+        const TREND_COLORS = {{'VLA':'#1C1B19','世界模型':'#A8543E','人形':'#6B7A4F','Sim2Real':'#4A6D8C'}};
         const trendHidden = new Set();
         function drawTrendChart() {{
             const svg = document.getElementById('trendChart');
@@ -1954,7 +1996,7 @@ html_content = f"""<!DOCTYPE html>
             }});
             // 折线
             active.forEach(s => {{
-                const c = TREND_COLORS[s.name] || '#888';
+                const c = TREND_COLORS[s.name] || '#6B6B66';
                 const pts = s.data.map((v,i) => `${{X(i)}},${{Y(v)}}`).join(' ');
                 html += `<polyline class="trend-line" stroke="${{c}}" points="${{pts}}"/>`;
                 s.data.forEach((v,i) => {{
@@ -1965,10 +2007,10 @@ html_content = f"""<!DOCTYPE html>
             // 图例
             const lg = document.getElementById('trendLegend');
             lg.innerHTML = TREND_DATA.map(s => {{
-                const c = TREND_COLORS[s.name] || '#888';
+                const c = TREND_COLORS[s.name] || '#6B6B66';
                 const last = s.data[s.data.length-1], prev = s.data[s.data.length-2] || last;
                 const arrow = last > prev ? '↑' : (last < prev ? '↓' : '→');
-                const ac = last > prev ? '#5eead4' : (last < prev ? '#f87171' : '#8a93a2');
+                const ac = last > prev ? '#6B7A4F' : (last < prev ? '#A8543E' : '#6B6B66');
                 return `<span class="trend-legend-item" data-name="${{s.name}}" style="${{trendHidden.has(s.name)?'opacity:.4':''}}">
                     <span class="trend-legend-dot" style="background:${{c}}"></span>${{s.name}}
                     <span style="color:${{ac}};font-variant-numeric:tabular-nums">${{last}} ${{arrow}}</span></span>`;
@@ -2161,14 +2203,14 @@ html_content = f"""<!DOCTYPE html>
             const body = document.getElementById('modalBody');
             const commonTags = t => t;
             body.innerHTML = '<h2 style="margin:0 0 6px;color:#fff">相关论文 / 进展</h2>' +
-                '<div style="color:#8b94a3;font-size:12.5px;margin-bottom:16px">按同事件、标题主题与方向标签综合排序</div>' +
+                '<div style="color:#6B6B66;font-size:12.5px;margin-bottom:16px">按同事件、标题主题与方向标签综合排序</div>' +
                 (related.length === 0
-                    ? '<div style="color:#8b94a3">暂无足够相关的条目，试试用方向标签筛选。</div>'
+                    ? '<div style="color:#6B6B66">暂无足够相关的条目，试试用方向标签筛选。</div>'
                     : related.slice(0, 12).map(r =>
-                        `<div style="margin-bottom:13px;padding-left:10px;border-left:2px solid ${{r.sameEvent?'#4da6ff':'#2a313c'}}">
-                            <a href="${{r.url}}" target="_blank" style="color:#cfe3f7;text-decoration:none;font-size:13.5px;line-height:1.5">${{r.title}}</a>
-                            <div style="font-size:11.5px;color:#6b7280;margin-top:3px">
-                                ${{r.sameEvent?'<span style="color:#4da6ff">同一事件</span> · ':''}}${{r.overlap>0?r.overlap+' 个共同标签':''}}${{r.date?' · '+r.date:''}}
+                        `<div style="margin-bottom:13px;padding-left:10px;border-left:2px solid ${{r.sameEvent?'#1C1B19':'#E4E2D9'}}">
+                            <a href="${{r.url}}" target="_blank" style="color:#1C1B19;text-decoration:underline;text-underline-offset:2px;font-size:13px;line-height:1.5">${{r.title}}</a>
+                            <div style="font-size:11.5px;color:#6B6B66;margin-top:3px">
+                                ${{r.sameEvent?'<span style="color:#A8543E">同一事件</span> · ':''}}${{r.overlap>0?r.overlap+' 个共同标签':''}}${{r.date?' · '+r.date:''}}
                             </div>
                         </div>`
                     ).join(''));
