@@ -3,7 +3,7 @@
 > 具身智能 / VLA 方向的动态知识导航看板
 > 帮你少读 80% 垃圾，5 分钟看完本周关键进展
 
-**🌐 在线访问（无需安装，打开即用）：** <https://gbgbgbhhhh.github.io/embodied-dashboard/>
+**🌐 在线访问（无需安装，打开即用）：** <https://jaceysimon.github.io/embodied-dashboard/>
 
 每天 UTC 02:00（北京 10:00）由 GitHub Actions 自动采集 arXiv、公司/实验室官网、GitHub、Hugging Face 并重新部署，无需本地运行。
 
