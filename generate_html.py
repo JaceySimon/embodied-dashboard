@@ -834,6 +834,28 @@ html_content = f"""<!DOCTYPE html>
             font-weight: 600;
         }}
 
+        /* 筛选状态条：有筛选/搜索时出现，明确告知"当前条件 + 匹配数 + 清除" */
+        .filter-bar {{
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 14px; flex-wrap: wrap;
+            margin: 18px 0 14px; padding: 11px 14px;
+            background: var(--surface);
+            border: 1px solid var(--faint);
+            border-left: 3px solid var(--ink);
+            border-radius: 2px;
+            box-shadow: 2px 2px 0 var(--faint);
+        }}
+        .filter-bar-left {{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }}
+        .filter-bar-label {{ font-size: 12px; font-weight: 700; letter-spacing: .04em;
+            background: var(--ink); color: var(--bg); padding: 2px 8px; border-radius: 2px; }}
+        .filter-chips {{ font-size: 13px; color: var(--ink); }}
+        .filter-bar-right {{ display: flex; align-items: center; gap: 12px; }}
+        .filter-count {{ font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }}
+        .filter-clear {{ font-family: inherit; font-size: 12.5px; cursor: pointer;
+            background: transparent; color: var(--ink); border: 1px solid var(--ink);
+            padding: 4px 12px; border-radius: 2px; }}
+        .filter-clear:hover {{ background: var(--ink); color: var(--bg); }}
+
         /* 日期分组锚点（信息流） */
         .date-divider {{
             display: flex; align-items: center; gap: 12px;
@@ -1543,6 +1565,17 @@ html_content = f"""<!DOCTYPE html>
                     </div>
                 </div>
                 
+                <div id="filterBar" class="filter-bar" style="display:none">
+                    <div class="filter-bar-left">
+                        <span class="filter-bar-label">筛选结果</span>
+                        <span id="filterChips" class="filter-chips"></span>
+                    </div>
+                    <div class="filter-bar-right">
+                        <span id="filterCount" class="filter-count"></span>
+                        <button type="button" class="filter-clear" onclick="clearAllFilters()">清除 ✕</button>
+                    </div>
+                </div>
+
                 <div id="papers">
                     {papers_html}
                 </div>
@@ -1702,12 +1735,14 @@ html_content = f"""<!DOCTYPE html>
             if (event.target.classList.contains('rf-item')) event.target.classList.add('active');
             resetPagination();
             filterPapers();
+            scrollToResults();
         }}
         
         function showFavs() {{
             showOnlyFavs = !showOnlyFavs;
             resetPagination();
             filterPapers();
+            scrollToResults();
         }}
         
         function filterPapers() {{
@@ -1830,6 +1865,56 @@ html_content = f"""<!DOCTYPE html>
             // 加载更多按钮
             updateLoadMore(matchedCount, shownCount);
             updateDateDividers();
+            // 有筛选/搜索时：收起概览专区（它们是"无目标浏览"的导航），并显示筛选状态条
+            updateOverview(matchedCount);
+        }}
+
+        // 概览专区：无任何条件时展示；一旦筛选/搜索就收起，让用户聚焦结果，
+        // 避免"点了筛选但首屏纹丝不动、以为没生效"
+        const OVERVIEW_SELECTORS = ['.intro-section', '.top-section', '.pulse-section',
+            '.events-section', '.briefing-section', '.hot-section'];
+        function activeFiltersList() {{
+            const search = document.getElementById('search').value.trim();
+            const chips = [];
+            const tagLabels = {{VLA:'VLA', world_model:'世界模型', sim2real:'Sim2Real',
+                diffusion_policy:'Diffusion Policy', foundation_model:'Foundation Model'}};
+            if (currentTag) chips.push(tagLabels[currentTag] || currentTag);
+            const srcLabels = {{arxiv:'学术论文', industry:'工业界博客', media:'媒体',
+                github:'开源项目', huggingface:'模型权重'}};
+            if (currentSource) chips.push(srcLabels[currentSource] || currentSource);
+            if (currentTimeRange === 1) chips.push('今天');
+            else if (currentTimeRange === 7) chips.push('本周');
+            else if (currentTimeRange === 30) chips.push('本月');
+            if (currentProperty === 'real') chips.push('有真机实验');
+            if (currentProperty === 'open') chips.push('已开源');
+            if (showOnlyFavs) chips.push('仅收藏');
+            if (readFilter === 'read') chips.push('已读');
+            else if (readFilter === 'unread') chips.push('未读');
+            if (search) chips.push('搜索 “' + search + '”');
+            return chips;
+        }}
+        function updateOverview(matchedCount) {{
+            const chips = activeFiltersList();
+            const hasFilter = chips.length > 0;
+            OVERVIEW_SELECTORS.forEach(sel => {{
+                const el = document.querySelector(sel);
+                if (el) el.style.display = hasFilter ? 'none' : '';
+            }});
+            const bar = document.getElementById('filterBar');
+            if (bar) {{
+                if (hasFilter) {{
+                    bar.style.display = 'flex';
+                    document.getElementById('filterChips').textContent = chips.join(' · ');
+                    document.getElementById('filterCount').textContent = '共 ' + matchedCount + ' 条';
+                }} else {{
+                    bar.style.display = 'none';
+                }}
+            }}
+        }}
+        // 点击筛选后滚动到结果顶部（搜索输入时不滚动，避免打断打字）
+        function scrollToResults() {{
+            const bar = document.getElementById('filterBar');
+            if (bar) {{ bar.scrollIntoView({{block:'start'}}); window.scrollBy(0, -72); }}
         }}
 
         function updateLoadMore(matched, shown) {{
@@ -1942,6 +2027,7 @@ html_content = f"""<!DOCTYPE html>
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
+            scrollToResults();
         }}
         
         function filterBySource(source) {{
@@ -1950,6 +2036,7 @@ html_content = f"""<!DOCTYPE html>
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
+            scrollToResults();
         }}
 
         function searchOrg(name) {{
@@ -2027,6 +2114,7 @@ html_content = f"""<!DOCTYPE html>
             currentPropertyValue = value ? 'true' : 'false';
             resetPagination();
             filterPapers();
+            scrollToResults();
         }}
         
         function filterByTime(days) {{
@@ -2035,6 +2123,7 @@ html_content = f"""<!DOCTYPE html>
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             event.target.classList.add('active');
             filterPapers();
+            scrollToResults();
         }}
         
         function clearAllFilters() {{
@@ -2048,9 +2137,17 @@ html_content = f"""<!DOCTYPE html>
             document.getElementById('search').value = '';
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.rf-item').forEach(item => item.classList.remove('active'));
-            document.querySelector('.sidebar-item').classList.add('active');
+            // 恢复三个组各自的"全部"以及阅读状态的"全部"
+            document.querySelectorAll('.sidebar-item').forEach(item => {{
+                const oc = item.getAttribute('onclick') || '';
+                if (oc.includes("filterBySource('')") || oc.includes("filterByTag('')")
+                    || oc.includes("filterByTime(0)")) item.classList.add('active');
+            }});
+            const allRead = document.querySelector('.read-filter .rf-item');
+            if (allRead) allRead.classList.add('active');
             resetPagination();
             filterPapers();
+            window.scrollTo({{ top: 0, behavior: 'smooth' }});
         }}
 
         // 顶部统计卡快捷筛选
