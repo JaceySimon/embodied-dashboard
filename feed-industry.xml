@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI — 工业界一手发布</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>机器人公司与重点实验室的官方技术发布与开源动态。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 31 Oct 2026 08:29:09 -0000</lastBuildDate>
+    <item>
+      <title>AGIBOT Open-Sources AGIBOT WORLD Release 4: &quot;Physical Reasoning&quot; Dataset Enabling Robots to Reason Before Acting</title>
+      <link>https://www.agibot.com/article/231/detail/129.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:智元机器人_agibot:8fd87378f0</guid>
+    </item>
+    <item>
+      <title>TIGER: Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://sanctuary.ai/news/tiger</link>
+      <description><![CDATA[Demonstrations as a compass, not a script The post TIGER: Task-Space Imitation Guidance for Efficient Reinforcement Learning appeared first on Sanctuary AI .]]></description>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">rss:sanctuary_ai:23852</guid>
+    </item>
+    <item>
+      <title>NVIDIA Cosmos Opens New Tools to Train, Evaluate and Deploy World Models</title>
+      <link>https://blogs.nvidia.com/blog/cosmos-open-train-evaluate-deploy-world-models</link>
+      <description><![CDATA[To help developers rapidly build world models, which help physical AI systems understand and simulate the real world, NVIDIA has expanded the Cosmos platform with new training tools, simulation checkpoints and Cosmos Data Factory blueprints. Ranking top five on six different open models leaderboards]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">rss:nvidia_research_blog:97630</guid>
+    </item>
+    <item>
+      <title>AGIBOT Launches Genie Studio 2.0 to Bring Robots into Real Workplaces</title>
+      <link>https://www.agibot.com/article/231/detail/130.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:智元机器人_agibot:52bc8b8929</guid>
+    </item>
+    <item>
+      <title>Frontier Models for Every Robot</title>
+      <link>https://www.pi.website/blog/api-beta</link>
+      <description><![CDATA[Physical Intelligence is bringing general-purpose AI into the physical world.]]></description>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:physical_intelligence:api-beta</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Highlights Commercial Momentum and Growing Enterprise Demand for Digit Humanoid Robot</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-highlights-commercial-momentum-and-growing-enterprise-demand-for-digit-humanoid-robot</link>
+      <description><![CDATA[Oct 26, 2026]]></description>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-highlights-commercial-momentum-and-growing-enterprise-demand-fo</guid>
+    </item>
+    <item>
+      <title>GXO and Agility Robotics Expand Partnership to Accelerate Deployment of Humanoids in U.S. Operations</title>
+      <link>https://www.agilityrobotics.com/content/gxo-and-agility-robotics-expand-partnership-to-accelerate-deployment-of-humanoids-in-u-s-operations</link>
+      <description><![CDATA[Oct 26, 2026]]></description>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:gxo-and-agility-robotics-expand-partnership-to-accelerate-deployment-of-humanoid</guid>
+    </item>
+    <item>
+      <title>AGCO and Agility Robotics Advance Smart Manufacturing with Humanoid Robot Pilot in Hesston, Kansas, Facility</title>
+      <link>https://www.agilityrobotics.com/content/agco-and-agility-robotics-advance-smart-manufacturing-with-humanoid-robot-pilot-in-hesston-kansas-facility</link>
+      <description><![CDATA[Oct 20, 2026]]></description>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agco-and-agility-robotics-advance-smart-manufacturing-with-humanoid-robot-pilot-</guid>
+    </item>
+    <item>
+      <title>Agility and FORT Robotics Announce Strategic Partnership to Advance Humanoid Robot Safety</title>
+      <link>https://www.agilityrobotics.com/content/agility-and-fort-robotics-announce-strategic-partnership-to-advance-humanoid-robot-safety</link>
+      <description><![CDATA[Oct 01, 2026]]></description>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-and-fort-robotics-announce-strategic-partnership-to-advance-humanoid-rob</guid>
+    </item>
+    <item>
+      <title>Gemini 4 Argon for Robotics</title>
+      <link>https://deepmind.google/blog/gemini-4-argon-for-robotics</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">rss:google_deepmind_research:3299</guid>
+    </item>
+    <item>
+      <title>How Much Work Do Robots Really Deliver? The Thinking Behind Worken</title>
+      <link>https://www.agibot.com/article/231/detail/132.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:智元机器人_agibot:d7b79161ed</guid>
+    </item>
+    <item>
+      <title>AGIBOT Introduces Worken to Measure Productive Robot Work at AGIBOT Innovation Day 2026</title>
+      <link>https://www.agibot.com/article/231/detail/131.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Wed, 28 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:智元机器人_agibot:6be8b5e50f</guid>
+    </item>
+    <item>
+      <title>Robot Hands for Modern AI and Real Work</title>
+      <link>https://bostondynamics.com/blog/robot-hands-for-modern-ai-and-real-work</link>
+      <description><![CDATA[Boston Dynamics new robot hands have 13 degrees of freedom and direct actuation, built for high fidelity simulation and dexterous physical work.]]></description>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:boston_dynamics:robot-hands-for-modern-ai-and-real-work</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Expands NVIDIA Collaboration as It Prepares Digit 5 for Commercial Scale</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-expands-nvidia-collaboration-as-it-prepares-digit-5-for-commercial-scale</link>
+      <description><![CDATA[Oct 22, 2026]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-expands-nvidia-collaboration-as-it-prepares-digit-5-for-commerc</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Expands Pittsburgh Presence to Support Growing Customer Deployments</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-expands-pittsburgh-presence-to-support-growing-customer-deployments</link>
+      <description><![CDATA[Oct 21, 2026]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-expands-pittsburgh-presence-to-support-growing-customer-deploym</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Selects Nyobolt as its Ultra-Fast Charging Battery Technology Partner for Digit 5</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-selects-nyobolt-as-its-ultra-fast-charging-battery-technology-partner-for-digit-5</link>
+      <description><![CDATA[Oct 15, 2026]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-selects-nyobolt-as-its-ultra-fast-charging-battery-technology-p</guid>
+    </item>
+    <item>
+      <title>Spot to the Rescue</title>
+      <link>https://bostondynamics.com/blog/spot-to-the-rescue</link>
+      <description><![CDATA[Public safety organizations around the world are relying on Spot to do what it does best—keep people out of harm’s way.]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:boston_dynamics:spot-to-the-rescue</guid>
+    </item>
+    <item>
+      <title>Agility Robotics CEO Peggy Johnson Selected to Join Project Meridian</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-ceo-peggy-johnson-selected-to-join-project-meridian</link>
+      <description><![CDATA[Oct 05, 2026]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-ceo-peggy-johnson-selected-to-join-project-meridian</guid>
+    </item>
+    <item>
+      <title>银河通用联合研究成果获 IROS 2026 专项最佳论文</title>
+      <link>https://mp.weixin.qq.com/s/B_IU4PSYifAol1XoATZ6EA</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:银河通用_galbot:b-iu4psyifaol1xoatz6ea</guid>
+    </item>
+  </channel>
+</rss>

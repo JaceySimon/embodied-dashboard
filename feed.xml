@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 31 Oct 2026 08:29:09 -0000</lastBuildDate>
+    <item>
+      <title>PointWalker: Mapless Quadruped Locomotion Directly From Raw LiDAR Point Clouds</title>
+      <link>https://arxiv.org/abs/2610.15548v1</link>
+      <description><![CDATA[14 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.15548v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.08618v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.03530v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.00355v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.36878v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.28172v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.23656v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.16378v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.15770v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2-navigation-ros2">逐际动力 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.07516v2">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.24282v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.19004v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.16264v2">arXiv</a></li></ul>]]></description>
+      <pubDate>Sun, 11 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.15548v1</guid>
+    </item>
+    <item>
+      <title>Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2610.07527v2</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.07527v2">arXiv</a></li><li>[官方] <a href="https://sanctuary.ai/news/tiger">Sanctuary AI</a></li></ul>]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.07527v2</guid>
+    </item>
+    <item>
+      <title>FineART: Fine-Grained Annotated Robotic Trajectory Dataset and Vision-Language-Action Model for Bimanual Manipulation</title>
+      <link>https://arxiv.org/abs/2609.36416v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.36416v3">arXiv</a></li><li>[模型] <a href="https://huggingface.co/lerobot/FineART-VLA-subtask-midtrained">LeRobot · Hugging Face</a></li></ul>]]></description>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.36416v3</guid>
+    </item>
+    <item>
+      <title>Waggle Dance Inspired Motion Communication for Multiple UAVs in MuJoCo</title>
+      <link>https://arxiv.org/abs/2609.16958v1</link>
+      <description><![CDATA[3 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.16958v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2_manipulation_controller">逐际动力 · GitHub</a></li><li>[开源] <a href="https://github.com/limxdynamics/luna-description">逐际动力 · GitHub</a></li></ul>]]></description>
+      <pubDate>Tue, 15 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.16958v1</guid>
+    </item>
+    <item>
+      <title>GE-Act 2.0: Pretraining and Scaling a World-Action Model for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2609.05588v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.05588v3">arXiv</a></li><li>[官方] <a href="https://www.agibot.com/article/231/detail/120.html">智元机器人 AgiBot</a></li></ul>]]></description>
+      <pubDate>Fri, 04 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.05588v3</guid>
+    </item>
+    <item>
+      <title>Explore Where It Matters: Targeted Exploration for Efficient Rover Adaptation</title>
+      <link>https://arxiv.org/abs/2610.38657v1</link>
+      <description><![CDATA[Future planetary rovers will traverse steep, deformable terrain where slip, sinkage, and terrain deformation can threaten mobility. Although simulation can capture some wheel-soil effects, unmodeled deformable-terrain phenomena create sim-to-real gaps requiring deployment-time adaptation. Yet, rover]]></description>
+      <pubDate>Wed, 28 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.38657v1</guid>
+    </item>
+    <item>
+      <title>GAWM: A Compact Latent World-Action Model for Multi-Task Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2610.37091v1</link>
+      <description><![CDATA[World-action models (WAMs) incorporate the prediction of future observations into robot policy learning. However, most WAMs build on billion-parameter vision-language or video-generation backbones, which incur high training cost and inference latency. In this letter, we present GAWM (Geometry-Aware ]]></description>
+      <pubDate>Tue, 27 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.37091v1</guid>
+    </item>
+    <item>
+      <title>From Reasoning to Action: Consequence-Grounded Alignment for Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.39543v1</link>
+      <description><![CDATA[Reasoning informs decision-making by connecting intended actions with their expected consequences. Recent vision-language-action (VLA) models incorporate embodied chains of thought (ECoTs) to guide action generation. However, such guidance remains implicit, as actions are conditioned on ECoTs rather]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.39543v1</guid>
+    </item>
+    <item>
+      <title>RynnVLA-Latent: Scaling Robotic Manipulation Foundation Models with 3D-Grounded Latent Actions</title>
+      <link>https://arxiv.org/abs/2610.34356v1</link>
+      <description><![CDATA[Scaling vision-language-action (VLA) models is constrained by scarce action-labeled demonstrations and incompatible control spaces across robot embodiments. We present RynnVLA-Latent, a framework that turns heterogeneous interaction videos into scalable supervision for robot policy pretraining. At i]]></description>
+      <pubDate>Sun, 25 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.34356v1</guid>
+    </item>
+    <item>
+      <title>PRIME W0: Physical Priors from World Models for Embodied Manipulation</title>
+      <link>https://arxiv.org/abs/2610.39528v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models excel at instruction following, yet most remain feed-forward: they condition actions only on the current observation and discard both long-horizon temporal context and the hierarchical structure of VLM representations. We present PRIME W0, a hierarchical condition]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.39528v1</guid>
+    </item>
+    <item>
+      <title>OpenFlyV2: An onboard vision-language-action model for aerial perception and navigation</title>
+      <link>https://arxiv.org/abs/2610.39287v1</link>
+      <description><![CDATA[Human cognition flexibly draws on a shared perceptual foundation to understand environments, attend to referenced entities, reason about spatial relationships, and act. Endowing aerial robots with an analogous functional organization remains challenging, as existing systems are often specialized for]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.39287v1</guid>
+    </item>
+    <item>
+      <title>ScheduleGen: Demonstration Generation via Skill Scheduling for Multi-Arm Imitation Learning</title>
+      <link>https://arxiv.org/abs/2610.39429v1</link>
+      <description><![CDATA[Multi-arm robot platforms, including bimanual and humanoid robots, have the capability to complete tasks with lower cycle times than single-arm systems, but they are more difficult to safely control due to the presence of multi-arm constraints. The paradigm of training generalist robot policies from]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2610.39429v1</guid>
+    </item>
+    <item>
+      <title>AGIBOT Open-Sources AGIBOT WORLD Release 4: &quot;Physical Reasoning&quot; Dataset Enabling Robots to Reason Before Acting</title>
+      <link>https://www.agibot.com/article/231/detail/129.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:智元机器人_agibot:8fd87378f0</guid>
+    </item>
+    <item>
+      <title>TIGER: Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://sanctuary.ai/news/tiger</link>
+      <description><![CDATA[Demonstrations as a compass, not a script The post TIGER: Task-Space Imitation Guidance for Efficient Reinforcement Learning appeared first on Sanctuary AI .]]></description>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:rss:sanctuary_ai:23852</guid>
+    </item>
+    <item>
+      <title>NVIDIA Cosmos Opens New Tools to Train, Evaluate and Deploy World Models</title>
+      <link>https://blogs.nvidia.com/blog/cosmos-open-train-evaluate-deploy-world-models</link>
+      <description><![CDATA[To help developers rapidly build world models, which help physical AI systems understand and simulate the real world, NVIDIA has expanded the Cosmos platform with new training tools, simulation checkpoints and Cosmos Data Factory blueprints. Ranking top five on six different open models leaderboards]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:rss:nvidia_research_blog:97630</guid>
+    </item>
+    <item>
+      <title>mujoco 3.17.0 发布</title>
+      <link>https://github.com/google-deepmind/mujoco/releases/tag/3.17.0</link>
+      <description><![CDATA[Version 3.17.0 (October 22, 2026) Significant new features 1. c00ed8153 Added a batch API in mujoco/mjbatch.h (in Python as mujoco.batch): many simulations of one model stepped on a thread pool of its own, each held as its integration state and loaded into an mjData for each call, so memory scales w]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:google-deepmind/mujoco:3.17.0</guid>
+    </item>
+    <item>
+      <title>unitree_robotskills: Unitree RobotSkills is a robot skill framework for quickly connecting frontier AI models (e.g., GPT‑6 Astra) to Unitree robots and easily authoring diverse skills, enabling robots to autonomously perform various tasks in open, complex physical worlds.</title>
+      <link>https://github.com/unitreerobotics/unitree_robotskills</link>
+      <description><![CDATA[Unitree RobotSkills is a robot skill framework for quickly connecting frontier AI models (e.g., GPT‑6 Astra) to Unitree robots and easily authoring diverse skills, enabling robots to autonomously perform various tasks in open, complex physical worlds.]]></description>
+      <pubDate>Wed, 28 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:unitreerobotics/unitree_robotskills</guid>
+    </item>
+    <item>
+      <title>MotionBricks（模型权重）</title>
+      <link>https://huggingface.co/nvidia/MotionBricks</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:hf:nvidia/MotionBricks</guid>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI — VLA（视觉语言动作）方向</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>视觉语言动作模型（VLA）方向的最新论文与进展。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 31 Oct 2026 08:29:09 -0000</lastBuildDate>
+    <item>
+      <title>GreenWAM: A World Foundation Model for Robotics</title>
+      <link>https://arxiv.org/abs/2610.18774v1</link>
+      <description><![CDATA[A robot needs a world model that predicts how its actions will change the scene and a policy that chooses those actions. Models are usually built and evaluated for only one of these roles, and every robot records its actions in its own format. We ask whether one robot world model can serve both role]]></description>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.18774v1</guid>
+    </item>
+    <item>
+      <title>Vela: Scaling Vision-Language-Action Models with Adaptive Action Curve Parametrization</title>
+      <link>https://arxiv.org/abs/2610.05230v1</link>
+      <description><![CDATA[Most vision-language-action models represent future motion as fixed-rate action chunks, tying temporal resolution and prediction horizon to a fixed output budget. This pointwise representation wastes capacity on highly correlated neighboring actions, leaves temporal continuity and smoothness to be l]]></description>
+      <pubDate>Sun, 04 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.05230v1</guid>
+    </item>
+    <item>
+      <title>From Predictive Geometry to Action: Learning Complementary Predictive Representations for Embodied Manipulation</title>
+      <link>https://arxiv.org/abs/2610.28164v1</link>
+      <description><![CDATA[Effective manipulation requires a policy to capture not only about the current scene geometry, but also about how that geometry will evolve under interaction. Existing approaches either augment policies with geometric information from current observations or introduce future prediction as auxiliary ]]></description>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.28164v1</guid>
+    </item>
+    <item>
+      <title>RARA: Robust Policy Fine-Tuning through Retrieval-Anchored Representation Alignment for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2610.13578v2</link>
+      <description><![CDATA[Pre-trained robot policies, such as Vision-Language-Action (VLA) models, provide a strong foundation for generalist robotic manipulation, but adapting them to new tasks with only a few demonstrations remains challenging. Directly fine-tuning a pre-trained policy often achieves strong in-distribution]]></description>
+      <pubDate>Fri, 09 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.13578v2</guid>
+    </item>
+    <item>
+      <title>VeriVLA: Adaptive Test-Time Verification for Flow-Based VLAs with Latent World Models</title>
+      <link>https://arxiv.org/abs/2610.21985v1</link>
+      <description><![CDATA[Flow-based Vision-Language-Action (VLA) policies are inherently stochastic: different noise seeds can produce action chunks of varying quality from the same observation. At test time, however, the policy typically commits to a single sample without an explicit estimate of its quality. In fine-graine]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.21985v1</guid>
+    </item>
+    <item>
+      <title>WAVE-0: Bridging VLA Policies and WAMs with Lightweight Latent Future Prediction</title>
+      <link>https://arxiv.org/abs/2610.18568v1</link>
+      <description><![CDATA[Vision-language-action (VLA) policies excel at generalist robotic manipulation but generate actions without explicitly modeling their environmental consequences. World action models (WAMs) incorporate future prediction, yet most rely on costly video generation, while latent alternatives either use p]]></description>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.18568v1</guid>
+    </item>
+    <item>
+      <title>From Tabletop to Walking Bot: Deploying a VLA Model on a Legged Manipulator Robot</title>
+      <link>https://arxiv.org/abs/2610.32271v1</link>
+      <description><![CDATA[Vision-language-action (VLA) models are typically pretrained on broad, diverse datasets and subsequently fine-tuned on a comparatively small dataset tailored to a specific target robot. Such adaptation recipe is now widely established, achieving its most mature results on fixed-base arms due to thei]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32271v1</guid>
+    </item>
+    <item>
+      <title>GeoMem-VLA: Internalizing 3D Scene Understanding into Temporal Memory for Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.29866v1</link>
+      <description><![CDATA[Geometric structure is essential for robotic manipulation and understanding the 3D world. Most VLA models rely on 2D representations of current observations, while geometry-aware approaches often require additional 3D information. However, geometry inferred independently from individual observations]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.29866v1</guid>
+    </item>
+    <item>
+      <title>CoEvolve: Self-Evolving Code Policies from Skills to Strategies for Humanoid Robots</title>
+      <link>https://arxiv.org/abs/2610.23288v2</link>
+      <description><![CDATA[Recent advances in Vision-Language-Action (VLA) models and World Action Models (WAMs) have expanded the manipulation and whole body capabilities of individual robots. Yet a single robot remains limited by its embodiment, and many real world tasks require capabilities that can only emerge through coo]]></description>
+      <pubDate>Fri, 16 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.23288v2</guid>
+    </item>
+    <item>
+      <title>What Matters for World Modeling in Vision-Language-Action Models?</title>
+      <link>https://arxiv.org/abs/2610.19825v1</link>
+      <description><![CDATA[Integrating world models into Vision-Language-Action models (VLAs) has emerged as a promising direction, enabling policies to anticipate future dynamics beyond reactive observation-to-action mapping. However, existing approaches vary simultaneously in their world representations, integration paradig]]></description>
+      <pubDate>Wed, 14 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.19825v1</guid>
+    </item>
+    <item>
+      <title>Rewiring Semantics, Dynamics, and Control: A Simple yet Effective Action-Centric Tri-Stream Transformer</title>
+      <link>https://arxiv.org/abs/2610.11416v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models have emerged as a prominent framework for complex robotic manipulation, building on the strong semantic understanding of pretrained Vision-Language Models (VLMs). However, such VLM backbones offer insufficient physical dynamics priors, which limits the generalizat]]></description>
+      <pubDate>Thu, 08 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.11416v1</guid>
+    </item>
+    <item>
+      <title>SUAVE: Unified Video-Action Models via Masked Diffusion</title>
+      <link>https://arxiv.org/abs/2610.04009v1</link>
+      <description><![CDATA[Vision-language-action models (VLAs) inherit strong semantic grounding from pretrained vision-language backbones but are typically optimized for predicting actions rather than future observations. They can see and act, but they do not imagine the future before acting. World action models (WAMs) buil]]></description>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.04009v1</guid>
+    </item>
+    <item>
+      <title>RoboBridge: A Self-Evolving Embodied Agent Framework for Sim-to-Real Transfer</title>
+      <link>https://arxiv.org/abs/2610.02717v1</link>
+      <description><![CDATA[A key challenge in bringing embodied intelligence into the real world is transferring capabilities from simulation to reality and enabling agents to continually adapt after deployment. End-to-end vision-language-action policies provide strong manipulation capabilities, but their transfer to physical]]></description>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.02717v1</guid>
+    </item>
+    <item>
+      <title>GAWM: A Compact Latent World-Action Model for Multi-Task Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2610.37091v1</link>
+      <description><![CDATA[World-action models (WAMs) incorporate the prediction of future observations into robot policy learning. However, most WAMs build on billion-parameter vision-language or video-generation backbones, which incur high training cost and inference latency. In this letter, we present GAWM (Geometry-Aware ]]></description>
+      <pubDate>Tue, 27 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.37091v1</guid>
+    </item>
+    <item>
+      <title>Splat2Act: From Captured Scenes to Personalized VLA Manipulation</title>
+      <link>https://arxiv.org/abs/2610.13945v1</link>
+      <description><![CDATA[A user who brings a generalist manipulation policy into their home or office wants it to pick up their objects from their shelves, counters, and tables. Yet even a strong generalist like $π_{0.5}$ achieves 0% pickup success in our captured deployment scenes without adaptation, and collecting real de]]></description>
+      <pubDate>Fri, 09 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.13945v1</guid>
+    </item>
+    <item>
+      <title>SMART: Zero-Shot Sim-to-Real Articulated Object Manipulation via Large-Scale Synthetic Pretraining</title>
+      <link>https://arxiv.org/abs/2610.07652v1</link>
+      <description><![CDATA[The ability to interact with articulated objects is essential for embodied intelligent systems, but collecting large-scale real-world demonstrations for these interactions remains challenging due to the precise contact and constraint-following motions involved. Although simulation provides a promisi]]></description>
+      <pubDate>Tue, 06 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.07652v1</guid>
+    </item>
+    <item>
+      <title>Coupling Execution Horizon and Sampling Depth in Flow-Matching VLA Policies</title>
+      <link>https://arxiv.org/abs/2610.32102v1</link>
+      <description><![CDATA[Flow-matching Vision-Language-Action (VLA) models generate expressive continuous trajectories for robotic manipulation, yet balancing real-time responsiveness with execution stability remains a persistent challenge. Standard deployment workflows typically treat numerical solver depth and execution h]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32102v1</guid>
+    </item>
+    <item>
+      <title>FastVLA: Task-Conditioned and Temporally Adaptive Visual Token Compression for Efficient Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.22146v2</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models present a promising paradigm for general-purpose robot manipulation, but closed-loop deployment is often limited by inference efficiency: at each timestep, high-resolution, often multi-view images are encoded into hundreds of visual tokens that dominate transforme]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.22146v2</guid>
+    </item>
+    <item>
+      <title>RESETTLE: Robotic Recovery through Disagreement-Triggered Retrieval and Efficient Corrective Control</title>
+      <link>https://arxiv.org/abs/2610.12185v1</link>
+      <description><![CDATA[Reliable robotic manipulation requires timely intervention to correct emerging deviations and restore progress after execution errors. However, recovery methods based on repeated vision-language reasoning or iterative online optimization can incur substantial latency, delaying intervention. To addre]]></description>
+      <pubDate>Thu, 08 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.12185v1</guid>
+    </item>
+    <item>
+      <title>ForeAct3D: Policy-Grounded Future World Modeling for VLA Policies</title>
+      <link>https://arxiv.org/abs/2610.04607v2</link>
+      <description><![CDATA[Robots need to anticipate how their actions will change the world, since manipulation success hinges on the resulting contacts and object motions. However, existing Vision-Language-Action (VLA) policies that predict future observations from shared features leave the forecast decoupled from the actio]]></description>
+      <pubDate>Sat, 03 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.04607v2</guid>
+    </item>
+    <item>
+      <title>DiscoDemo: Discovering Efficient and Diverse Robot Demonstrations for Imitation Learning</title>
+      <link>https://arxiv.org/abs/2610.32093v1</link>
+      <description><![CDATA[Behavior cloning for robotic manipulation is highly sensitive to the coverage of its training data, yet collecting diverse successful demonstrations remains costly. We study reinforcement learning (RL) not as a deployable controller, but as a data generator for downstream visuomotor imitation learni]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32093v1</guid>
+    </item>
+    <item>
+      <title>SP-HLM: Sparse-Pose-Driven Motion Generation and Whole-Body Control for Humanoid Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2610.30044v1</link>
+      <description><![CDATA[Humanoid loco-manipulation requires an effective interface between high-level task policies and whole-body control. Existing interfaces typically rely on a single action representation for both task intent and whole-body coordination. This may burden the high-level policy or leave one aspect undersp]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.30044v1</guid>
+    </item>
+    <item>
+      <title>Fast-VLA: You Only Think Once for Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2610.21389v1</link>
+      <description><![CDATA[Vision-language-action (VLA) policies commonly place a multi-billion-parameter model inside the feedback loop, repeatedly recomputing task context whenever they predict a new action chunk. Yet task understanding changes far more slowly than the robot state. We introduce Fast-VLA, which invokes a fro]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.21389v1</guid>
+    </item>
+    <item>
+      <title>Back on Track: Deployment-time Policy Improvement via World Model Planning</title>
+      <link>https://arxiv.org/abs/2610.19579v1</link>
+      <description><![CDATA[State-of-the-art visuomotor policies are increasingly capable of executing complex tasks, yet can fail during deployment in ways they cannot predict or recover from on their own. Improving their performance and robustness typically requires collecting more data, retraining, or modifying the policy a]]></description>
+      <pubDate>Wed, 14 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.19579v1</guid>
+    </item>
+    <item>
+      <title>CFG-Policy: Unified Diffusion Policy Learning Framework via Classifier-free Guidance</title>
+      <link>https://arxiv.org/abs/2610.14936v1</link>
+      <description><![CDATA[Diffusion policies are increasingly used in robotic control and manipulation, vision-language-action models, and world-model-based agents. Their ability to represent multimodal action distributions offers rich opportunities for exploration in reinforcement learning (RL). However, optimizing diffusio]]></description>
+      <pubDate>Sat, 10 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.14936v1</guid>
+    </item>
+    <item>
+      <title>VLA-ACL: Action-Consistent Visual Token Pruning for Efficient Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.08133v2</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models achieve strong robotic manipulation performance but incur high computational costs from processing long token sequences at every control step, limiting real-time deployment. Visual token pruning offers a direct solution, as visual patches dominate the input sequen]]></description>
+      <pubDate>Tue, 06 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.08133v2</guid>
+    </item>
+    <item>
+      <title>Demonstration Calibrated Port-Hamiltonian Retuning for Manipulation Policies</title>
+      <link>https://arxiv.org/abs/2610.05755v3</link>
+      <description><![CDATA[Diffusion and VLA policies for manipulation are often deployed through downstream impedance controllers. The stiffness and damping gains of these controllers affect task success, yet are commonly inherited from data collection rather than selected for the deployed policy. Although empirical gain swe]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.05755v3</guid>
+    </item>
+    <item>
+      <title>From Reasoning to Action: Consequence-Grounded Alignment for Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.39543v1</link>
+      <description><![CDATA[Reasoning informs decision-making by connecting intended actions with their expected consequences. Recent vision-language-action (VLA) models incorporate embodied chains of thought (ECoTs) to guide action generation. However, such guidance remains implicit, as actions are conditioned on ECoTs rather]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.39543v1</guid>
+    </item>
+    <item>
+      <title>RynnVLA-Latent: Scaling Robotic Manipulation Foundation Models with 3D-Grounded Latent Actions</title>
+      <link>https://arxiv.org/abs/2610.34356v1</link>
+      <description><![CDATA[Scaling vision-language-action (VLA) models is constrained by scarce action-labeled demonstrations and incompatible control spaces across robot embodiments. We present RynnVLA-Latent, a framework that turns heterogeneous interaction videos into scalable supervision for robot policy pretraining. At i]]></description>
+      <pubDate>Sun, 25 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.34356v1</guid>
+    </item>
+    <item>
+      <title>AtomicRL: Atomic Reinforcement Learning for Long-Horizon Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2610.30097v1</link>
+      <description><![CDATA[Vision-language-action (VLA) models have shown promise in robotic manipulation, but imitation learning (IL) alone often struggles to master complex long-horizon skills. Reinforcement learning (RL) offers an effective avenue for further improving VLA policies. However, existing VLA-RL methods typical]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.30097v1</guid>
+    </item>
+  </channel>
+</rss>
