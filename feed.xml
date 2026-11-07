@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 07 Nov 2026 08:49:58 -0000</lastBuildDate>
+    <item>
+      <title>LIFE: Learning to Live: A Step Toward Lifelong Embodied Intelligence.</title>
+      <link>https://github.com/AgibotTech/LIFE</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[开源] <a href="https://github.com/AgibotTech/LIFE">智元机器人 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2611.00180v2">arXiv</a></li></ul>]]></description>
+      <pubDate>Wed, 04 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:github:AgibotTech/LIFE</guid>
+    </item>
+    <item>
+      <title>PointWalker: Mapless Quadruped Locomotion Directly From Raw LiDAR Point Clouds</title>
+      <link>https://arxiv.org/abs/2610.15548v1</link>
+      <description><![CDATA[13 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.15548v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.08618v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.03530v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.00355v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.36878v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.28172v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.23656v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.16378v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.15770v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2-navigation-ros2">逐际动力 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.07516v2">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.24282v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.16264v2">arXiv</a></li></ul>]]></description>
+      <pubDate>Sun, 11 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.15548v1</guid>
+    </item>
+    <item>
+      <title>Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2610.07527v2</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.07527v2">arXiv</a></li><li>[官方] <a href="https://sanctuary.ai/news/tiger">Sanctuary AI</a></li></ul>]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.07527v2</guid>
+    </item>
+    <item>
+      <title>FineART: Fine-Grained Annotated Robotic Trajectory Dataset and Vision-Language-Action Model for Bimanual Manipulation</title>
+      <link>https://arxiv.org/abs/2609.36416v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.36416v3">arXiv</a></li><li>[模型] <a href="https://huggingface.co/lerobot/FineART-VLA-subtask-midtrained">LeRobot · Hugging Face</a></li></ul>]]></description>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.36416v3</guid>
+    </item>
+    <item>
+      <title>Waggle Dance Inspired Motion Communication for Multiple UAVs in MuJoCo</title>
+      <link>https://arxiv.org/abs/2609.16958v1</link>
+      <description><![CDATA[3 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.16958v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2_manipulation_controller">逐际动力 · GitHub</a></li><li>[开源] <a href="https://github.com/limxdynamics/luna-description">逐际动力 · GitHub</a></li></ul>]]></description>
+      <pubDate>Tue, 15 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.16958v1</guid>
+    </item>
+    <item>
+      <title>GE-Act 2.0: Pretraining and Scaling a World-Action Model for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2609.05588v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.05588v3">arXiv</a></li><li>[官方] <a href="https://www.agibot.com/article/231/detail/120.html">智元机器人 AgiBot</a></li></ul>]]></description>
+      <pubDate>Fri, 04 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.05588v3</guid>
+    </item>
+    <item>
+      <title>Correct Robots Before They Make Mistakes: Proactive Human-in-the-Loop Intervention via Preference Learning</title>
+      <link>https://arxiv.org/abs/2611.05667v1</link>
+      <description><![CDATA[This paper presents Proactive Human-in-the-Loop (PHIL), a framework for proactive policy correction and preference-based post-training. PHIL enables operators to preview policy-predicted future motion and intervene before anticipated undesirable actions. During takeover, PHIL continues querying the ]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.05667v1</guid>
+    </item>
+    <item>
+      <title>Controlling Action-Head Co-Adaptation to VLM Representation Anisotropy</title>
+      <link>https://arxiv.org/abs/2611.04006v1</link>
+      <description><![CDATA[Modern learning systems increasingly combine pretrained models with downstream heads. Despite the growing importance of such modular designs, how the downstream model co-adapts to the geometry of pretrained representations remains relatively underexplored. We study this problem through vision-langua]]></description>
+      <pubDate>Mon, 02 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.04006v1</guid>
+    </item>
+    <item>
+      <title>Trusting Imagined Futures: Auditing Imagined Rewards for VLA Post-Training</title>
+      <link>https://arxiv.org/abs/2611.04873v1</link>
+      <description><![CDATA[Video world models enable candidate actions to be evaluated through imagined outcomes, but high predicted rewards can favor trajectories with poor execution quality. We introduce Trusting Imagined Futures (TIF), an offline supervision selection method for vision-language-action (VLA) post-training t]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.04873v1</guid>
+    </item>
+    <item>
+      <title>ODE Policy: Robot Learning via Action Dynamics, Not Actions</title>
+      <link>https://arxiv.org/abs/2611.01729v1</link>
+      <description><![CDATA[Most robot policies, whether trained by imitation learning (IL) or reinforcement learning (RL), map observations to action values at discrete control steps and leave the continuity of physical motion to be learned implicitly. We propose ODE policy, which learns the dynamics of the action rather than]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.01729v1</guid>
+    </item>
+    <item>
+      <title>SCOUT: Planning under Occlusion via Object-Centric World Model Rollouts</title>
+      <link>https://arxiv.org/abs/2611.01600v1</link>
+      <description><![CDATA[Robots manipulating in cluttered spaces must often plan from partial views where foreground objects occlude the target, surrounding geometry, and usable free space. Reactive policies often miss these hidden constraints, while exhaustive search becomes computationally prohibitive in dense clutter. We]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.01600v1</guid>
+    </item>
+    <item>
+      <title>Failure Prediction and Classification in Vision-Language-Action Models Via Calibrated Latent Probing</title>
+      <link>https://arxiv.org/abs/2611.08425v1</link>
+      <description><![CDATA[Vision-Language-Action models (VLAs) enable general-purpose embodied intelligence, but their performance is brittle under distribution shift, where unanticipated failures can damage equipment or endanger people. Deploying VLAs in real-world systems therefore requires a runtime monitor that is timely]]></description>
+      <pubDate>Thu, 05 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.08425v1</guid>
+    </item>
+    <item>
+      <title>CRONOS: Benchmarking Non-Episodic Reinforcement Learning for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2611.05080v1</link>
+      <description><![CDATA[Reinforcement learning (RL) is promising for adapting robot policies to unstructured real-world environments. However, standard RL pipelines rely on episodic training with frequent scene resets, which is impractical for real-world deployment due to the need for substantial human intervention. While ]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.05080v1</guid>
+    </item>
+    <item>
+      <title>AGIBOT Open-Sources AGIBOT WORLD Release 4: &quot;Physical Reasoning&quot; Dataset Enabling Robots to Reason Before Acting</title>
+      <link>https://www.agibot.com/article/231/detail/129.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:智元机器人_agibot:8fd87378f0</guid>
+    </item>
+    <item>
+      <title>AGIBOT Unveils GO-3 Preview, Takes Top Spot on Three Embodied AI Benchmarks</title>
+      <link>https://www.agibot.com/article/231/detail/133.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:智元机器人_agibot:5230672f73</guid>
+    </item>
+    <item>
+      <title>NVIDIA Cosmos Opens New Tools to Train, Evaluate and Deploy World Models</title>
+      <link>https://blogs.nvidia.com/blog/cosmos-open-train-evaluate-deploy-world-models</link>
+      <description><![CDATA[To help developers rapidly build world models, which help physical AI systems understand and simulate the real world, NVIDIA has expanded the Cosmos platform with new training tools, simulation checkpoints and Cosmos Data Factory blueprints. Ranking top five on six different open models leaderboards]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:rss:nvidia_research_blog:55304</guid>
+    </item>
+    <item>
+      <title>mujoco 4.0.0 发布</title>
+      <link>https://github.com/google-deepmind/mujoco/releases/tag/4.0.0</link>
+      <description><![CDATA[Version 4.0.0 (November 6, 2026) Significant new features 1. 89daf8d19 Added the speculative enable flag for speculative contacts to prevent fast-moving convex geoms from tunneling through thin obstacles within a single timestep. On the right, one step of conservative advancement between two rotatin]]></description>
+      <pubDate>Fri, 06 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:google-deepmind/mujoco:4.0.0</guid>
+    </item>
+    <item>
+      <title>unitree_robotskills: Unitree RobotSkills is a robot skill framework for quickly connecting frontier AI models (e.g., GPT‑6 Astra) to Unitree robots and easily authoring diverse skills, enabling robots to autonomously perform various tasks in open, complex physical worlds.</title>
+      <link>https://github.com/unitreerobotics/unitree_robotskills</link>
+      <description><![CDATA[Unitree RobotSkills is a robot skill framework for quickly connecting frontier AI models (e.g., GPT‑6 Astra) to Unitree robots and easily authoring diverse skills, enabling robots to autonomously perform various tasks in open, complex physical worlds.]]></description>
+      <pubDate>Wed, 28 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:unitreerobotics/unitree_robotskills</guid>
+    </item>
+    <item>
+      <title>MotionBricks（模型权重）</title>
+      <link>https://huggingface.co/nvidia/MotionBricks</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:hf:nvidia/MotionBricks</guid>
+    </item>
+  </channel>
+</rss>
