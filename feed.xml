@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 14 Nov 2026 09:02:43 -0000</lastBuildDate>
+    <item>
+      <title>LIFE: Learning to Live: A Step Toward Lifelong Embodied Intelligence.</title>
+      <link>https://github.com/AgibotTech/LIFE</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[开源] <a href="https://github.com/AgibotTech/LIFE">智元机器人 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2611.00180v3">arXiv</a></li></ul>]]></description>
+      <pubDate>Wed, 04 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:github:AgibotTech/LIFE</guid>
+    </item>
+    <item>
+      <title>PointWalker: Mapless Quadruped Locomotion Directly From Raw LiDAR Point Clouds</title>
+      <link>https://arxiv.org/abs/2610.15548v1</link>
+      <description><![CDATA[12 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.15548v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.08618v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.03530v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.00355v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.36878v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.28172v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.23656v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.16378v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.15770v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2-navigation-ros2">逐际动力 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.07516v2">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2608.16264v2">arXiv</a></li></ul>]]></description>
+      <pubDate>Sun, 11 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.15548v1</guid>
+    </item>
+    <item>
+      <title>Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2610.07527v2</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.07527v2">arXiv</a></li><li>[官方] <a href="https://sanctuary.ai/news/tiger">Sanctuary AI</a></li></ul>]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.07527v2</guid>
+    </item>
+    <item>
+      <title>FineART: Fine-Grained Annotated Robotic Trajectory Dataset and Vision-Language-Action Model for Bimanual Manipulation</title>
+      <link>https://arxiv.org/abs/2609.36416v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.36416v3">arXiv</a></li><li>[模型] <a href="https://huggingface.co/lerobot/FineART-VLA-subtask-midtrained">LeRobot · Hugging Face</a></li></ul>]]></description>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.36416v3</guid>
+    </item>
+    <item>
+      <title>Waggle Dance Inspired Motion Communication for Multiple UAVs in MuJoCo</title>
+      <link>https://arxiv.org/abs/2609.16958v1</link>
+      <description><![CDATA[3 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.16958v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2_manipulation_controller">逐际动力 · GitHub</a></li><li>[开源] <a href="https://github.com/limxdynamics/luna-description">逐际动力 · GitHub</a></li></ul>]]></description>
+      <pubDate>Tue, 15 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.16958v1</guid>
+    </item>
+    <item>
+      <title>GE-Act 2.0: Pretraining and Scaling a World-Action Model for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2609.05588v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.05588v3">arXiv</a></li><li>[官方] <a href="https://www.agibot.com/article/231/detail/120.html">智元机器人 AgiBot</a></li></ul>]]></description>
+      <pubDate>Fri, 04 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.05588v3</guid>
+    </item>
+    <item>
+      <title>Zero-Shot VLA Adaptation with Retrieved Guidance</title>
+      <link>https://arxiv.org/abs/2611.10894v1</link>
+      <description><![CDATA[Pre-training large parametric &quot;Vision-Language-Action&quot; (VLA) models on large demonstration datasets has recently yielded promising results for general-purpose manipulation. However, these models still struggle under even small domain shifts relative to the training data, such as changes in camera vi]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.10894v1</guid>
+    </item>
+    <item>
+      <title>STVLA: Spatial-aware and Temporal-memory forVision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2611.16589v1</link>
+      <description><![CDATA[Robotic manipulation often requires both spatial scene understanding and task history. However, many vision-language-action (VLA) policies rely primarily on current observations, without explicitly integrating spatial structure and task history. Appearance-based memories can be sensitive to occlusio]]></description>
+      <pubDate>Thu, 12 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.16589v1</guid>
+    </item>
+    <item>
+      <title>PAIR: Proprioception-Aligned Image-Ray Representations for Viewpoint-Robust Manipulation</title>
+      <link>https://arxiv.org/abs/2611.11798v1</link>
+      <description><![CDATA[While imitation learning has made substantial progress toward generalizable robot manipulation through scaling, viewpoint robustness remains a major bottleneck. Visuomotor policies rely heavily on visual inputs, yet images provide an inherently ambiguous signal under viewpoint change: similar scenes]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.11798v1</guid>
+    </item>
+    <item>
+      <title>SurgTAP-3D: A Large-Scale Cross-Surgery Video Dataset with Contact-Aware 3D Motion Tracking</title>
+      <link>https://arxiv.org/abs/2611.11697v1</link>
+      <description><![CDATA[Understanding 3D scene dynamics in minimally invasive surgery (MIS) is a fundamental step toward physically intelligent and autonomous surgical systems. However, existing public datasets offer limited scalability and diversity in real-world clinical scenarios. Moreover, annotations typically focus o]]></description>
+      <pubDate>Sun, 08 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.11697v1</guid>
+    </item>
+    <item>
+      <title>Learning Heterogeneous Tactile Representation for General Dexterous Manipulation</title>
+      <link>https://arxiv.org/abs/2611.12806v1</link>
+      <description><![CDATA[Tactile sensing is an indispensable modality for contact-rich dexterous manipulation, a capability that hints at the ultimate frontiers of embodied intelligence. However, commercially available tactile sensors are still at a relatively early stage of development, with each type of sensor offering ir]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.12806v1</guid>
+    </item>
+    <item>
+      <title>DexSeed: Expanding Human Hand-Object Interactions into Robot Demonstrations for Dexterous Policy Learning</title>
+      <link>https://arxiv.org/abs/2611.14092v1</link>
+      <description><![CDATA[We study how to generate diverse, physically executable robot demonstrations for dexterous vision-language-action (VLA) learning. Existing demonstration-generation methods typically rely on costly teleoperated examples. Meanwhile, human hand--object datasets provide a reusable source, but existing t]]></description>
+      <pubDate>Tue, 10 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.14092v1</guid>
+    </item>
+    <item>
+      <title>Thermo-VLA: A Thermal-Aware Vision-Language-Action Model with Gated Residual Modulation for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2611.11981v1</link>
+      <description><![CDATA[Recent Vision-Language-Action (VLA) models have begun incorporating thermal sensing, but existing approaches typically treat thermal images as ordinary visual inputs, providing limited support for temperature-aware relational reasoning in manipulation. To address this limitation, we propose Thermo-V]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.11981v1</guid>
+    </item>
+    <item>
+      <title>Steel: Scaling Simulation Across Robots, Tasks, and Worlds</title>
+      <link>https://skild.ai/blogs/steel</link>
+      <description><![CDATA[Together with NVIDIA, we&#x27;re introducing Steel, a GPU-accelerated rigid-body dynamics solver for the open-source Newton physics engine, delivering 3.8× PhysX&#x27;s simulation throughput across 20 robot-learning benchmarks and up to 13.0× on heterogeneous batches of different robots and tasks.]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:skild_ai:steel</guid>
+    </item>
+    <item>
+      <title>AGIBOT Open-Sources AGIBOT WORLD Release 4: &quot;Physical Reasoning&quot; Dataset Enabling Robots to Reason Before Acting</title>
+      <link>https://www.agibot.com/article/231/detail/129.html</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:智元机器人_agibot:8fd87378f0</guid>
+    </item>
+    <item>
+      <title>Gemini Robotics 2.5 accelerates real-world general dexterity</title>
+      <link>https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence</link>
+      <description><![CDATA[Our most capable vision-language-action model enhances robot dexterity, reliability, and safety]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:rss:google_deepmind_research:10065</guid>
+    </item>
+    <item>
+      <title>mujoco 4.0.0 发布</title>
+      <link>https://github.com/google-deepmind/mujoco/releases/tag/4.0.0</link>
+      <description><![CDATA[Version 4.0.0 (November 6, 2026) &gt; [!IMPORTANT] &gt; Read the MuJoCo 4.0 announcement for an overview of everything new since 3.0, the interactive showcase at mujoco.org, MuJoCo Live browser demos, visual showcases, and maintainer Q&amp;A. Significant new features 1. 89daf8d19 Added the speculative enable ]]></description>
+      <pubDate>Fri, 06 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:google-deepmind/mujoco:4.0.0</guid>
+    </item>
+    <item>
+      <title>MotionBricks（模型权重）</title>
+      <link>https://huggingface.co/nvidia/MotionBricks</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:hf:nvidia/MotionBricks</guid>
+    </item>
+  </channel>
+</rss>

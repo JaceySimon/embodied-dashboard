@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI — VLA（视觉语言动作）方向</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>视觉语言动作模型（VLA）方向的最新论文与进展。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 14 Nov 2026 09:02:43 -0000</lastBuildDate>
+    <item>
+      <title>Zero-Shot VLA Adaptation with Retrieved Guidance</title>
+      <link>https://arxiv.org/abs/2611.10894v1</link>
+      <description><![CDATA[Pre-training large parametric &quot;Vision-Language-Action&quot; (VLA) models on large demonstration datasets has recently yielded promising results for general-purpose manipulation. However, these models still struggle under even small domain shifts relative to the training data, such as changes in camera vi]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.10894v1</guid>
+    </item>
+    <item>
+      <title>STVLA: Spatial-aware and Temporal-memory forVision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2611.16589v1</link>
+      <description><![CDATA[Robotic manipulation often requires both spatial scene understanding and task history. However, many vision-language-action (VLA) policies rely primarily on current observations, without explicitly integrating spatial structure and task history. Appearance-based memories can be sensitive to occlusio]]></description>
+      <pubDate>Thu, 12 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.16589v1</guid>
+    </item>
+    <item>
+      <title>PAIR: Proprioception-Aligned Image-Ray Representations for Viewpoint-Robust Manipulation</title>
+      <link>https://arxiv.org/abs/2611.11798v1</link>
+      <description><![CDATA[While imitation learning has made substantial progress toward generalizable robot manipulation through scaling, viewpoint robustness remains a major bottleneck. Visuomotor policies rely heavily on visual inputs, yet images provide an inherently ambiguous signal under viewpoint change: similar scenes]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.11798v1</guid>
+    </item>
+    <item>
+      <title>Correct Robots Before They Make Mistakes: Proactive Human-in-the-Loop Intervention via Preference Learning</title>
+      <link>https://arxiv.org/abs/2611.05667v1</link>
+      <description><![CDATA[This paper presents Proactive Human-in-the-Loop (PHIL), a framework for proactive policy correction and preference-based post-training. PHIL enables operators to preview policy-predicted future motion and intervene before anticipated undesirable actions. During takeover, PHIL continues querying the ]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.05667v1</guid>
+    </item>
+    <item>
+      <title>From Predictive Geometry to Action: Learning Complementary Predictive Representations for Embodied Manipulation</title>
+      <link>https://arxiv.org/abs/2610.28164v1</link>
+      <description><![CDATA[Effective manipulation requires a policy to capture not only about the current scene geometry, but also about how that geometry will evolve under interaction. Existing approaches either augment policies with geometric information from current observations or introduce future prediction as auxiliary ]]></description>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.28164v1</guid>
+    </item>
+    <item>
+      <title>Meituan-Robotics-0: A Vision-Language-Action Foundation Model for Desktop Manipulation</title>
+      <link>https://arxiv.org/abs/2611.08577v3</link>
+      <description><![CDATA[We present Meituan-Robotics-0 (MR0), a vision-language-action foundation model and embodied-agent system for stationary-base desktop manipulation. MR0 combines 147 million vision-language samples with 15,060 hours of curated robot trajectories spanning 12 embodiments. A three-stage training recipe a]]></description>
+      <pubDate>Thu, 05 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.08577v3</guid>
+    </item>
+    <item>
+      <title>VeriVLA: Adaptive Test-Time Verification for Flow-Based VLAs with Latent World Models</title>
+      <link>https://arxiv.org/abs/2610.21985v1</link>
+      <description><![CDATA[Flow-based Vision-Language-Action (VLA) policies are inherently stochastic: different noise seeds can produce action chunks of varying quality from the same observation. At test time, however, the policy typically commits to a single sample without an explicit estimate of its quality. In fine-graine]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.21985v1</guid>
+    </item>
+    <item>
+      <title>SurgTAP-3D: A Large-Scale Cross-Surgery Video Dataset with Contact-Aware 3D Motion Tracking</title>
+      <link>https://arxiv.org/abs/2611.11697v1</link>
+      <description><![CDATA[Understanding 3D scene dynamics in minimally invasive surgery (MIS) is a fundamental step toward physically intelligent and autonomous surgical systems. However, existing public datasets offer limited scalability and diversity in real-world clinical scenarios. Moreover, annotations typically focus o]]></description>
+      <pubDate>Sun, 08 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.11697v1</guid>
+    </item>
+    <item>
+      <title>Controlling Action-Head Co-Adaptation to VLM Representation Anisotropy</title>
+      <link>https://arxiv.org/abs/2611.04006v1</link>
+      <description><![CDATA[Modern learning systems increasingly combine pretrained models with downstream heads. Despite the growing importance of such modular designs, how the downstream model co-adapts to the geometry of pretrained representations remains relatively underexplored. We study this problem through vision-langua]]></description>
+      <pubDate>Mon, 02 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.04006v1</guid>
+    </item>
+    <item>
+      <title>CaPtain: A Pipeline for Post-Training Code-as-Policy Robot Agents</title>
+      <link>https://arxiv.org/abs/2610.40799v1</link>
+      <description><![CDATA[Across coding, web, and tool-use tasks, language-model agents are now routinely trained with the same recipe: supervised fine-tuning (SFT) to learn the interface, then multi-turn reinforcement learning (RL) to master it. Code-as-policy (CaP) casts robot manipulation in the same form, as the policy w]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.40799v1</guid>
+    </item>
+    <item>
+      <title>From Tabletop to Walking Bot: Deploying a VLA Model on a Legged Manipulator Robot</title>
+      <link>https://arxiv.org/abs/2610.32271v1</link>
+      <description><![CDATA[Vision-language-action (VLA) models are typically pretrained on broad, diverse datasets and subsequently fine-tuned on a comparatively small dataset tailored to a specific target robot. Such adaptation recipe is now widely established, achieving its most mature results on fixed-base arms due to thei]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32271v1</guid>
+    </item>
+    <item>
+      <title>GeoMem-VLA: Internalizing 3D Scene Understanding into Temporal Memory for Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.29866v1</link>
+      <description><![CDATA[Geometric structure is essential for robotic manipulation and understanding the 3D world. Most VLA models rely on 2D representations of current observations, while geometry-aware approaches often require additional 3D information. However, geometry inferred independently from individual observations]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.29866v1</guid>
+    </item>
+    <item>
+      <title>CoEvolve: Self-Evolving Code Policies from Skills to Strategies for Humanoid Robots</title>
+      <link>https://arxiv.org/abs/2610.23288v2</link>
+      <description><![CDATA[Recent advances in Vision-Language-Action (VLA) models and World Action Models (WAMs) have expanded the manipulation and whole body capabilities of individual robots. Yet a single robot remains limited by its embodiment, and many real world tasks require capabilities that can only emerge through coo]]></description>
+      <pubDate>Fri, 16 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.23288v2</guid>
+    </item>
+    <item>
+      <title>Learning Heterogeneous Tactile Representation for General Dexterous Manipulation</title>
+      <link>https://arxiv.org/abs/2611.12806v1</link>
+      <description><![CDATA[Tactile sensing is an indispensable modality for contact-rich dexterous manipulation, a capability that hints at the ultimate frontiers of embodied intelligence. However, commercially available tactile sensors are still at a relatively early stage of development, with each type of sensor offering ir]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.12806v1</guid>
+    </item>
+    <item>
+      <title>GAWM: A Compact Latent World-Action Model for Multi-Task Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2610.37091v1</link>
+      <description><![CDATA[World-action models (WAMs) incorporate the prediction of future observations into robot policy learning. However, most WAMs build on billion-parameter vision-language or video-generation backbones, which incur high training cost and inference latency. In this letter, we present GAWM (Geometry-Aware ]]></description>
+      <pubDate>Tue, 27 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.37091v1</guid>
+    </item>
+    <item>
+      <title>DexSeed: Expanding Human Hand-Object Interactions into Robot Demonstrations for Dexterous Policy Learning</title>
+      <link>https://arxiv.org/abs/2611.14092v1</link>
+      <description><![CDATA[We study how to generate diverse, physically executable robot demonstrations for dexterous vision-language-action (VLA) learning. Existing demonstration-generation methods typically rely on costly teleoperated examples. Meanwhile, human hand--object datasets provide a reusable source, but existing t]]></description>
+      <pubDate>Tue, 10 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.14092v1</guid>
+    </item>
+    <item>
+      <title>Trusting Imagined Futures: Auditing Imagined Rewards for VLA Post-Training</title>
+      <link>https://arxiv.org/abs/2611.04873v1</link>
+      <description><![CDATA[Video world models enable candidate actions to be evaluated through imagined outcomes, but high predicted rewards can favor trajectories with poor execution quality. We introduce Trusting Imagined Futures (TIF), an offline supervision selection method for vision-language-action (VLA) post-training t]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.04873v1</guid>
+    </item>
+    <item>
+      <title>ODE Policy: Robot Learning via Action Dynamics, Not Actions</title>
+      <link>https://arxiv.org/abs/2611.01729v1</link>
+      <description><![CDATA[Most robot policies, whether trained by imitation learning (IL) or reinforcement learning (RL), map observations to action values at discrete control steps and leave the continuity of physical motion to be learned implicitly. We propose ODE policy, which learns the dynamics of the action rather than]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.01729v1</guid>
+    </item>
+    <item>
+      <title>Coupling Execution Horizon and Sampling Depth in Flow-Matching VLA Policies</title>
+      <link>https://arxiv.org/abs/2610.32102v1</link>
+      <description><![CDATA[Flow-matching Vision-Language-Action (VLA) models generate expressive continuous trajectories for robotic manipulation, yet balancing real-time responsiveness with execution stability remains a persistent challenge. Standard deployment workflows typically treat numerical solver depth and execution h]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32102v1</guid>
+    </item>
+    <item>
+      <title>FastVLA: Task-Conditioned and Temporally Adaptive Visual Token Compression for Efficient Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2610.22146v2</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models present a promising paradigm for general-purpose robot manipulation, but closed-loop deployment is often limited by inference efficiency: at each timestep, high-resolution, often multi-view images are encoded into hundreds of visual tokens that dominate transforme]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.22146v2</guid>
+    </item>
+    <item>
+      <title>Thermo-VLA: A Thermal-Aware Vision-Language-Action Model with Gated Residual Modulation for Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2611.11981v1</link>
+      <description><![CDATA[Recent Vision-Language-Action (VLA) models have begun incorporating thermal sensing, but existing approaches typically treat thermal images as ordinary visual inputs, providing limited support for temperature-aware relational reasoning in manipulation. To address this limitation, we propose Thermo-V]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.11981v1</guid>
+    </item>
+    <item>
+      <title>Spatial Representation Distillation and Knowledge Routing for Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2611.10443v1</link>
+      <description><![CDATA[Understanding three-dimensional physical structure has become essential for vision-language-action models (VLAs). However, existing approaches either rely on explicit geometric inputs at inference time or adopt a single visual pathway, potentially compromising the visual-semantic knowledge inherited]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.10443v1</guid>
+    </item>
+    <item>
+      <title>SCOUT: Planning under Occlusion via Object-Centric World Model Rollouts</title>
+      <link>https://arxiv.org/abs/2611.01600v1</link>
+      <description><![CDATA[Robots manipulating in cluttered spaces must often plan from partial views where foreground objects occlude the target, surrounding geometry, and usable free space. Reactive policies often miss these hidden constraints, while exhaustive search becomes computationally prohibitive in dense clutter. We]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.01600v1</guid>
+    </item>
+    <item>
+      <title>DiscoDemo: Discovering Efficient and Diverse Robot Demonstrations for Imitation Learning</title>
+      <link>https://arxiv.org/abs/2610.32093v1</link>
+      <description><![CDATA[Behavior cloning for robotic manipulation is highly sensitive to the coverage of its training data, yet collecting diverse successful demonstrations remains costly. We study reinforcement learning (RL) not as a deployable controller, but as a data generator for downstream visuomotor imitation learni]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.32093v1</guid>
+    </item>
+    <item>
+      <title>Memory before Goal: Role of Pre-History Memory for Humanoid Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2610.31166v2</link>
+      <description><![CDATA[Humanoid loco-manipulation in dynamic scenes is non-Markovian: cues vanish as objects change or are hidden, or leave the view as the robot turns and walks, yet whole-body vision-language-action (VLA) policies see only the present. We present WholeBodyMem, an object-guided perceptual memory that keep]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.31166v2</guid>
+    </item>
+    <item>
+      <title>SP-HLM: Sparse-Pose-Driven Motion Generation and Whole-Body Control for Humanoid Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2610.30044v1</link>
+      <description><![CDATA[Humanoid loco-manipulation requires an effective interface between high-level task policies and whole-body control. Existing interfaces typically rely on a single action representation for both task intent and whole-body coordination. This may burden the high-level policy or leave one aspect undersp]]></description>
+      <pubDate>Wed, 21 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.30044v1</guid>
+    </item>
+    <item>
+      <title>Fast-VLA: You Only Think Once for Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2610.21389v1</link>
+      <description><![CDATA[Vision-language-action (VLA) policies commonly place a multi-billion-parameter model inside the feedback loop, repeatedly recomputing task context whenever they predict a new action chunk. Yet task understanding changes far more slowly than the robot state. We introduce Fast-VLA, which invokes a fro]]></description>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.21389v1</guid>
+    </item>
+    <item>
+      <title>MOSAIC: Modular Obstacle and Spatial-Aware Framework for Manipulation In Cluttered Scenes</title>
+      <link>https://arxiv.org/abs/2611.15937v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models have demonstrated strong performance in robotic manipulation, yet most rely primarily on 2D visual observations and language instructions, leaving scene geometry and obstacle relationships to be inferred implicitly. This limitation is particularly problematic in c]]></description>
+      <pubDate>Wed, 11 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.15937v1</guid>
+    </item>
+    <item>
+      <title>Low-Cost Mobile Bimanual Manipulation for Long-Horizon Toilet Cleaning</title>
+      <link>https://arxiv.org/abs/2611.15381v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models have shown promising capabilities for robot manipulation, but their performance on accessible mobile bimanual platforms remains underexplored. We present a low-cost and reproducible mobile bimanual platform integrating two LeRobot SO-101 manipulators with a Turtle]]></description>
+      <pubDate>Wed, 11 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.15381v1</guid>
+    </item>
+    <item>
+      <title>Scaling VLA Serving Under Robotic Execution Constraints</title>
+      <link>https://arxiv.org/abs/2611.14969v1</link>
+      <description><![CDATA[Vision-language-action (VLA) models have emerged as a promising paradigm for general-purpose robotic manipulation. In our production setting, hundreds of VLA-powered robots are already operating in real-world environments, creating an immediate need for efficient fleet serving. We present XInfer, a ]]></description>
+      <pubDate>Wed, 11 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.14969v1</guid>
+    </item>
+  </channel>
+</rss>
