@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI — 工业界一手发布</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>机器人公司与重点实验室的官方技术发布与开源动态。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 21 Nov 2026 09:44:46 -0000</lastBuildDate>
+    <item>
+      <title>Steel: Scaling Simulation Across Robots, Tasks, and Worlds</title>
+      <link>https://skild.ai/blogs/steel</link>
+      <description><![CDATA[Together with NVIDIA, we&#x27;re introducing Steel, a GPU-accelerated rigid-body dynamics solver for the open-source Newton physics engine, delivering 3.8× PhysX&#x27;s simulation throughput across 20 robot-learning benchmarks and up to 13.0× on heterogeneous batches of different robots and tasks.]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:skild_ai:steel</guid>
+    </item>
+    <item>
+      <title>Gemini Robotics 2.5 accelerates real-world general dexterity</title>
+      <link>https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence</link>
+      <description><![CDATA[Our most capable vision-language-action model enhances robot dexterity, reliability, and safety]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">rss:google_deepmind_research:27222</guid>
+    </item>
+    <item>
+      <title>智能打包场景｜星动纪元以具身智能赋能物流新质生产力</title>
+      <link>https://weixin.qq.com/sph/A65QVMOVI</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:星动纪元_robotera:a65qvmovi</guid>
+    </item>
+    <item>
+      <title>小件供包场景｜星动纪元以具身智能赋能物流新质生产力</title>
+      <link>https://weixin.qq.com/sph/AurmmDVD3</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:星动纪元_robotera:aurmmdvd3</guid>
+    </item>
+    <item>
+      <title>工作站拣选场景｜星动纪元以具身智能赋能物流新质生产力</title>
+      <link>https://weixin.qq.com/sph/Ah1R3WIll</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:星动纪元_robotera:ah1r3will</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Highlights Commercial Momentum and Growing Enterprise Demand for Digit Humanoid Robot</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-highlights-commercial-momentum-and-growing-enterprise-demand-for-digit-humanoid-robot</link>
+      <description><![CDATA[Oct 26, 2026]]></description>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-highlights-commercial-momentum-and-growing-enterprise-demand-fo</guid>
+    </item>
+    <item>
+      <title>GXO and Agility Robotics Expand Partnership to Accelerate Deployment of Humanoids in U.S. Operations</title>
+      <link>https://www.agilityrobotics.com/content/gxo-and-agility-robotics-expand-partnership-to-accelerate-deployment-of-humanoids-in-u-s-operations</link>
+      <description><![CDATA[Oct 26, 2026]]></description>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:gxo-and-agility-robotics-expand-partnership-to-accelerate-deployment-of-humanoid</guid>
+    </item>
+    <item>
+      <title>Breaking Down Data Silos in the Physical World</title>
+      <link>https://bostondynamics.com/blog/breaking-down-data-silos-in-the-physical-world</link>
+      <description><![CDATA[Industrial organizations don’t need to wait for perfect data to connect physical and digital operations. Many are already making progress with inspection data from robots.]]></description>
+      <pubDate>Mon, 16 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:boston_dynamics:breaking-down-data-silos-in-the-physical-world</guid>
+    </item>
+    <item>
+      <title>Atlas On a Roll</title>
+      <link>https://bostondynamics.com/blog/atlas-on-a-roll</link>
+      <description><![CDATA[Adding wheels to Boston Dynamics Atlas robot tested how whole-body RL controller works with real actuation hardware.]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:boston_dynamics:atlas-on-a-roll</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Evolves Executive Leadership Team to Support Next Phase of Growth as a Public Company</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-evolves-executive-leadership-team-to-support-next-phase-of-growth-as-a-public-company</link>
+      <description><![CDATA[Nov 18, 2026]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-evolves-executive-leadership-team-to-support-next-phase-of-grow</guid>
+    </item>
+    <item>
+      <title>Agility Robotics Expands NVIDIA Collaboration as It Prepares Digit 5 for Commercial Scale</title>
+      <link>https://www.agilityrobotics.com/content/agility-robotics-expands-nvidia-collaboration-as-it-prepares-digit-5-for-commercial-scale</link>
+      <description><![CDATA[Oct 22, 2026]]></description>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">html:agility_robotics:agility-robotics-expands-nvidia-collaboration-as-it-prepares-digit-5-for-commerc</guid>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI / VLA Dashboard — 重要进展</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>具身智能 / VLA / 世界模型 / 仿真方向的跨源事件与精选，自动聚合论文、官方、媒体。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 21 Nov 2026 09:44:46 -0000</lastBuildDate>
+    <item>
+      <title>LIFE: Learning to Live: A Step Toward Lifelong Embodied Intelligence.</title>
+      <link>https://github.com/AgibotTech/LIFE</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[开源] <a href="https://github.com/AgibotTech/LIFE">智元机器人 · GitHub</a></li><li>[论文] <a href="https://arxiv.org/abs/2611.00180v3">arXiv</a></li></ul>]]></description>
+      <pubDate>Wed, 04 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:github:AgibotTech/LIFE</guid>
+    </item>
+    <item>
+      <title>PointWalker: Mapless Quadruped Locomotion Directly From Raw LiDAR Point Clouds</title>
+      <link>https://arxiv.org/abs/2610.15548v1</link>
+      <description><![CDATA[10 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.15548v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.08618v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.03530v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2610.00355v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.36878v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.28172v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.23656v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.16378v1">arXiv</a></li><li>[论文] <a href="https://arxiv.org/abs/2609.15770v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2-navigation-ros2">逐际动力 · GitHub</a></li></ul>]]></description>
+      <pubDate>Sun, 11 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.15548v1</guid>
+    </item>
+    <item>
+      <title>Task-Space Imitation Guidance for Efficient Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2610.07527v2</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2610.07527v2">arXiv</a></li><li>[官方] <a href="https://sanctuary.ai/news/tiger">Sanctuary AI</a></li></ul>]]></description>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2610.07527v2</guid>
+    </item>
+    <item>
+      <title>FineART: Fine-Grained Annotated Robotic Trajectory Dataset and Vision-Language-Action Model for Bimanual Manipulation</title>
+      <link>https://arxiv.org/abs/2609.36416v3</link>
+      <description><![CDATA[2 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.36416v3">arXiv</a></li><li>[模型] <a href="https://huggingface.co/lerobot/FineART-VLA-subtask-midtrained">LeRobot · Hugging Face</a></li></ul>]]></description>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.36416v3</guid>
+    </item>
+    <item>
+      <title>Waggle Dance Inspired Motion Communication for Multiple UAVs in MuJoCo</title>
+      <link>https://arxiv.org/abs/2609.16958v1</link>
+      <description><![CDATA[3 个来源（论文 / 官方 / 媒体）：<ul><li>[论文] <a href="https://arxiv.org/abs/2609.16958v1">arXiv</a></li><li>[开源] <a href="https://github.com/limxdynamics/tron2_manipulation_controller">逐际动力 · GitHub</a></li><li>[开源] <a href="https://github.com/limxdynamics/luna-description">逐际动力 · GitHub</a></li></ul>]]></description>
+      <pubDate>Tue, 15 Sep 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">event:arxiv:2609.16958v1</guid>
+    </item>
+    <item>
+      <title>WEVO: World Model-Enabled VLA Optimization for Whole-Body Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2611.25251v1</link>
+      <description><![CDATA[Reinforcement learning (RL) can improve vision-language-action (VLA) policies beyond imitation, but humanoid exploration is unsafe and simulator RL can exploit residual sim-to-real gaps. We present WEVO, a teleoperation-free framework for post-training a whole-body humanoid VLA in an action-conditio]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.25251v1</guid>
+    </item>
+    <item>
+      <title>PGX: Physically Grounded Execution for Long-Horizon Humanoid Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2611.26596v1</link>
+      <description><![CDATA[Robotic vision-language-action (VLA) models can execute diverse individual manipulation skills, yet they still struggle with long-horizon loco-manipulation tasks, where temporal structure, skills, and precision are tightly coupled within a monolithic model. We propose Physically Grounded Execution (]]></description>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.26596v1</guid>
+    </item>
+    <item>
+      <title>Body Schema Policy: Body as the Vision-Action Interface for Efficient Robot Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2611.22713v1</link>
+      <description><![CDATA[Currently, robots can learn whole-body loco-manipulation through scale: the strongest policies have billions of parameters and still need task-specific fine-tuning. Humans have limited processing capacity, yet learn and act efficiently through a body schema that organizes what they see and how they ]]></description>
+      <pubDate>Tue, 17 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.22713v1</guid>
+    </item>
+    <item>
+      <title>DiWALI: Diffusion Policy Learning in World Models via Latent Action Inference from Human and Robot Play</title>
+      <link>https://arxiv.org/abs/2611.24836v1</link>
+      <description><![CDATA[Learning robot manipulation is constrained by the availability of action-labeled robot data, for both imitation and world models. Humans can demonstrate skills in seconds, but their demonstrations lack the required robot actions. We introduce DiWALI, a framework that learns and improves diffusion po]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.24836v1</guid>
+    </item>
+    <item>
+      <title>Towards Pose-Robust Few-Shot Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2611.24360v1</link>
+      <description><![CDATA[Fine-tuning a vision-language-action (VLA) model on a few dozen demonstrations is the standard way to put a manipulation policy on a robot, yet the resulting policy silently assumes that the camera and the robot base stay exactly where they were during data collection: a bumped tripod or a base re-d]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.24360v1</guid>
+    </item>
+    <item>
+      <title>ActMem: From Latent Memory Reasoning to Grounded Robotic Action</title>
+      <link>https://arxiv.org/abs/2611.25461v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models have shown promising results in real-world long-horizon manipulation, where memory plays a crucial role.   However, existing memory-augmented VLAs either retrieve past observations without reasoning about what they imply, or reason over the full   history in a sha]]></description>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.25461v1</guid>
+    </item>
+    <item>
+      <title>PhyDEX: A Benchmark for Physical Reasoning in Vision-Language-Action Models via Dynamic Extrinsic Dexterity</title>
+      <link>https://arxiv.org/abs/2611.26565v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models have advanced rapidly in language-conditioned robotic manipulation, yet existing benchmarks mainly evaluate gripper--object contact and largely ignore how objects interact with the environment through gravity, friction, inertia, and mass distribution. As a result,]]></description>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:arxiv:2611.26565v1</guid>
+    </item>
+    <item>
+      <title>Steel: Scaling Simulation Across Robots, Tasks, and Worlds</title>
+      <link>https://skild.ai/blogs/steel</link>
+      <description><![CDATA[Together with NVIDIA, we&#x27;re introducing Steel, a GPU-accelerated rigid-body dynamics solver for the open-source Newton physics engine, delivering 3.8× PhysX&#x27;s simulation throughput across 20 robot-learning benchmarks and up to 13.0× on heterogeneous batches of different robots and tasks.]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:skild_ai:steel</guid>
+    </item>
+    <item>
+      <title>Gemini Robotics 2.5 accelerates real-world general dexterity</title>
+      <link>https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence</link>
+      <description><![CDATA[Our most capable vision-language-action model enhances robot dexterity, reliability, and safety]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:rss:google_deepmind_research:27222</guid>
+    </item>
+    <item>
+      <title>智能打包场景｜星动纪元以具身智能赋能物流新质生产力</title>
+      <link>https://weixin.qq.com/sph/A65QVMOVI</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Sat, 07 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:html:星动纪元_robotera:a65qvmovi</guid>
+    </item>
+    <item>
+      <title>mujoco 4.0.0 发布</title>
+      <link>https://github.com/google-deepmind/mujoco/releases/tag/4.0.0</link>
+      <description><![CDATA[Version 4.0.0 (November 6, 2026) &gt; [!IMPORTANT] &gt; Read the MuJoCo 4.0 announcement for an overview of everything new since 3.0, the interactive showcase at mujoco.org, MuJoCo Live browser demos, visual showcases, and maintainer Q&amp;A. Significant new features 1. 89daf8d19 Added the speculative enable ]]></description>
+      <pubDate>Fri, 06 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:google-deepmind/mujoco:4.0.0</guid>
+    </item>
+    <item>
+      <title>robotics-antigravity-plugin: GDM Robotics Skills for agentic robotics workflows across simulation and real robots.</title>
+      <link>https://github.com/google-deepmind/robotics-antigravity-plugin</link>
+      <description><![CDATA[GDM Robotics Skills for agentic robotics workflows across simulation and real robots.]]></description>
+      <pubDate>Mon, 16 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:github:google-deepmind/robotics-antigravity-plugin</guid>
+    </item>
+    <item>
+      <title>MotionBricks（模型权重）</title>
+      <link>https://huggingface.co/nvidia/MotionBricks</link>
+      <description><![CDATA[]]></description>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">pick:hf:nvidia/MotionBricks</guid>
+    </item>
+  </channel>
+</rss>
