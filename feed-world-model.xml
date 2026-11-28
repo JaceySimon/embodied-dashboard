@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Embodied AI — 世界模型方向</title>
+    <link>https://github.com/embodied-dashboard</link>
+    <description>机器人 / 具身世界模型（World Model）方向的最新论文与进展。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 28 Nov 2026 10:19:00 -0000</lastBuildDate>
+    <item>
+      <title>WEVO: World Model-Enabled VLA Optimization for Whole-Body Loco-Manipulation</title>
+      <link>https://arxiv.org/abs/2611.25251v1</link>
+      <description><![CDATA[Reinforcement learning (RL) can improve vision-language-action (VLA) policies beyond imitation, but humanoid exploration is unsafe and simulator RL can exploit residual sim-to-real gaps. We present WEVO, a teleoperation-free framework for post-training a whole-body humanoid VLA in an action-conditio]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.25251v1</guid>
+    </item>
+    <item>
+      <title>DiffGR00T: Execution-Aware Differentiable Training for Humanoid Whole-Body Vision-Language-Action Models</title>
+      <link>https://arxiv.org/abs/2611.32665v2</link>
+      <description><![CDATA[Vision-language-action (VLA) models have achieved strong results in arm-centric manipulation, yet humanoid whole-body control (WBC) requires dynamic balance and tightly coupled full-body coordination. Existing hierarchical humanoid VLAs typically decouple motion generation from physical execution, l]]></description>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.32665v2</guid>
+    </item>
+    <item>
+      <title>DexWAC: A Unified World-Actor-Critic Model for Dexterous Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2611.32654v1</link>
+      <description><![CDATA[Robot demonstrations provide more than actions to imitate: they reveal how actions change the world and how those changes contribute to task success. Recent world-action models (WAMs) extend vision-language-action (VLA) models with the first signal by jointly predicting actions and future observatio]]></description>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.32654v1</guid>
+    </item>
+    <item>
+      <title>SurgTAP-3D: A Large-Scale Cross-Surgery Video Dataset with Contact-Aware 3D Motion Tracking</title>
+      <link>https://arxiv.org/abs/2611.11697v1</link>
+      <description><![CDATA[Understanding 3D scene dynamics in minimally invasive surgery (MIS) is a fundamental step toward physically intelligent and autonomous surgical systems. However, existing public datasets offer limited scalability and diversity in real-world clinical scenarios. Moreover, annotations typically focus o]]></description>
+      <pubDate>Sun, 08 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.11697v1</guid>
+    </item>
+    <item>
+      <title>Controlling Action-Head Co-Adaptation to VLM Representation Anisotropy</title>
+      <link>https://arxiv.org/abs/2611.04006v1</link>
+      <description><![CDATA[Modern learning systems increasingly combine pretrained models with downstream heads. Despite the growing importance of such modular designs, how the downstream model co-adapts to the geometry of pretrained representations remains relatively underexplored. We study this problem through vision-langua]]></description>
+      <pubDate>Mon, 02 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.04006v1</guid>
+    </item>
+    <item>
+      <title>Efficient VLA Reinforcement Learning via Subchunk Rollouts in Latent World Models</title>
+      <link>https://arxiv.org/abs/2611.27645v1</link>
+      <description><![CDATA[Model-based reinforcement learning (MBRL) can improve pretrained vision-language-action (VLA) policies through imagined experiences. However, existing VLA-MBRL methods primarily rely on large-scale image or video generation world models, incurring large computational overhead. Latent world models of]]></description>
+      <pubDate>Fri, 20 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.27645v1</guid>
+    </item>
+    <item>
+      <title>Urban State Representation for Autonomous Mobility: A Survey of Multimodal Perception, Architectures, Datasets, and Benchmarks</title>
+      <link>https://arxiv.org/abs/2611.28129v1</link>
+      <description><![CDATA[Cities are sensed by many platforms at once: on-board cameras, LiDAR and radar on autonomous vehicles, roadside units at intersections, drones and satellites overhead, and the GNSS traces of millions of trips. Yet most learned representations are built for one platform, one city, and one task. We su]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.28129v1</guid>
+    </item>
+    <item>
+      <title>Trusting Imagined Futures: Auditing Imagined Rewards for VLA Post-Training</title>
+      <link>https://arxiv.org/abs/2611.04873v1</link>
+      <description><![CDATA[Video world models enable candidate actions to be evaluated through imagined outcomes, but high predicted rewards can favor trajectories with poor execution quality. We introduce Trusting Imagined Futures (TIF), an offline supervision selection method for vision-language-action (VLA) post-training t]]></description>
+      <pubDate>Tue, 03 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.04873v1</guid>
+    </item>
+    <item>
+      <title>DiWALI: Diffusion Policy Learning in World Models via Latent Action Inference from Human and Robot Play</title>
+      <link>https://arxiv.org/abs/2611.24836v1</link>
+      <description><![CDATA[Learning robot manipulation is constrained by the availability of action-labeled robot data, for both imitation and world models. Humans can demonstrate skills in seconds, but their demonstrations lack the required robot actions. We introduce DiWALI, a framework that learns and improves diffusion po]]></description>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.24836v1</guid>
+    </item>
+    <item>
+      <title>SCOUT: Planning under Occlusion via Object-Centric World Model Rollouts</title>
+      <link>https://arxiv.org/abs/2611.01600v1</link>
+      <description><![CDATA[Robots manipulating in cluttered spaces must often plan from partial views where foreground objects occlude the target, surrounding geometry, and usable free space. Reactive policies often miss these hidden constraints, while exhaustive search becomes computationally prohibitive in dense clutter. We]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.01600v1</guid>
+    </item>
+    <item>
+      <title>PhysPPF: Learning Robotic Manipulation with Past, Present, and Future Physical Representations</title>
+      <link>https://arxiv.org/abs/2611.28551v1</link>
+      <description><![CDATA[Vision-language-action (VLA) models have advanced robotic manipulation, yet complex tasks requiring both precise 3D contact and long-horizon coordination remain challenging. Most existing studies enhance spatial perception or temporal reasoning in VLAs separately. Spatial methods primarily inject ge]]></description>
+      <pubDate>Sat, 21 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.28551v1</guid>
+    </item>
+    <item>
+      <title>PRIME W0: Physical Priors from World Models for Embodied Manipulation</title>
+      <link>https://arxiv.org/abs/2610.39528v2</link>
+      <description><![CDATA[Vision-Language-Action (VLA) models excel at instruction following, yet most remain feed-forward: they condition actions only on the current observation and discard both long-horizon temporal context and the hierarchical structure of VLM representations. We present PRIME W0, a hierarchical condition]]></description>
+      <pubDate>Thu, 29 Oct 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2610.39528v2</guid>
+    </item>
+    <item>
+      <title>Aegis-VLA: Reliability-Gated Action Refinement via a Trajectory World Model for Dynamic Object Manipulation</title>
+      <link>https://arxiv.org/abs/2611.33993v1</link>
+      <description><![CDATA[Dynamic object manipulation requires maintaining spatial and temporal alignment with targets that continue to move during inference and execution. Although future prediction can inform action correction, an accurate forecast does not establish whether modifying an existing action would be beneficial]]></description>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.33993v1</guid>
+    </item>
+    <item>
+      <title>Simulator-as-Proxy World Model for Robot Manipulation</title>
+      <link>https://arxiv.org/abs/2611.32786v1</link>
+      <description><![CDATA[Video world models for robots are increasingly conditioned on a simulated or rendered proxy of the scene, on the assumption that the video will show what the proxy shows. Testing this assumption requires a proxy whose state is explicit and can be perturbed. We present SimPWM (Simulator-as-Proxy Worl]]></description>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.32786v1</guid>
+    </item>
+    <item>
+      <title>DexLatentWorld: 3D Cross-Embodiment Latent Action World Models for Zero-Shot Robotic Manipulation</title>
+      <link>https://arxiv.org/abs/2611.30907v1</link>
+      <description><![CDATA[World models facilitate planning and control in robotic manipulation by enabling agents to anticipate the consequences of their actions. However, they typically rely on action-labelled interaction data that is costly to acquire and difficult to scale. These models are also often tied to the specific]]></description>
+      <pubDate>Mon, 23 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.30907v1</guid>
+    </item>
+    <item>
+      <title>MoRE: Mixture-of-Experts for Multi-Physics Robotic World Models</title>
+      <link>https://arxiv.org/abs/2611.25336v1</link>
+      <description><![CDATA[A robotic world model should predict how objects evolve under robot actions and physical dynamics. While recent 3D world models have shown strong predictive capabilities, they still struggle with the heterogeneous dynamics arising from diverse object interactions. To address this in a unified framew]]></description>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.25336v1</guid>
+    </item>
+    <item>
+      <title>ObjectWorld: Scaling Object-Centric World Models with A Large-Scale 3D Full-Object Flow Dataset</title>
+      <link>https://arxiv.org/abs/2611.11085v1</link>
+      <description><![CDATA[Generative world modeling from large-scale visual data offers a promising path toward scalable robot manipulation. This calls for an intermediate representation that can be supervised at scale and remains actionable for downstream control. We propose 3D full-object flow, an object-centric motion rep]]></description>
+      <pubDate>Sun, 08 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.11085v1</guid>
+    </item>
+    <item>
+      <title>Learning Robotic World Models with Semantic and Visual Feedback</title>
+      <link>https://arxiv.org/abs/2611.07850v1</link>
+      <description><![CDATA[Robot world models predict action-conditioned future visual states to support robotic planning and decision making. However, visual reconstruction does not fully capture task progress, semantic evaluation alone provides limited constraints on fine-grained visual errors, and homogeneous predictions l]]></description>
+      <pubDate>Thu, 05 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.07850v1</guid>
+    </item>
+    <item>
+      <title>Most of the Way There: Turning a Strong Video Prior into an Action-Conditioned World Model</title>
+      <link>https://arxiv.org/abs/2611.34435v1</link>
+      <description><![CDATA[Modern video generators excel at producing visually plausible futures guided by text and image prompts. Yet their emphasis on semantic plausibility does not guarantee fidelity to the physical consequences of specific actions. Action-conditioned world models (ACWMs), in contrast, aim to simulate how ]]></description>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.34435v1</guid>
+    </item>
+    <item>
+      <title>Can Visual World Models See Force?</title>
+      <link>https://arxiv.org/abs/2611.34422v1</link>
+      <description><![CDATA[World models and vision-language-action policy models are increasingly proposed as foundations for robot manipulation. They predict how scenes evolve and which actions to take, yet successful manipulation depends not solely on following observable trajectories but also on the hidden variable of inte]]></description>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.34422v1</guid>
+    </item>
+    <item>
+      <title>Lazy-MOSAIC: Accelerating Skill-Centric Manipulation Planning with Learned Skill-Effect World Models</title>
+      <link>https://arxiv.org/abs/2611.21517v1</link>
+      <description><![CDATA[Long-horizon manipulation tasks require a robot to perform a sequence of physical interactions with its environment, typically combining several different skills. Planning such behaviors efficiently is challenging: given a library of parameterized skills, solutions lie in a vast hybrid space of skil]]></description>
+      <pubDate>Mon, 16 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.21517v1</guid>
+    </item>
+    <item>
+      <title>LaST0.5: A Generalist World Action Model with Interaction-Centric Latent Reasoning</title>
+      <link>https://arxiv.org/abs/2611.14048v1</link>
+      <description><![CDATA[World Action Models (WAMs) have recently emerged as a promising paradigm for robotic manipulation, endowing policies with strong capabilities for modeling temporal and physical dynamics. Existing WAMs, encompassing both video-first action prediction and joint video-action modeling, directly transfer]]></description>
+      <pubDate>Tue, 10 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.14048v1</guid>
+    </item>
+    <item>
+      <title>$Σ$-LeWM: Learning World Models via S-Information for Robot Control</title>
+      <link>https://arxiv.org/abs/2611.12732v1</link>
+      <description><![CDATA[World models have increasingly been applied as a model-based control method for robotics tasks such as manipulation and locomotion. While early world model architectures relied on decoders to prevent mode collapse and learn a predictable latent space, recent works on world models, such as Joint Embe]]></description>
+      <pubDate>Mon, 09 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.12732v1</guid>
+    </item>
+    <item>
+      <title>ActField: Learning Action Effects as Continuous-Time Latent Dynamics</title>
+      <link>https://arxiv.org/abs/2611.30659v1</link>
+      <description><![CDATA[Learning how actions change visual states is essential for prediction and decision-making in embodied tasks. Existing action-conditioned JEPA world models typically predict future representations at discrete observation intervals, leaving the temporal evolution of action effects implicit. We introdu]]></description>
+      <pubDate>Mon, 23 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.30659v1</guid>
+    </item>
+    <item>
+      <title>CauSyncVLA: Causal Latent World Modeling for Asynchronous Robot Control</title>
+      <link>https://arxiv.org/abs/2611.25667v1</link>
+      <description><![CDATA[Vision-Language-Action (VLA) policies must react while visual inference is still running. Overlapping computation and execution reduces waiting, yet leaves perceptual memory stale and successive action chunks disconnected. We present CauSyncVLA, an asynchronous dual-system controller that aligns per]]></description>
+      <pubDate>Thu, 19 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.25667v1</guid>
+    </item>
+    <item>
+      <title>ResWAM: Learning What Changes, Not What Stays, for World-Action Models</title>
+      <link>https://arxiv.org/abs/2611.19559v1</link>
+      <description><![CDATA[World-action models (WAMs) augment vision-language-action policies (VLAs) with future prediction so that the policy can anticipate how its actions will affect the physical world. Existing WAMs supervise complete future observations. However, observations typically change little over an action chunk,]]></description>
+      <pubDate>Sat, 14 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.19559v1</guid>
+    </item>
+    <item>
+      <title>Toward the Era of Agentic Embodied Intelligence</title>
+      <link>https://arxiv.org/abs/2611.09124v1</link>
+      <description><![CDATA[Foundation models increasingly guide robot actions, yet sustained autonomy requires efficient control and failure recovery. We introduce A2-MEAS, an embodied multi-agent framework built around code as a scaling interface. Learned correction codes combine corrective language, spatial evidence, execut]]></description>
+      <pubDate>Fri, 06 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.09124v1</guid>
+    </item>
+    <item>
+      <title>OpenNWM: A Generalist Navigation World Model with Latent Action Pretraining</title>
+      <link>https://arxiv.org/abs/2611.01844v2</link>
+      <description><![CDATA[Navigation world models predict future observations conditioned on navigation actions to support planning, but their generalization across real-world environments remains constrained by the limited coverage of action-labeled data. Action-free navigation videos provide diverse visual experience, yet ]]></description>
+      <pubDate>Sun, 01 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.01844v2</guid>
+    </item>
+    <item>
+      <title>RoboProbe: Benchmarking Physical Plausibility of Robot World Models</title>
+      <link>https://arxiv.org/abs/2611.32152v1</link>
+      <description><![CDATA[Evaluating the physical plausibility of generated videos is critical for reliable robotic planning with world models. These videos inform action proposal and assessment before real-world execution, so undetected physical violations can lead to erroneous assessments of action feasibility and safety. ]]></description>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.32152v1</guid>
+    </item>
+    <item>
+      <title>World Models as Native Latent Action Models</title>
+      <link>https://arxiv.org/abs/2611.30898v1</link>
+      <description><![CDATA[Large and diverse video sources, such as egocentric human video and heterogeneous robot recordings, carry rich dynamics but come either without actions or without a shared action space. Latent action models (LAMs) can recover these dynamics, but they train their inverse- and forward-dynamics models ]]></description>
+      <pubDate>Mon, 23 Nov 2026 00:00:00 -0000</pubDate>
+      <guid isPermaLink="false">arxiv:2611.30898v1</guid>
+    </item>
+  </channel>
+</rss>
